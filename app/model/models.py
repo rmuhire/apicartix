@@ -14,8 +14,11 @@ class SavingGroup(db.Model):
     sg_id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100))
     year = db.Column(db.Integer)
-    menber_female = db.Column(db.Integer)
-    menber_male = db.Column(db.Integer)
+    member_female = db.Column(db.Integer)
+    member_male = db.Column(db.Integer)
     sector_id = db.Column(db.Integer)
+
+    def __init__(self, name, year, member_female, member_male, sector_id):
+        
 
     
