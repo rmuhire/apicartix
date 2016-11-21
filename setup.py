@@ -9,7 +9,9 @@ setup(name='apicartix',
       license='exuus',
       packages=['apicartix'],
       install_requires = [
-
+            'Flask',
+            'Flask-SQLalchemy',
+            'Flask-Migrate'
       ],
       include_package_data=True,
       zip_safe=False)
