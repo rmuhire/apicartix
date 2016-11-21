@@ -11,7 +11,8 @@ setup(name='apicartix',
       install_requires = [
             'Flask',
             'Flask-SQLalchemy',
-            'Flask-Migrate'
+            'Flask-Migrate',
+            'marshmallow'
       ],
       include_package_data=True,
       zip_safe=False)
