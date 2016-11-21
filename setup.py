@@ -2,8 +2,8 @@ from setuptools import setup
 
 setup(name='apicartix',
       version='0.1',
-      description='Rwanda Administrative Location',
-      url='https://github.com/rmuhire/myrw',
+      description='API CARTIX',
+      url='https://github.com/rmuhire/apicartix',
       author='exuus',
       author_email='devteam@exuus.com',
       license='exuus',
