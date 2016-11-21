@@ -102,10 +102,3 @@ class Sgs(db.Model):
     def __init__(self,partner_id, funding_id):
         self.partner_id = partner_id
         self.funding_id = funding_id
-
-
-
-
-
-
-    
