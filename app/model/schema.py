@@ -53,7 +53,10 @@ partner_schema = PartnerSchema()
 partners_schema = PartnerSchema(many = True)
 
 
-class Sgs(Schema):
+class SgsSchema(Schema):
     id = fields.Integer(dump_only = True)
     partner_id = fields.Nested(PartnerSchema)
     funding_id = fields.Nested(FundingSchema)
+
+sgs_schema = SgsSchema()
+sgss_schema = SgsSchema(many = True)
