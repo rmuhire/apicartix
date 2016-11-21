@@ -54,7 +54,7 @@ class Funding(db.Model):
     cp_email = db.Column(db.String(60), unique = True)
     cp_telephone = db.Column(db.String(30), unique = True)
 
-    sgs = db.relationship('sg', secondary=sgs, backref=db.backref('funding', lazy='dynamic'))
+    sgs = db.relationship('Sgs', backref='funding', lazy='dynamic')
 
     def __init__(self, name, email, telephone, website, picture, address, cp_name, cp_email, cp_telephone):
         self.name = name
@@ -80,6 +80,8 @@ class Partner(db.Model):
     cp_email = db.Column(db.String(60), unique=True)
     cp_telephone = db.Column(db.String(30), unique=True)
 
+    sgs = db.relationship('Sgs', backref='partner', lazy='dynamic')
+
     def __init__(self, name, email, telephone, website, picture, address, cp_name, cp_email, cp_telephone):
         self.name = name
         self.email = email
@@ -92,10 +94,15 @@ class Partner(db.Model):
         self.cp_telephone = cp_telephone
 
 
-sgs = db.Table('sgs',
-    db.Column('partner_id', db.Intger, db.ForeignKey('partner.id')),
-    db.Column('funding_id', db.Integer, db.ForeignKey('funding.id'))
-)
+class Sgs(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partner.id'))
+    funding_id =  db.Column(db.Integer, db.ForeignKey('funding.id'))
+
+    def __init__(self,partner_id, funding_id):
+        self.partner_id = partner_id
+        self.funding_id = funding_id
+
 
 
 
