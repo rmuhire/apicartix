@@ -1,5 +1,13 @@
-from app import db
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 import datetime
+
+app = Flask(__name__)
+db = SQLAlchemy(app)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
 
 class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
