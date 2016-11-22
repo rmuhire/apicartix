@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 db = SQLAlchemy(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 import datetime
@@ -15,7 +15,7 @@ import datetime
 app = Flask(__name__)
 db = SQLAlchemy(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
@@ -27,17 +27,21 @@ class SavingGroup(db.Model):
     member_female = db.Column(db.Integer)
     member_male = db.Column(db.Integer)
     sector_id = db.Column(db.Integer)
-    regDate = db.column(db.DateTime)
+    regDate = db.Column(db.DateTime)
+
     Amount = db.relationship('Amount', backref='saving_group', lazy='dynamic')
 
-    def __init__(self, name, year, member_female, member_male, sector_id,regDate):
+    def __init__(self, name, year, member_female, member_male, sector_id, regDate = None):
         self.name = name,
         self.year = year
         self.member_female = member_female
         self.member_male = member_male
         self.sector_id = sector_id
         if regDate is None:
-            self.regDate = datetime.utcnow()
+
+                regDate = datetime.utcnow()
+
+        self.regDate = regDate
 
 class Amount(db.Model):
     id = db.Column(db.Integer, primary_key = True)
