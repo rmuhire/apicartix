@@ -1,13 +1,13 @@
 from setuptools import setup
 
-setup(name='apicartix',
+setup(name='cartix',
       version='0.1',
-      description='API CARTIX',
+      description='CARTIX',
       url='https://github.com/rmuhire/apicartix',
       author='exuus',
       author_email='devteam@exuus.com',
       license='exuus',
-      packages=['apicartix'],
+      packages=['cartix'],
       install_requires = [
             'Flask',
             'Flask-SQLalchemy',
