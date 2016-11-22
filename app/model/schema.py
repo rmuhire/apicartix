@@ -59,5 +59,5 @@ class SgsSchema(Schema):
     partner_id = fields.Nested(PartnerSchema)
     funding_id = fields.Nested(FundingSchema)
 
-sgs_schema = SgsSchema()
-sgss_schema = SgsSchema(many = True)
+sgfp_schema = SgsSchema()
+sgfps_schema = SgsSchema(many = True)
