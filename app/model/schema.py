@@ -13,15 +13,16 @@ class SavingGroupSchema(Schema):
 sg_schema = SavingGroupSchema()
 sgs_schema = SavingGroupSchema(many = True)
 
-class Amount(Schema):
+class AmountSchema(Schema):
     id = fields.Integer(dump_only = True)
     saving = fields.Float()
     borrowing = fields.Float()
     year = fields.Integer()
-    sg_id=fields.Nested(SavingGroupSchema)
+    sg_id = fields.Nested(SavingGroupSchema, required=True)
+    #sg_id = fields.Integer()
 
-amount_schema = Amount()
-amounts_schema = Amount(many = True)
+amount_schema = AmountSchema()
+amounts_schema = AmountSchema(many = True)
 
 class FundingSchema(Schema):
     id = fields.Integer(dump_only = True)
