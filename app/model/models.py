@@ -114,6 +114,6 @@ class Sgs(db.Model):
     partner_id = db.Column(db.Integer, db.ForeignKey('partner.id'))
     funding_id =  db.Column(db.Integer, db.ForeignKey('funding.id'))
 
-    def __init__(self,partner_id, funding_id):
+    def __init__(self, partner_id, funding_id):
         self.partner_id = partner_id
         self.funding_id = funding_id
