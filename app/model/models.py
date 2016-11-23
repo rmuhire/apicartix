@@ -1,11 +1,21 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+app = Flask(__name__)
+
+db = SQLAlchemy(app)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
 import datetime
+
 
 app = Flask(__name__)
 db = SQLAlchemy(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
@@ -19,8 +29,6 @@ class SavingGroup(db.Model):
     sector_id = db.Column(db.Integer)
     regDate = db.Column(db.DateTime)
 
-
-
     Amount = db.relationship('Amount', backref='saving_group', lazy='dynamic')
 
     def __init__(self, name, year, member_female, member_male, sector_id, regDate = None):
@@ -29,9 +37,11 @@ class SavingGroup(db.Model):
         self.member_female = member_female
         self.member_male = member_male
         self.sector_id = sector_id
-
         if regDate is None:
-            self.regDate = datetime.utcnow()
+
+                regDate = datetime.utcnow()
+
+        self.regDate = regDate
 
 class Amount(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -104,6 +114,6 @@ class Sgs(db.Model):
     partner_id = db.Column(db.Integer, db.ForeignKey('partner.id'))
     funding_id =  db.Column(db.Integer, db.ForeignKey('funding.id'))
 
-    def __init__(self,partner_id, funding_id):
+    def __init__(self, partner_id, funding_id):
         self.partner_id = partner_id
         self.funding_id = funding_id

@@ -8,19 +8,21 @@ class SavingGroupSchema(Schema):
     member_female = fields.Integer()
     member_male = fields.Integer()
     sector_id = fields.Integer()
+    regDate = fields.Date()
 
 sg_schema = SavingGroupSchema()
 sgs_schema = SavingGroupSchema(many = True)
 
-class Amount(Schema):
+class AmountSchema(Schema):
     id = fields.Integer(dump_only = True)
     saving = fields.Float()
     borrowing = fields.Float()
     year = fields.Integer()
-    sg_id=fields.Nested(SavingGroupSchema)
+    sg_id = fields.Nested(SavingGroupSchema, required=True)
+    #sg_id = fields.Integer()
 
-amount_schema = Amount()
-amounts_schema = Amount(many = True)
+amount_schema = AmountSchema()
+amounts_schema = AmountSchema(many = True)
 
 class FundingSchema(Schema):
     id = fields.Integer(dump_only = True)
@@ -58,5 +60,5 @@ class SgsSchema(Schema):
     partner_id = fields.Nested(PartnerSchema)
     funding_id = fields.Nested(FundingSchema)
 
-sgs_schema = SgsSchema()
-sgss_schema = SgsSchema(many = True)
+sgfp_schema = SgsSchema()
+sgfps_schema = SgsSchema(many = True)
