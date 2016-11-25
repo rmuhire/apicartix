@@ -2,7 +2,78 @@ from app.model.models import *
 from app.model.schema import *
 from flask import jsonify,request
 import datetime
+from app.controllers.Excellento import exc_json
 
+
+@app.route('/submission/'.methods=['POST'])
+def subm():
+    json_data=Excellento('path')
+    if not json_data:
+        return jsonify({'Message':'No data provided'})
+    data,errors=sg_schema.load(json_data)
+    dat,errors=amount_schema.load(json_data)
+    if errors:
+        return jsonify(errors), 422
+
+    try:
+        svgs=SavingGroup(
+            name=data['name'],
+            year=data['year'],
+            member_female=data['member_female'],
+            member_male=data['member_male'],
+            sector_id=data['sector_id'],
+            regDate=datetime.datetime.utcnow()
+            )
+        amt = Amount(
+            saving = dat['saving'],
+            borrowing = dat['borrowing'],
+            year = dat['year'],
+            sg_id = dat['sg_id']
+            )
+        sg = Sgs(
+
+        )
+
+        db.session.add(amt)
+        db.session.add(svgs)
+        db.session.commit()
+
+        res = amount_schema.dump(Amount.query.get(amt.id))
+        result=sg_schema.dump(SavingGroup.query.get(svgs.id))
+        return jsonify({'Saving group':result.data,'Amount':res.data})
+
+    except:
+        return jsonify({'Message':'0'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#==================================================INDIVIDUAL POST==========================================================
 
 @app.route('/savinggroup/',methods=['POST'])
 def svg():
@@ -67,13 +138,11 @@ def fundg():
         fund = Funding(
             name=data['name'],
             email=data['email'],
-            telephone=data['telephone'],
-            website=data['website'],
-            picture=data['picture'],
-            address=data['address'],
+            username=data['username'],
             cp_name=data['cp_name'],
             cp_email=data['cp_email'],
-            cp_telephone=data['cp_telephone']
+            cp_telephone=data['cp_telephone'],
+            password=data['password']
             )
         db.session.add(fund)
         db.session.commit()
@@ -95,13 +164,11 @@ def partn():
         fund = Partner(
             name = data['name'],
             email = data['email'],
-            telephone = data['telephone'],
-            website = data['website'],
-            picture = data['picture'],
-            address = data['address'],
+            username = data['username'],
             cp_name = data['cp_name'],
             cp_email = data['cp_email'],
-            cp_telephone = data['cp_telephone']
+            cp_telephone = data['cp_telephone'],
+            password = data['password']
             )
         db.session.add(fund)
         db.session.commit()
