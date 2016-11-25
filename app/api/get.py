@@ -1,6 +1,7 @@
 from app import *
 from app.model.models import *
 from app.model.schema import *
+from flask import request
 #import datetime
 from datetime import date
 #from datetime import datetime, timedelta
@@ -90,3 +91,38 @@ def getfup(id):
         return jsonify({'Funding-Partner':result.data})
     else:
         return jsonify({'Message':'0'})
+
+#===========================================LOG IN==================================
+
+@app.route('/funding/login/',methods=['POST'])
+def f_login():
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'Message':'No input data provided'}), 400
+    data,errors=funding_schema.load(json_data)
+    if errors:
+        return jsonify(errors), 422
+    name,password = data['name'],data['password']
+    funding_ngo=Funding.query.filter_by(name=name,password=password).first()
+    if funding_ngo is None:
+        return jsonify({'Message':'0'})
+    else:
+        res=funding_schema.dump(Funding.query.get(funding_ngo.id))
+        return jsonify({'Message':'1','Funding_NGO':res.data})
+
+
+@app.route('/partner/login/',methods=['POST'])
+def p_login():
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'Message':'No input data provided'}), 400
+    data,errors=partner_schema.load(json_data)
+    if errors:
+        return jsonify(errors), 422
+    name,password = data['name'],data['password']
+    partner_ngo=Partner.query.filter_by(name=name,password=password).first()
+    if partner_ngo is None:
+        return jsonify({'Message':'0'})
+    else:
+        res=partner_schema.dump(Partner.query.get(partner_ngo.id))
+        return jsonify({'Message':'1','Partner_NGO':res.data})
