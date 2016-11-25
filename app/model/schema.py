@@ -35,6 +35,7 @@ class FundingSchema(Schema):
     cp_name = fields.String()
     cp_email = fields.String()
     cp_telephone = fields.String()
+    password = fields.String()
 
 funding_schema = FundingSchema()
 fundings_schema = FundingSchema(many = True)
@@ -50,6 +51,7 @@ class PartnerSchema(Schema):
     cp_name = fields.String()
     cp_email = fields.String()
     cp_telephone = fields.String()
+    password = fields.String()
 
 partner_schema = PartnerSchema()
 partners_schema = PartnerSchema(many = True)
