@@ -1,11 +1,6 @@
 from app import *
 from app.model.models import *
 from app.model.schema import *
-#import datetime
-from datetime import date
-#from datetime import datetime, timedelta
-from datetime import time
-#from datetime import timedelta
 from flask import jsonify
 
 @app.errorhandler(404)
@@ -19,7 +14,7 @@ def get_svg():
     return jsonify({'Saving groups':result.data})
 
 
-@app.route('/getsavinggroup/<name>')
+@app.route('/api/v1/sg/<name>')
 def get_svgname(name):
     svg = SavingGroup.query.filter_by(name=name).first()
     if svg :
