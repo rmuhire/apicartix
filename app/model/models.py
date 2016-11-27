@@ -6,16 +6,8 @@ app = Flask(__name__)
 
 db = SQLAlchemy(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
-import datetime
-
-
-app = Flask(__name__)
-db = SQLAlchemy(app)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
