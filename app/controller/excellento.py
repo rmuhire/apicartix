@@ -51,6 +51,7 @@ class Excellento:
                     year = item[1],
                     sg_id = (items.index(item))+1
                     )
+
             fun=Funding.query.filter_by(name=item[5]).first()
             if fun:
                 cd=Funding.query.filter_by(id=fun.id).first()
