@@ -65,7 +65,7 @@ class Ngo(db.Model):
 
     sgs = db.relationship('Sgs', backref='ngo', lazy='dynamic')
 
-    def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, password):
+    def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, username, password):
         self.name = name
         self.email = email
         self.telephone = telephone
@@ -76,6 +76,7 @@ class Ngo(db.Model):
         self.cp_name = cp_name
         self.cp_email = cp_email
         self.cp_telephone = cp_telephone
+        self.username = username
         self.password = password
 
 
