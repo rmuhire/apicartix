@@ -29,6 +29,7 @@ class NgoSchema(Schema):
     name = fields.String()
     email = fields.String()
     telephone = fields.String()
+    username = fields.String()
     website = fields.String()
     category = fields.String()
     picture = fields.String()
@@ -44,8 +45,8 @@ ngos_schema = NgoSchema(many = True)
 
 class SgsSchema(Schema):
     id = fields.Integer(dump_only = True)
-    partner_id = fields.Nested(PartnerSchema)
-    funding_id = fields.Nested(FundingSchema)
+    partner_id = fields.Nested(NgoSchema)
+    funding_id = fields.Nested(NgoSchema)
 
 sgfp_schema = SgsSchema()
 sgfps_schema = SgsSchema(many = True)
