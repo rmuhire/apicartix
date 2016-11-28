@@ -1,10 +1,12 @@
 from flask import jsonify
-from ..model.models import *
-from ..model.schema import *
+from app.model.models import *
+
 from exellento import Excellento
 
 
-json_data = Excellento('').json()
+json_data = Excellento('svg.xls').json()
+
+print json_data
 
 
 

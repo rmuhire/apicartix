@@ -2,6 +2,7 @@ from app.model.models import *
 from app.model.schema import *
 from flask import jsonify,request
 import datetime
+from app.controller.exellento import Excellento
 
 
 @app.route('/savinggroup/',methods=['POST'])
@@ -125,3 +126,9 @@ def prf():
      db.session.add(sgss)
      db.session.commit()
      result=sgfp_schema.dump(Sgs.query.get(sgss.id))
+
+
+@app.route('/subm/',methods=['POST'])
+def sub():
+    json_data = Excellento('SG_DATA.xlsx').json()
+    return json_data
