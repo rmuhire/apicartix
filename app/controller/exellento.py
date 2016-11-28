@@ -1,8 +1,6 @@
 from xlrd import open_workbook
 import json
 
-
-
 class Excellento:
     def __init__(self, filepath):
         self.filepath =filepath
@@ -16,8 +14,8 @@ class Excellento:
             for row in range(0, 1):
                 header_sheet = []
                 for col in range(columns):
-                    header_cell = (sheet.cell(row, col).value)
-                    header_sheet.append(header_cell)
+                    header_cell = (sheet.cell(row, col).value).replace(" ","_").replace("-","")
+                    header_sheet.append(header_cell.lower().replace("_(in_rwf)",""))
 
             items = []
 
@@ -34,7 +32,7 @@ class Excellento:
                         data_json[header_sheet[col]] = value
 
                 items.append(data_json)
-        return json.dumps(items,sort_keys=True, indent=4)
+        return items
 
 
 
