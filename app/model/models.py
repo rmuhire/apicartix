@@ -60,6 +60,7 @@ class Ngo(db.Model):
     cp_name = db.Column(db.String(60))
     cp_email = db.Column(db.String(60), unique = True)
     cp_telephone = db.Column(db.String(30), unique = True)
+    username = db.Column(db.String(30), unique = True)
     password = db.Column(db.String(40))
 
     sgs = db.relationship('Sgs', backref='ngo', lazy='dynamic')
