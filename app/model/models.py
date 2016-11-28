@@ -1,22 +1,23 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
-app = Flask(__name__)
-
-db = SQLAlchemy(app)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
 import datetime
+from flask_mail import Mail, Message
 
 
 app = Flask(__name__)
-db = SQLAlchemy(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'getlunchex@gmail.com'
+app.config['MAIL_PASSWORD'] = 'lunchex@exuus.com'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
+
+db = SQLAlchemy(app)
 
 
 class SavingGroup(db.Model):
@@ -57,53 +58,53 @@ class Amount(db.Model):
         self.sg_id = sg_id
 
 
-class Funding(db.Model):
+class Ngo(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100), unique = True)
     email = db.Column(db.String(60))
-    username = db.Column(db.String(30))
+    telephone = db.Column(db.String(30))
+    website = db.Column(db.String(60))
+    category = db.Column(db.String(40))
+    picture = db.Column(db.String(100))
+    address = db.Column(db.String(200))
     cp_name = db.Column(db.String(60))
     cp_email = db.Column(db.String(60), unique = True)
     cp_telephone = db.Column(db.String(30), unique = True)
-    password = db.Column(db.String(50))
-    sgs = db.relationship('Sgs', backref='funding', lazy='dynamic')
+    username = db.Column(db.String(30), unique = True)
+    password = db.Column(db.String(40))
 
-    def __init__(self, name, email, username, cp_name, cp_email, cp_telephone, password):
+    sgs = db.relationship('Sgs', backref='ngo', lazy='dynamic')
+    cov = db.relationship('Cover', backref='ngo', lazy='dynamic')
+
+    def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, username, password):
         self.name = name
         self.email = email
-        self.username = username
+        self.telephone = telephone
+        self.website = website
+        self.category = category
+        self.picture = picture
+        self.address = address
         self.cp_name = cp_name
         self.cp_email = cp_email
         self.cp_telephone = cp_telephone
-        self.password = password
-
-
-class Partner(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-    email = db.Column(db.String(60))
-    username = db.Column(db.String(30))
-    cp_name = db.Column(db.String(60))
-    cp_email = db.Column(db.String(60), unique=True)
-    cp_telephone = db.Column(db.String(30), unique=True)
-    password = db.Column(db.String(50))
-
-    sgs = db.relationship('Sgs', backref='partner', lazy='dynamic')
-
-    def __init__(self, name, email, username, cp_name, cp_email, cp_telephone,password):
-        self.name = name
-        self.email = email
         self.username = username
-        self.cp_name = cp_name
-        self.cp_email = cp_email
-        self.cp_telephone = cp_telephone
         self.password = password
+
 
 class Sgs(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    partner_id = db.Column(db.Integer, db.ForeignKey('partner.id'))
-    funding_id =  db.Column(db.Integer, db.ForeignKey('funding.id'))
+    partner_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+    funding_id =  db.Column(db.Integer)
 
     def __init__(self, partner_id, funding_id):
         self.partner_id = partner_id
         self.funding_id = funding_id
+
+class Cover(db.Model):
+    id= db.Column(db.Integer, primary_key= True)
+    ngo_id=db.Column(db.Integer,db.ForeignKey('ngo.id'))
+    code=db.Column(db.Integer)
+
+    def __init__(self, ngo_id,code):
+        self.ngo_id=ngo_id
+        self.code=code
