@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     year = db.Column(db.Integer)
     member_female = db.Column(db.Integer)
@@ -35,7 +35,7 @@ class SavingGroup(db.Model):
         self.regDate = regDate
 
 class Amount(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     saving = db.Column(db.Float)
     borrowing = db.Column(db.Float)
     year = db.Column(db.Integer)
@@ -49,8 +49,8 @@ class Amount(db.Model):
 
 
 class Ngo(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(100), unique = True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)
     email = db.Column(db.String(60))
     telephone = db.Column(db.String(30))
     website = db.Column(db.String(60))
@@ -58,12 +58,11 @@ class Ngo(db.Model):
     picture = db.Column(db.String(100))
     address = db.Column(db.String(200))
     cp_name = db.Column(db.String(60))
-    cp_email = db.Column(db.String(60), unique = True)
-    cp_telephone = db.Column(db.String(30), unique = True)
-    username = db.Column(db.String(30), unique = True)
+    cp_email = db.Column(db.String(60))
+    cp_telephone = db.Column(db.String(30))
+    username = db.Column(db.String(30))
     password = db.Column(db.String(40))
 
-    sgs = db.relationship('Sgs', backref='ngo', lazy='dynamic')
 
     def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, username, password):
         self.name = name
@@ -85,9 +84,9 @@ class Ngo(db.Model):
 
 
 class Sgs(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    partner_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
-    funding_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer)
+    funding_id = db.Column(db.Integer)
 
     def __init__(self, partner_id, funding_id):
         self.partner_id = partner_id
