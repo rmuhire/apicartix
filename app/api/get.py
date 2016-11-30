@@ -40,7 +40,7 @@ def amount_sg(id):
         return jsonify({'Message':'0'})
 
 @app.route('/api/v1/ngos')
-def ngo():
+def ngos():
     ngo = Ngo.query.all()
     result = ngos_schema.dump(ngo).data
     return jsonify({'NGOs':result})
