@@ -23,6 +23,7 @@ class Excellento:
                 data_json = {}
                 for col in range(columns):
                     value = (sheet.cell(row, col).value)
+                    
                     try:
                         value = str(int(value))
 
