@@ -1,6 +1,7 @@
 from app.model.models import *
 from app.controller.exellento import Excellento
 from sqlalchemy.exc import IntegrityError
+import xlwt
 
 class Excellentodb:
     def __init__(self, file):
@@ -115,7 +116,23 @@ class Excellentodb:
 
         return 1
 
+    def toexcel(self):
 
+
+        book = xlwt.Workbook()
+
+        # add new colour to palette and set RGB colour value
+        xlwt.add_palette_colour("custom_colour", 0x21)
+        book.set_colour_RGB(0x21, 255,0,0)
+
+        # now you can use the colour in styles
+        sheet1 = book.add_sheet('Sheet 1')
+        style = xlwt.easyxf('pattern: pattern solid, fore_colour custom_colour')
+
+        sheet1.write(1, 4, 'Some text', style)
+        sheet1.write(0, 2, 'Wrong', style)
+
+        book.save('test.xls')
 
 
 
