@@ -14,7 +14,7 @@ class Excellento:
             for row in range(0, 1):
                 header_sheet = []
                 for col in range(columns):
-                    header_cell = (sheet.cell(row, col).value).replace(" ","_").replace("-","")
+                    header_cell = sheet.cell(row, col).value.replace(" ","_").replace("-","")
                     header_sheet.append(header_cell.lower().replace("_(in_rwf)",""))
 
             items = []
@@ -22,7 +22,7 @@ class Excellento:
             for row in range(1, rows):
                 data_json = {}
                 for col in range(columns):
-                    value = (sheet.cell(row, col).value)
+                    value = sheet.cell(row, col).value
                     
                     try:
                         value = str(int(value))
