@@ -45,7 +45,7 @@ ngos_schema = NgoSchema(many = True)
 
 class SgsSchema(Schema):
     id = fields.Integer(dump_only = True)
-    partner_id = fields.Nested(NgoSchema)
+    partner_id = fields.Integer()
     funding_id = fields.Integer()
 
 sgfp_schema = SgsSchema()

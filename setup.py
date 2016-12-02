@@ -12,7 +12,10 @@ setup(name='cartix',
             'Flask',
             'Flask-SQLalchemy',
             'Flask-Migrate',
-            'marshmallow'
+            'marshmallow',
+            'kenessa',
+            'xlwt',
+            'xlrd'
       ],
       include_package_data=True,
       zip_safe=False)

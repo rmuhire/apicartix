@@ -79,23 +79,6 @@ def getfup(id):
     else:
         return jsonify({'Message':'0'})
 
-#===========================================LOG IN==================================
-
-@app.route('/api/v1/login/',methods=['POST'])
-def login():
-    json_data = request.get_json()
-    if not json_data:
-        return jsonify({'Message':'No input data provided'}), 400
-    data,errors = ngo_schema.load(json_data)
-    if errors:
-        return jsonify(errors), 422
-    name,password = data['name'],data['password']
-    ngo = Ngo.query.filter_by(name=name,password=password).first()
-    if ngo is None:
-        return jsonify({'Message':'0'})
-    else:
-        res = ngo_schema.dump(Ngo.query.get(ngo.id))
-        return jsonify({'Message':'1','NGO':res.data})
 
 #======================================== PASSWORD RECOVERY ==========================
 

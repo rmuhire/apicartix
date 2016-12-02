@@ -38,10 +38,6 @@ class SavingGroup(db.Model):
         self.member_female = member_female
         self.member_male = member_male
         self.sector_id = sector_id
-        if regDate is None:
-
-                regDate = datetime.utcnow()
-
         self.regDate = regDate
 
 class Amount(db.Model):
@@ -71,9 +67,8 @@ class Ngo(db.Model):
     cp_email = db.Column(db.String(60), unique = True)
     cp_telephone = db.Column(db.String(30), unique = True)
     username = db.Column(db.String(30), unique = True)
-    password = db.Column(db.String(40))
+    password = db.Column(db.String(200))
 
-    sgs = db.relationship('Sgs', backref='ngo', lazy='dynamic')
     cov = db.relationship('Cover', backref='ngo', lazy='dynamic')
 
     def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, username, password):
@@ -92,9 +87,9 @@ class Ngo(db.Model):
 
 
 class Sgs(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    partner_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
-    funding_id =  db.Column(db.Integer)
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer)
+    funding_id = db.Column(db.Integer)
 
     def __init__(self, partner_id, funding_id):
         self.partner_id = partner_id

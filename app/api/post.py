@@ -1,7 +1,10 @@
+from app import *
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify,request
 import datetime
+from app.controller.excellentodb import Excellentodb
+from app.controller.excellentodb import Excellento
 
 #==================================================INDIVIDUAL POST==========================================================
 
@@ -64,6 +67,8 @@ def fundg():
     if errors:
         return jsonify(errors), 422
 
+    pw_hash = bcrypt.generate_password_hash(data['password'])
+
     #try:
     ngo = Ngo(
             name= data['name'],
@@ -77,7 +82,7 @@ def fundg():
             cp_name = data['cp_name'],
             cp_email = data['cp_email'],
             cp_telephone = data['cp_telephone'],
-            password = data['password'],
+            password = pw_hash
             )
     db.session.add(ngo)
     db.session.commit()
@@ -101,3 +106,50 @@ def prf():
      db.session.add(sgss)
      db.session.commit()
      result=sgfp_schema.dump(Sgs.query.get(sgss.id))
+
+
+@app.route('/api/v1/excellento',methods=['POST'])
+def excellento():
+    data = Excellentodb('faking_it.xlsx').todb()
+    return jsonify({'data':data})
+
+
+@app.route('/api/v1/visualize', methods=['POST'])
+def visualize():
+    data = Excellento('sg_datas.xlsx').json()
+    return jsonify({'data':data})
+
+
+#===========================================LOG IN==================================
+
+@app.route('/api/v1/login/',methods=['POST'])
+def login():
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'Message':'No input data provided'}), 400
+    data,errors = ngo_schema.load(json_data)
+
+    if errors:
+        return jsonify(errors), 422
+
+    name,password = data['name'],data['password']
+
+    ngo = Ngo.query.filter(Ngo.name==name).first()
+
+    try:
+        pw_hash = bcrypt.check_password_hash(ngo.password, password)
+        if pw_hash:
+            result = ngo_schema.dump(Ngo.query.get(ngo.id))
+            return jsonify({'auth': 1, 'ngo': result.data})
+        else:
+            return jsonify({'auth': 0})
+    except AttributeError:
+        return jsonify({'auth':2})
+
+
+    #ngo = Ngo.query.filter_by(name=name,password=password).first()
+    #if ngo is None:
+    #    return jsonify({'Message':'0'})
+    #else:
+    #    res = ngo_schema.dump(Ngo.query.get(ngo.id))
+    #    return jsonify({'Message':'1','NGO':res.data})
