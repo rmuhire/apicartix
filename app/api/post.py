@@ -7,7 +7,7 @@ from app.controller.exellentodb import Excellento
 
 @app.route('/api/v1/exellento',methods=['POST'])
 def excellento():
-    data = Excellentodb('sg_datas.xlsx').toexcel()
+    data = Excellentodb('fake_data.xlsx').toexcel()
     return jsonify({'data':data})
 
 
