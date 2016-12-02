@@ -1,9 +1,12 @@
 from app import *
 from app.model.models import *
 from app.model.schema import *
+<<<<<<< HEAD
 from flask import request
 from datetime import date
 from datetime import time
+=======
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
 from flask import jsonify
 from app.controller.cont import *
 from flask_mail import Mail, Message
@@ -15,6 +18,7 @@ mail=Mail(app)
 def page_not_found(e):
     return 'Error 404: Page not found, Please check ur route well.'
 
+<<<<<<< HEAD
 @app.route('/api/v1/getsavinggroup')
 def get_svg():
     svgs=SavingGroup.query.all()
@@ -27,11 +31,26 @@ def get_svgname(name):
     svg = SavingGroup.query.filter_by(name=name).first()
     if svg :
         result=sg_schema.dump(svg)
+=======
+@app.route('/api/v1/sg')
+def sg():
+    sg = SavingGroup.query.all()
+    result = sgs_schema.dump(sg)
+    return jsonify({'Saving groups':result.data})
+
+
+@app.route('/api/v1/sg/<name>')
+def sg_name(name):
+    sg = SavingGroup.query.filter_by(name=name).first()
+    if sg:
+        result=sg_schema.dump(sg)
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
         return jsonify({'Saving Group':result.data})
     else:
         return jsonify({'Message':'0'})
 
 
+<<<<<<< HEAD
 @app.route('/api/v1/getAmount')
 def get_am():
     ams = Amount.query.all()
@@ -43,10 +62,24 @@ def get_ams(sgid):
     ams = Amount.query.filter_by(sg_id=sgid).first()
     if ams:
         result = amount_schema.dump(ams)
+=======
+@app.route('/api/v1/amount')
+def amount():
+    amount = Amount.query.all()
+    result = amounts_schema.dump(amount).data
+    return jsonify({'Amounts':result})
+
+@app.route('/api/v1/amount/<int:id>')
+def amount_sg(id):
+    amount = Amount.query.filter_by(sg_id=id).first()
+    if amount:
+        result = amount_schema.dump(amount)
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
         return jsonify({'SG-Amount':result.data})
     else:
         return jsonify({'Message':'0'})
 
+<<<<<<< HEAD
 @app.route('/api/v1/getngos')
 def get_fu():
     funs = Ngo.query.all()
@@ -130,3 +163,20 @@ def rec(code,pas):
             db.session.commit()
 
             return jsonify({"Message":'1'})
+=======
+@app.route('/api/v1/ngos')
+def ngos():
+    ngo = Ngo.query.all()
+    result = ngos_schema.dump(ngo).data
+    return jsonify({'NGOs':result})
+
+@app.route('/api/v1/ngo/<name>')
+def ngo(name):
+    ngo = Ngo.query.filter_by(name=name).first()
+    if ngo:
+        result = ngo_schema.dump(ngo)
+        return jsonify({'NGO':result.data})
+
+    else:
+        return jsonify({'Message':'0'})
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530

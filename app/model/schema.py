@@ -19,7 +19,6 @@ class AmountSchema(Schema):
     borrowing = fields.Float()
     year = fields.Integer()
     sg_id = fields.Nested(SavingGroupSchema, required=True)
-    #sg_id = fields.Integer()
 
 amount_schema = AmountSchema()
 amounts_schema = AmountSchema(many = True)
@@ -45,6 +44,7 @@ ngos_schema = NgoSchema(many = True)
 
 class SgsSchema(Schema):
     id = fields.Integer(dump_only = True)
+<<<<<<< HEAD
     partner_id = fields.Integer()
     funding_id = fields.Integer()
 
@@ -58,3 +58,10 @@ class CoverSchema(Schema):
 
 cov_schema = CoverSchema()
 covs_schema = CoverSchema(many = True)
+=======
+    partner_id = fields.Nested(NgoSchema)
+    funding_id = fields.Nested(NgoSchema)
+
+sgfp_schema = SgsSchema()
+sgfps_schema = SgsSchema(many = True)
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530

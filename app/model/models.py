@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+<<<<<<< HEAD
 import datetime
 from flask_mail import Mail, Message
 
@@ -8,6 +9,14 @@ from flask_mail import Mail, Message
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/afr_cartix'
+=======
+
+app = Flask(__name__)
+
+db = SQLAlchemy(app)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -22,7 +31,7 @@ db = SQLAlchemy(app)
 
 class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     year = db.Column(db.Integer)
     member_female = db.Column(db.Integer)
@@ -41,7 +50,7 @@ class SavingGroup(db.Model):
         self.regDate = regDate
 
 class Amount(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     saving = db.Column(db.Float)
     borrowing = db.Column(db.Float)
     year = db.Column(db.Integer)
@@ -55,8 +64,13 @@ class Amount(db.Model):
 
 
 class Ngo(db.Model):
+<<<<<<< HEAD
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100), unique = True)
+=======
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
     email = db.Column(db.String(60))
     telephone = db.Column(db.String(30))
     website = db.Column(db.String(60))
@@ -64,12 +78,20 @@ class Ngo(db.Model):
     picture = db.Column(db.String(100))
     address = db.Column(db.String(200))
     cp_name = db.Column(db.String(60))
+<<<<<<< HEAD
     cp_email = db.Column(db.String(60), unique = True)
     cp_telephone = db.Column(db.String(30), unique = True)
     username = db.Column(db.String(30), unique = True)
     password = db.Column(db.String(200))
 
     cov = db.relationship('Cover', backref='ngo', lazy='dynamic')
+=======
+    cp_email = db.Column(db.String(60))
+    cp_telephone = db.Column(db.String(30))
+    username = db.Column(db.String(30))
+    password = db.Column(db.String(40))
+
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
 
     def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, username, password):
         self.name = name
@@ -84,6 +106,13 @@ class Ngo(db.Model):
         self.cp_telephone = cp_telephone
         self.username = username
         self.password = password
+<<<<<<< HEAD
+=======
+
+
+
+
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
 
 
 class Sgs(db.Model):

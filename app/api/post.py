@@ -2,12 +2,18 @@ from app import *
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify,request
+<<<<<<< HEAD
 import datetime
 from app.controller.excellentodb import Excellentodb
 from app.controller.excellentodb import Excellento
+=======
+from app.controller.exellentodb import Excellentodb
+from app.controller.exellentodb import Excellento
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
 
 #==================================================INDIVIDUAL POST==========================================================
 
+<<<<<<< HEAD
 @app.route('/api/v1/savinggroup/',methods=['POST'])
 def svg():
     json_data=request.get_json()
@@ -16,24 +22,20 @@ def svg():
     data,errors=sg_schema.load(json_data)
     if errors:
         return jsonify(errors), 422
+=======
+@app.route('/api/v1/exellento',methods=['POST'])
+def excellento():
+    data = Excellentodb('fake_data.xlsx').toexcel()
+    return jsonify({'data':data})
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
 
-    try:
-        svgs=SavingGroup(
-            name=data['name'],
-            year=data['year'],
-            member_female=data['member_female'],
-            member_male=data['member_male'],
-            sector_id=data['sector_id'],
-            regDate=datetime.datetime.utcnow()
-            )
-        db.session.add(svgs)
-        db.session.commit()
-        result=sg_schema.dump(SavingGroup.query.get(svgs.id))
-        return jsonify({'Saving group':result.data})
 
-    except:
-        return jsonify({'Message':'0'})
+@app.route('/api/v1/visualize', methods=['POST'])
+def visualize():
+    data = Excellento('all.xlsx').json()
+    return jsonify({'data':data})
 
+<<<<<<< HEAD
 @app.route('/api/v1/amount/',methods=['POST'])
 def amount():
     json_data=request.get_json()
@@ -153,3 +155,5 @@ def login():
     #else:
     #    res = ngo_schema.dump(Ngo.query.get(ngo.id))
     #    return jsonify({'Message':'1','NGO':res.data})
+=======
+>>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
