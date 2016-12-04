@@ -140,7 +140,11 @@ class Excellentodb:
             for row in range(0, 1):
                 for col in range(columns):
                     value = sheet.cell(row, col).value
-                    sheet1.write(row, col, value)
+                    check_value = Checker(value).empty()
+                    if check_value:
+                        sheet1.write(row, col, value)
+                    else:
+                        sheet1.write(row, col, value, style)
 
             #value
 
@@ -188,7 +192,11 @@ class Excellentodb:
                 for col in range(columns):
                     value = sheet.cell(row, col).value
                     if col not in indexes:
-                        sheet1.write(row, col, value)
+                        check_value = Checker(value).empty()
+                        if check_value:
+                            sheet1.write(row, col, value)
+                        else:
+                            sheet1.write(row, col, value, style)
 
         book.save('test.xls')
         return data
