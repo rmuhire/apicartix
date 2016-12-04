@@ -1,7 +1,9 @@
 from app.model.models import *
 from app.controller.exellento import Excellento
+from app.controller.checker import Checker
 from sqlalchemy.exc import IntegrityError
 import xlwt
+from xlrd import open_workbook
 
 class Excellentodb:
     def __init__(self, file):
@@ -117,8 +119,7 @@ class Excellentodb:
         return 1
 
     def toexcel(self):
-
-
+        wb = open_workbook(self.file)
         book = xlwt.Workbook()
 
         # add new colour to palette and set RGB colour value
@@ -129,10 +130,75 @@ class Excellentodb:
         sheet1 = book.add_sheet('Sheet 1')
         style = xlwt.easyxf('pattern: pattern solid, fore_colour custom_colour')
 
-        sheet1.write(1, 4, 'Some text', style)
-        sheet1.write(0, 2, 'Wrong', style)
+        for sheet in wb.sheets():
+            rows = sheet.nrows
+            columns = sheet.ncols
+            indexes = [0,1,2,5,11,12]
+
+            #header
+
+            for row in range(0, 1):
+                for col in range(columns):
+                    value = sheet.cell(row, col).value
+                    sheet1.write(row, col, value)
+
+            #value
+
+            for row in range(1, rows):
+                data = [
+                    sheet.cell(row, 0).value,
+                    sheet.cell(row, 1).value,
+                    sheet.cell(row, 2).value,
+                    sheet.cell(row, 5).value,
+                    sheet.cell(row, 11).value,
+                    sheet.cell(row, 12).value
+                ]
+                checker = Checker(data).checker()
+
+                if checker['province'] == 0:
+                    sheet1.write(row, 0, data[0], style)
+                else:
+                    sheet1.write(row, 0, data[0])
+
+                if checker['district'] == 0:
+                    sheet1.write(row, 1, data[1], style)
+                else:
+                    sheet1.write(row, 1, data[1])
+
+                if checker['sector'] == 0:
+                    sheet1.write(row, 2, data[2], style)
+                else:
+                    sheet1.write(row, 2, data[2])
+
+                if checker['member'] == 0:
+                    sheet1.write(row, 5, data[3], style)
+                else:
+                    sheet1.write(row, 5, data[3])
+
+                if checker['saved'] == 0:
+                    sheet1.write(row, 11, data[4], style)
+                else:
+                    sheet1.write(row, 11, data[4])
+
+                if checker['borrow'] == 0:
+                    sheet1.write(row, 12, data[5], style)
+                else:
+                    sheet1.write(row, 12, data[5])
+
+                for col in range(columns):
+                    value = sheet.cell(row, col).value
+                    if col not in indexes:
+                        sheet1.write(row, col, value)
 
         book.save('test.xls')
+        return checker
+
+
+
+
+
+
+
 
 
 
