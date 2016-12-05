@@ -1,6 +1,22 @@
 from marshmallow import Schema,fields
 
 
+class UserSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    names = fields.Sring()
+    username = fields.String()
+    email = fields.String()
+    phone = fields.String()
+    user_role = fields.String()
+    regDate = fields.Date()
+    password = fields.String()
+    gender = fields.String()
+    job_title = fields.String()
+    ngo_id = fields.Integer()
+
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
+
 class SavingGroupSchema(Schema):
     id = fields.Integer(dump_only = True)
     name = fields.String()
@@ -13,6 +29,7 @@ class SavingGroupSchema(Schema):
 sg_schema = SavingGroupSchema()
 sgs_schema = SavingGroupSchema(many = True)
 
+
 class AmountSchema(Schema):
     id = fields.Integer(dump_only = True)
     saving = fields.Float()
@@ -22,6 +39,7 @@ class AmountSchema(Schema):
 
 amount_schema = AmountSchema()
 amounts_schema = AmountSchema(many = True)
+
 
 class NgoSchema(Schema):
     id = fields.Integer(dump_only = True)
