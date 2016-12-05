@@ -1,8 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_cors import cross_origin, CORS
+
 
 app = Flask(__name__)
+
+CORS(app)
 
 db = SQLAlchemy(app)
 
@@ -82,15 +86,13 @@ class Ngo(db.Model):
     email = db.Column(db.String(60))
     telephone = db.Column(db.String(30))
     website = db.Column(db.String(60))
-    category = db.Column(db.String(40))
+    category = db.Column(db.Integer) # Int NGO 1 : Local NGO : 0
     picture = db.Column(db.String(100))
     address = db.Column(db.String(200))
 
-
     user =  db.relationship('User', backref='ngo', lazy='dynamic')
 
-
-    def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, username, password):
+    def __init__(self, name, email, telephone, website, category, picture, address):
         self.name = name
         self.email = email
         self.telephone = telephone
@@ -98,15 +100,6 @@ class Ngo(db.Model):
         self.category = category
         self.picture = picture
         self.address = address
-        self.cp_name = cp_name
-        self.cp_email = cp_email
-        self.cp_telephone = cp_telephone
-        self.username = username
-        self.password = password
-
-
-
-
 
 
 class Sgs(db.Model):
