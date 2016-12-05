@@ -10,6 +10,34 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    names = db.Column(db.String(80))
+    username = db.Column(db.String(40), unique=True)
+    email = db.Column(db.String(80), unique=True)
+    phone = db.Column(db.String(25))
+    dob = db.Column(db.DateTime)
+    user_role = db.Column(db.Integer)
+    regDate = db.Column(db.DateTime)
+    password = db.Column(db.String(80))
+    gender = db.Column(db.String(10))
+    job_title = db.Column(db.String(80))
+    ngo_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+
+    def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, regDate=None):
+        self.names = names
+        self.username = username
+        self.email = email
+        self.phone = phone
+        self.user_role = user_role
+        self.password = password
+        self.gender = gender
+
+        if regDate is None:
+            self.regDate = datetime.utcnow()
+        self.ngo_id = ngo_id
+
+
 class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
     id = db.Column(db.Integer, primary_key=True)
@@ -57,11 +85,9 @@ class Ngo(db.Model):
     category = db.Column(db.String(40))
     picture = db.Column(db.String(100))
     address = db.Column(db.String(200))
-    cp_name = db.Column(db.String(60))
-    cp_email = db.Column(db.String(60))
-    cp_telephone = db.Column(db.String(30))
-    username = db.Column(db.String(30))
-    password = db.Column(db.String(40))
+
+
+    user =  db.relationship('User', backref='ngo', lazy='dynamic')
 
 
     def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, username, password):
