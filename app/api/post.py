@@ -5,6 +5,7 @@ from app.controller.exellentodb import Excellentodb
 from app.controller.exellentodb import Excellento
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
+from app.controller.getusername import get_username
 
 bcrypt = Bcrypt(app)
 
@@ -39,11 +40,26 @@ def add_user():
     try:
         user = User(
             names=data['names'],
-
+            username=username,
+            email=data['email'],
+            phone=None,
+            dob=None,
+            user_role=None,
+            regDate=None,
+            password=pwd_hash,
+            gender=None,
+            job_title=None,
+            ngo_id=data['ngo_id']
         )
 
+        db.session.add(user)
+        db.session.commit()
+
+        last_user = user_schema.dump(User.query.get(user.id)).data
+        return jsonify({'auth':1, 'user':last_user})
+
     except IntegrityError:
-        pass
+        return jsonify({'auth': 0, 'user': 'Already added.'})
 
 
 @app.route('/api/v1/ngo', methods=['POST'])
