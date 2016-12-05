@@ -4,6 +4,9 @@ from flask import jsonify,request
 from app.controller.exellentodb import Excellentodb
 from app.controller.exellentodb import Excellento
 from sqlalchemy.exc import IntegrityError
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt(app)
 
 
 @app.route('/api/v1/exellento',methods=['POST'])
@@ -20,7 +23,27 @@ def visualize():
 
 @app.route('/api/v1/user', methods=['POST'])
 def add_user():
-    pass
+    json_data = request.get_json()
+
+    if not json_data:
+        return jsonify({'message': 'No input data provided'}), 400
+
+    data, errors = user_schema.load(json_data)
+
+    if errors:
+        return jsonify(errors), 422
+
+    username = get_username(data['email'])
+    pwd_hash = bcrypt.generate_password_hash(data['password'])
+
+    try:
+        user = User(
+            names=data['names'],
+
+        )
+
+    except IntegrityError:
+        pass
 
 
 @app.route('/api/v1/ngo', methods=['POST'])
@@ -30,14 +53,14 @@ def add_ngo():
     if not json_data:
         return jsonify({'message':'No input data provided'}), 400
 
-    data, errors = ngo_schema(json_data)
+    data, errors = ngo_schema.load(json_data)
 
     if errors:
         return jsonify(errors), 422
 
     try:
         ngo = Ngo(
-            name=data['name'],
+            name=data['name'].upper(),
             email=None,
             telephone=None,
             website=None,
@@ -53,7 +76,10 @@ def add_ngo():
         return jsonify({'auth':1, 'ngo':last_ngo})
 
     except IntegrityError:
-        return jsonify({'auth': 0, 'ngo': 'Ngo has been added'})
+        db.session().rollback()
+        ngo = Ngo.query.filter_by(name=data['name'].upper()).first()
+        ngo_id = ngo.id
+        return jsonify({'auth': 0, 'ngo': ngo_id})
 
 
 
