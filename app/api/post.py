@@ -43,12 +43,10 @@ def add_user():
             username=username,
             email=data['email'],
             phone=None,
-            dob=None,
             user_role=None,
             regDate=None,
             password=pwd_hash,
             gender=None,
-            job_title=None,
             ngo_id=data['ngo_id']
         )
 
