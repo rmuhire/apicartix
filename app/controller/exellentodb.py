@@ -51,49 +51,35 @@ class Excellentodb:
 
             try:
                 ngo = Ngo(
-                    name=data['funding_ngo'],
+                    name=data['funding_ngo'].upper(),
                     email=None,
                     telephone=None,
                     website=None,
-                    category='funding_ngo',
+                    category=1,
                     picture=None,
-                    address=None,
-                    cp_name=None,
-                    cp_email=None,
-                    cp_telephone=None,
-                    username=None,
-                    password=None
+                    address=None
                 )
 
                 db.session.add(ngo)
                 db.session.commit()
                 intl_ngo_id = ngo.id
 
-
             except IntegrityError:
                 db.session().rollback()
-                ngo = Ngo.query.filter_by(name=data['funding_ngo']).first()
+                ngo = Ngo.query.filter_by(name=data['funding_ngo'].upper()).first()
                 intl_ngo_id = ngo.id
-
-
 
             # Local NGO
 
-
             try:
                 ngo = Ngo(
-                    name=data['partner_ngo'],
+                    name=data['partner_ngo'].upper(),
                     email=None,
                     telephone=None,
                     website=None,
-                    category='partner_ngo',
+                    category=0,
                     picture=None,
-                    address=None,
-                    cp_name=None,
-                    cp_email=None,
-                    cp_telephone=None,
-                    username=None,
-                    password=None
+                    address=None
                 )
 
                 db.session.add(ngo)
@@ -103,7 +89,7 @@ class Excellentodb:
 
             except IntegrityError:
                 db.session().rollback()
-                ngo = Ngo.query.filter_by(name=data['partner_ngo']).first()
+                ngo = Ngo.query.filter_by(name=data['partner_ngo'].upper()).first()
                 local_ngo_id = ngo.id
 
             # SGS
