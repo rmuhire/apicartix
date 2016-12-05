@@ -34,14 +34,14 @@ class AmountSchema(Schema):
 
 
 class NgoSchema(Schema):
-    id = fields.Integer(dump_only=True)
-    name = fields.String()
-    email = fields.String()
-    telephone = fields.String()
-    website = fields.String()
-    category = fields.String()
-    picture = fields.String()
-    address = fields.String()
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    email = fields.Str()
+    telephone = fields.Str()
+    website = fields.Str()
+    category = fields.Int()
+    picture = fields.Str()
+    address = fields.Str()
 
 
 class SgsSchema(Schema):
@@ -65,7 +65,7 @@ sgs_schema = SavingGroupSchema(many=True)
 amount_schema = AmountSchema()
 amounts_schema = AmountSchema(many=True)
 
-ngo_schema = NgoSchema
+ngo_schema = NgoSchema()
 ngos_schema = NgoSchema(many=True)
 
 sgfp_schema = SgsSchema()
