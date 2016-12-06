@@ -61,38 +61,3 @@ class Checker:
             self.status['borrow'] = 1
 
         return self.status
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
