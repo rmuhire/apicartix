@@ -1,5 +1,5 @@
 from app.model.models import *
-from app.controller.excellento import Excellento
+from app.controller.exellento import Excellento
 from app.controller.checker import Checker
 from sqlalchemy.exc import IntegrityError
 import xlwt
@@ -18,7 +18,7 @@ class Excellentodb:
                     year=data['sgs_year_of_creation'],
                     member_female=data['sgs_members__female'],
                     member_male=data['sgs_members__male'],
-                    sector_id=data['sector_id'],
+                    sector_id=data['sector_code'],
                     regDate=None
                 )
                 db.session.add(saving)
@@ -117,6 +117,7 @@ class Excellentodb:
             db.session.commit()
 
         return 1
+
     def toexcel(self):
         wb = open_workbook(self.file)
         book = xlwt.Workbook()
@@ -140,7 +141,6 @@ class Excellentodb:
                 for col in range(columns):
                     value = sheet.cell(row, col).value
                     sheet1.write(row, col, value)
-
             #value
 
             for row in range(1, rows):
@@ -187,7 +187,12 @@ class Excellentodb:
                 for col in range(columns):
                     value = sheet.cell(row, col).value
                     if col not in indexes:
-                        sheet1.write(row, col, value)
+                        if len(str(value)) == 0 :
+                            sheet1.write(row, col, value, style)
+                        else:
+                            sheet1.write(row, col, value)
+                        #sheet1.write(row, col, value)
 
-        book.save('test.xls')
+
+        book.save('test.xlsx')
         return data
