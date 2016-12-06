@@ -19,8 +19,11 @@ def page_not_found(e):
 @app.route('/api/v1/users')
 def users_():
     user = User.query.all()
-    result = users_schema.dump(user)
-    return jsonify({'Users':result.data})
+    if user:
+        result = users_schema.dump(user)
+        return jsonify({'Users':result.data})
+    else:
+        return jsonify({'Message':'0'})
 
 @app.route('/api/v1/user/<name>')
 def user_(name):
@@ -31,7 +34,7 @@ def user_(name):
         return jsonify({'User':result.data})
 
     else:
-        return jsonify({'Message:0'})
+        return jsonify({'Message':'0'})
 
 
 
