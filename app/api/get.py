@@ -25,9 +25,9 @@ def users_():
     else:
         return jsonify({'message':'0'})
 
-@app.route('/api/v1/user/<int:id>')
-def user_(id):
-    user = User.query.filter(User.id== id).first()
+@app.route('/api/v1/user/<int:uid>')
+def user_(uid):
+    user = User.query.get(uid)
 
     if user:
         result = user_schema.dump(user)
@@ -50,9 +50,9 @@ def sg_name(name):
     sg = SavingGroup.query.filter_by(name=name).first()
     if sg:
         result=sg_schema.dump(sg)
-        return jsonify({'Saving Group':result.data})
+        return jsonify({'saving Group':result.data})
     else:
-        return jsonify({'Message':'0'})
+        return jsonify({'message':'0'})
 
 
 
@@ -60,48 +60,48 @@ def sg_name(name):
 def amountss():
     amount = Amount.query.all()
     result = amounts_schema.dump(amount).data
-    return jsonify({'Amounts':result})
+    return jsonify({'amounts':result})
 
 @app.route('/api/v1/amount/<int:id>')
 def amount_sg(id):
     amount = Amount.query.filter_by(sg_id=id).first()
     if amount:
         result = amount_schema.dump(amount)
-        return jsonify({'SG-Amount':result.data})
+        return jsonify({'sg-amount':result.data})
     else:
-        return jsonify({'Message':'0'})
+        return jsonify({'message':'0'})
 
 @app.route('/api/v1/ngos')
 def get_fuaa():
     funs = Ngo.query.all()
     result = ngos_schema.dump(funs).data
-    return jsonify({'NGOs':result})
+    return jsonify({'ngos':result})
 
 @app.route('/api/v1/ngo/<name>')
 def get_fun(name):
     ng = Ngo.query.filter_by(name=name).first()
     if ng:
         result = ngo_schema.dump(ng)
-        return jsonify({'NGO':result.data})
+        return jsonify({'ngo':result.data})
 
     else:
-        return jsonify({'Message':'0'})
+        return jsonify({'message':'0'})
 
 
 @app.route('/api/v1/getFuPas')
 def get_fupas():
     fupa = Sgs.query.all()
     result = sgfps_schema.dump(fupa)
-    return jsonify({'Funding-Partner':result.data})
+    return jsonify({'funding-partner':result.data})
 
 @app.route('/api/v1/getFuPa/<int:id>')
 def getfup(id):
     fupa = Sgs.query.filter_by(id=id)
     if fupa:
         result = sgfp_schema.dump(fupa)
-        return jsonify({'Funding-Partner':result.data})
+        return jsonify({'funding-partner':result.data})
     else:
-        return jsonify({'Message':'0'})
+        return jsonify({'message':'0'})
 
 
 #======================================== PASSWORD RECOVERY ==========================
@@ -126,26 +126,26 @@ def recover(email):
                 fj=Cover(ngo_id = df.id,code = dd)
                 db.session.add(fj)
                 db.session.commit()
-                return jsonify({"Message":"1"})
+                return jsonify({"message":"1"})
             else:
                 fj=Cover(ngo_id = df.id,code = dd)
                 db.session.add(fj)
                 db.session.commit()
-                return jsonify({"Message":"1"})
+                return jsonify({"message":"1"})
 
         except:
-            return jsonify({'Message':'Error'})
+            return jsonify({'message':'Error'})
 
 
 @app.route("/api/v1/rec/<code>/<pas>")
 def rec(code,pas):
     ll=Cover.query.filter_by(code = code ).order_by(Cover.ngo_id.desc()).first()
     if ll is None:
-        return jsonify({'Message':'0'})
+        return jsonify({'message':'0'})
     else:
         ld=Ngo.query.filter_by(id=ll.ngo_id).first()
         if ld is None:
-            return jsonify({'Message':'0'})
+            return jsonify({'message':'0'})
         else:
             json_data=ngo_schema.dump(ld).data
             pas = changePass(json_data,pas);
@@ -153,7 +153,7 @@ def rec(code,pas):
             ld.password=pas
             db.session.commit()
 
-            return jsonify({"Message":'1'})
+            return jsonify({"message":'1'})
 
 '''@app.route('/api/v1/ngos')
 def ngos():
