@@ -4,6 +4,7 @@ from app.controller.checker import Checker
 from sqlalchemy.exc import IntegrityError
 import xlwt
 from xlrd import open_workbook
+from app.controller.uniqid import uniqid
 
 class Excellentodb:
     def __init__(self, file):
@@ -116,6 +117,8 @@ class Excellentodb:
         sheet1 = book.add_sheet('Sheet 1')
         style = xlwt.easyxf('pattern: pattern solid, fore_colour custom_colour')
 
+        error_file = 1
+
         for sheet in wb.sheets():
             rows = sheet.nrows
             columns = sheet.ncols
@@ -147,31 +150,37 @@ class Excellentodb:
 
                 if checker['province'] == 0:
                     sheet1.write(row, 0, data[0], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 0, data[0])
 
                 if checker['district'] == 0:
                     sheet1.write(row, 1, data[1], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 1, data[1])
 
                 if checker['sector'] == 0:
                     sheet1.write(row, 2, data[2], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 2, data[2])
 
                 if checker['member'] == 0:
                     sheet1.write(row, 5, data[3], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 5, data[3])
 
                 if checker['saved'] == 0:
                     sheet1.write(row, 11, data[4], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 11, data[4])
 
                 if checker['borrow'] == 0:
                     sheet1.write(row, 12, data[5], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 12, data[5])
 
@@ -184,8 +193,15 @@ class Excellentodb:
                         else:
                             sheet1.write(row, col, value, style)
 
-        book.save('test.xls')
-        return data
+        if error_file:
+            json_data = self.json_data
+            return [1,json_data]
+        else:
+            filename = uniqid() + ".xls"
+            save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            book.save(save)
+            return [0,save]
+
 
 
 
