@@ -28,6 +28,8 @@ class User(db.Model):
     job_title = db.Column(db.String(80))
     ngo_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
 
+    files = db.relationship('files', backref='user', lazy='dynamic')
+
     def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, regDate=None):
         self.names = names
         self.username = username
@@ -110,3 +112,19 @@ class Sgs(db.Model):
     def __init__(self, partner_id, funding_id):
         self.partner_id = partner_id
         self.funding_id = funding_id
+
+
+class Files(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    original = db.Column(db.String(25))
+    saved = db.Column(db.String(25))
+    filename = db.Column(db.String(150))
+    regDate = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+
+    def __init__(self, original, saved, filename, regDate, user_id):
+        self.original = original
+        self.saved = saved
+        self.filename = filename
+        self.regDate = regDate
+        self.user_id = user_id
