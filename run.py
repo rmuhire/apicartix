@@ -1,12 +1,8 @@
 from app import *
 from app.api.post import *
-<<<<<<< HEAD
 from app.controller.excellento import *
 from app.controller.excellentodb import *
-
-=======
 from app.api.get import *
->>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
 
 @app.after_request
 def after_request(response):
