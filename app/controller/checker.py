@@ -5,13 +5,16 @@ import json
 class Checker:
 
     def __init__(self, data):
-        self.province = data[0]
-        self.district = data[1].lower().title()
-        self.sector = data[2]
-        self.member = data[3]
-        self.saved = data[4]
-        self.borrow = data[5]
-        self.status = {}
+        if isinstance(data, list):
+            self.province = data[0]
+            self.district = data[1].lower().title()
+            self.sector = data[2]
+            self.member = data[3]
+            self.saved = data[4]
+            self.borrow = data[5]
+            self.status = {}
+        else:
+            self.value = str(data)
 
     def checker(self):
 
@@ -21,7 +24,6 @@ class Checker:
         self.status['province'] = 0
         if province['province']:
             self.status['province'] = 1
-
 
         # Check District
 
@@ -40,10 +42,13 @@ class Checker:
             for item in items:
                 if item['name'].lower() == str(self.sector.lower()):
                     self.status['sector'] = 1
-
-        self.status['member'] = 1
-        if int(self.member) < 15:
+        try:
+            self.status['member'] = 1
+            if int(self.member) < 15 | int(self.member > 30):
+                self.status['member'] = 0
+        except ValueError:
             self.status['member'] = 0
+
 
         try:
             self.status['saved'] = 1
@@ -51,6 +56,9 @@ class Checker:
                 self.status['saved'] = 0
         except ValueError:
             self.status['saved'] = 1
+            if not self.saved:
+                self.status['saved'] = 0
+
 
         try:
             self.status['borrow'] = 1
@@ -59,37 +67,13 @@ class Checker:
                 self.status['borrow'] = 0
         except ValueError:
             self.status['borrow'] = 1
+            if not self.borrow:
+                self.status['borrow'] = 0
 
         return self.status
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def empty(self):
+        if not self.value:
+            return 0
+        else:
+            return 1

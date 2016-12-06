@@ -4,6 +4,7 @@ from app.controller.checker import Checker
 from sqlalchemy.exc import IntegrityError
 import xlwt
 from xlrd import open_workbook
+from app.controller.uniqid import uniqid
 
 class Excellentodb:
     def __init__(self, file):
@@ -51,49 +52,35 @@ class Excellentodb:
 
             try:
                 ngo = Ngo(
-                    name=data['funding_ngo'],
+                    name=data['funding_ngo'].upper(),
                     email=None,
                     telephone=None,
                     website=None,
-                    category='funding_ngo',
+                    category=1,
                     picture=None,
-                    address=None,
-                    cp_name=None,
-                    cp_email=None,
-                    cp_telephone=None,
-                    username=None,
-                    password=None
+                    address=None
                 )
 
                 db.session.add(ngo)
                 db.session.commit()
                 intl_ngo_id = ngo.id
 
-
             except IntegrityError:
                 db.session().rollback()
-                ngo = Ngo.query.filter_by(name=data['funding_ngo']).first()
+                ngo = Ngo.query.filter_by(name=data['funding_ngo'].upper()).first()
                 intl_ngo_id = ngo.id
-
-
 
             # Local NGO
 
-
             try:
                 ngo = Ngo(
-                    name=data['partner_ngo'],
+                    name=data['partner_ngo'].upper(),
                     email=None,
                     telephone=None,
                     website=None,
-                    category='partner_ngo',
+                    category=0,
                     picture=None,
-                    address=None,
-                    cp_name=None,
-                    cp_email=None,
-                    cp_telephone=None,
-                    username=None,
-                    password=None
+                    address=None
                 )
 
                 db.session.add(ngo)
@@ -103,7 +90,7 @@ class Excellentodb:
 
             except IntegrityError:
                 db.session().rollback()
-                ngo = Ngo.query.filter_by(name=data['partner_ngo']).first()
+                ngo = Ngo.query.filter_by(name=data['partner_ngo'].upper()).first()
                 local_ngo_id = ngo.id
 
             # SGS
@@ -130,6 +117,8 @@ class Excellentodb:
         sheet1 = book.add_sheet('Sheet 1')
         style = xlwt.easyxf('pattern: pattern solid, fore_colour custom_colour')
 
+        error_file = 1
+
         for sheet in wb.sheets():
             rows = sheet.nrows
             columns = sheet.ncols
@@ -140,7 +129,11 @@ class Excellentodb:
             for row in range(0, 1):
                 for col in range(columns):
                     value = sheet.cell(row, col).value
-                    sheet1.write(row, col, value)
+                    check_value = Checker(value).empty()
+                    if check_value:
+                        sheet1.write(row, col, value)
+                    else:
+                        sheet1.write(row, col, value, style)
 
             #value
 
@@ -157,49 +150,54 @@ class Excellentodb:
 
                 if checker['province'] == 0:
                     sheet1.write(row, 0, data[0], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 0, data[0])
 
                 if checker['district'] == 0:
                     sheet1.write(row, 1, data[1], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 1, data[1])
 
                 if checker['sector'] == 0:
                     sheet1.write(row, 2, data[2], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 2, data[2])
 
                 if checker['member'] == 0:
                     sheet1.write(row, 5, data[3], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 5, data[3])
 
                 if checker['saved'] == 0:
                     sheet1.write(row, 11, data[4], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 11, data[4])
 
                 if checker['borrow'] == 0:
                     sheet1.write(row, 12, data[5], style)
+                    error_file = 0
                 else:
                     sheet1.write(row, 12, data[5])
 
                 for col in range(columns):
                     value = sheet.cell(row, col).value
                     if col not in indexes:
-                        sheet1.write(row, col, value)
+                        check_value = Checker(value).empty()
+                        if check_value:
+                            sheet1.write(row, col, value)
+                        else:
+                            sheet1.write(row, col, value, style)
 
-        book.save('test.xls')
-        return checker
-
-
-
-
-
-
-
-
-
-
-
+        if error_file:
+            json_data = self.json_data
+            return [1,json_data]
+        else:
+            filename = uniqid() + ".xls"
+            save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            book.save(save)
+            return [0,save]

@@ -7,6 +7,28 @@ from flask import jsonify
 def page_not_found(e):
     return 'Error 404: Page not found, Please check ur route well.'
 
+
+@app.route('/api/v1/users')
+def users():
+    user = User.query.all()
+    if user:
+        result = users_schema.dump(user)
+        return jsonify({'users':result.data})
+    else:
+        return jsonify({'message':'0'})
+
+
+@app.route('/api/v1/user/<int:id>')
+def user(id):
+    user = User.query.get(id)
+
+    if user:
+        result = user_schema.dump(user)
+        return jsonify({'user':result.data})
+    else:
+        return jsonify({'message':'0'})
+
+
 @app.route('/api/v1/sg')
 def sg():
     sg = SavingGroup.query.all()

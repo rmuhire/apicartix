@@ -1,13 +1,47 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_cors import cross_origin, CORS
+
 
 app = Flask(__name__)
+
+CORS(app)
 
 db = SQLAlchemy(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    names = db.Column(db.String(80))
+    username = db.Column(db.String(40), unique=True)
+    email = db.Column(db.String(80), unique=True)
+    phone = db.Column(db.String(25))
+    dob = db.Column(db.DateTime)
+    user_role = db.Column(db.Integer)
+    regDate = db.Column(db.DateTime)
+    password = db.Column(db.String(80))
+    gender = db.Column(db.String(10))
+    job_title = db.Column(db.String(80))
+    ngo_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+
+    files = db.relationship('files', backref='user', lazy='dynamic')
+
+    def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, regDate=None):
+        self.names = names
+        self.username = username
+        self.email = email
+        self.phone = phone
+        self.user_role = user_role
+        self.password = password
+        self.gender = gender
+
+        if regDate is None:
+            self.regDate = datetime.utcnow()
+        self.ngo_id = ngo_id
 
 
 class SavingGroup(db.Model):
@@ -54,17 +88,13 @@ class Ngo(db.Model):
     email = db.Column(db.String(60))
     telephone = db.Column(db.String(30))
     website = db.Column(db.String(60))
-    category = db.Column(db.String(40))
+    category = db.Column(db.Integer) # Int NGO 1 : Local NGO : 0
     picture = db.Column(db.String(100))
     address = db.Column(db.String(200))
-    cp_name = db.Column(db.String(60))
-    cp_email = db.Column(db.String(60))
-    cp_telephone = db.Column(db.String(30))
-    username = db.Column(db.String(30))
-    password = db.Column(db.String(40))
 
+    user =  db.relationship('User', backref='ngo', lazy='dynamic')
 
-    def __init__(self, name, email, telephone, website, category, picture, address, cp_name, cp_email, cp_telephone, username, password):
+    def __init__(self, name, email, telephone, website, category, picture, address):
         self.name = name
         self.email = email
         self.telephone = telephone
@@ -72,15 +102,6 @@ class Ngo(db.Model):
         self.category = category
         self.picture = picture
         self.address = address
-        self.cp_name = cp_name
-        self.cp_email = cp_email
-        self.cp_telephone = cp_telephone
-        self.username = username
-        self.password = password
-
-
-
-
 
 
 class Sgs(db.Model):
@@ -91,3 +112,19 @@ class Sgs(db.Model):
     def __init__(self, partner_id, funding_id):
         self.partner_id = partner_id
         self.funding_id = funding_id
+
+
+class Files(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    original = db.Column(db.String(25))
+    saved = db.Column(db.String(25))
+    filename = db.Column(db.String(150))
+    regDate = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+
+    def __init__(self, original, saved, filename, regDate, user_id):
+        self.original = original
+        self.saved = saved
+        self.filename = filename
+        self.regDate = regDate
+        self.user_id = user_id
