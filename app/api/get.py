@@ -21,20 +21,20 @@ def users_():
     user = User.query.all()
     if user:
         result = users_schema.dump(user)
-        return jsonify({'Users':result.data})
+        return jsonify({'users':result.data})
     else:
-        return jsonify({'Message':'0'})
+        return jsonify({'message':'0'})
 
-@app.route('/api/v1/user/<name>')
-def user_(name):
-    user = User.query.filter((User.username== name) | (User.email== name)).first()
+@app.route('/api/v1/user/<int:id>')
+def user_(id):
+    user = User.query.filter(User.id== id).first()
 
     if user:
         result = user_schema.dump(user)
-        return jsonify({'User':result.data})
+        return jsonify({'user':result.data})
 
     else:
-        return jsonify({'Message':'0'})
+        return jsonify({'message':'0'})
 
 
 
@@ -42,7 +42,7 @@ def user_(name):
 def sg():
     sg = SavingGroup.query.all()
     result = sgs_schema.dump(sg)
-    return jsonify({'Saving groups':result.data})
+    return jsonify({'saving groups':result.data})
 
 
 @app.route('/api/v1/sg/<name>')
