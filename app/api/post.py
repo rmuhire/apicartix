@@ -148,9 +148,52 @@ def upload():
         #destination = "/var/www/html/apiasprin/pdf/"+re_filename
         os.rename(tmp_filename, destination)
 
-        data = Excellentodb(destination).toexcel()
+        status, data = Excellentodb(destination).toexcel()
 
-        return  jsonify({'destination':destination, 'data':data})
+        if status:
+            return jsonify({'status':status,'json':data,'originalpath':destination, 'filename':filename})
+        else:
+            return jsonify({'status':status, 'savepath':data, 'originalpath':destination, 'filename':filename})
+
+    else:
+        return jsonify({'status':2})
+
+
+@app.route('/api/v1/file/save/', methods=['POST'])
+def file_save():
+
+    json_data = request.get_json()
+
+    if not json_data:
+        return jsonify({'message': 'no valid input provided'}), 400
+
+    data, errors = file_schema.load(json_data)
+
+    if errors:
+        return jsonify(errors), 422
+
+    try:
+        files = Files(
+            original=data['original'],
+            saved=data['save'],
+            filename=data['filename'],
+            regDate=None,
+            user_id=data['user_id']
+        )
+
+        db.session.add(files)
+        db.session.commit()
+
+        last_file = file_schema.dump(Files.query.get(files.id)).data
+        return jsonify({'auth': 1, 'file': last_file})
+
+
+    except IntegrityError:
+        pass
+
+
+
+
 
 
 
