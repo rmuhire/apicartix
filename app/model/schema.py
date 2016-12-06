@@ -1,5 +1,20 @@
 from marshmallow import Schema,fields
 
+class UserSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    names = fields.String()
+    username = fields.String()
+    email = fields.String()
+    phone = fields.String()
+    user_role = fields.String()
+    regDate = fields.Date()
+    password = fields.String()
+    gender = fields.String()
+    job_title = fields.String()
+    ngo_id = fields.Integer()
+
+user_schema = UserSchema()
+users_schema = UserSchema(many = True)
 
 class SavingGroupSchema(Schema):
     id = fields.Integer(dump_only = True)
@@ -23,20 +38,17 @@ class AmountSchema(Schema):
 amount_schema = AmountSchema()
 amounts_schema = AmountSchema(many = True)
 
+
 class NgoSchema(Schema):
-    id = fields.Integer(dump_only = True)
-    name = fields.String()
-    email = fields.String()
-    telephone = fields.String()
-    username = fields.String()
-    website = fields.String()
-    category = fields.String()
-    picture = fields.String()
-    address = fields.String()
-    cp_name = fields.String()
-    cp_email = fields.String()
-    cp_telephone = fields.String()
-    password = fields.String()
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    email = fields.Str()
+    telephone = fields.Str()
+    website = fields.Str()
+    category = fields.Int()
+    picture = fields.Str()
+    address = fields.Str()
+
 
 ngo_schema = NgoSchema()
 ngos_schema = NgoSchema(many = True)
@@ -44,7 +56,6 @@ ngos_schema = NgoSchema(many = True)
 
 class SgsSchema(Schema):
     id = fields.Integer(dump_only = True)
-<<<<<<< HEAD
     partner_id = fields.Integer()
     funding_id = fields.Integer()
 
@@ -58,10 +69,3 @@ class CoverSchema(Schema):
 
 cov_schema = CoverSchema()
 covs_schema = CoverSchema(many = True)
-=======
-    partner_id = fields.Nested(NgoSchema)
-    funding_id = fields.Nested(NgoSchema)
-
-sgfp_schema = SgsSchema()
-sgfps_schema = SgsSchema(many = True)
->>>>>>> adbe3c21f962ebc11d982a0db95ded910abbc530
