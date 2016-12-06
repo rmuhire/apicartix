@@ -49,6 +49,13 @@ class SgsSchema(Schema):
     partner_id = fields.Nested(NgoSchema)
     funding_id = fields.Nested(NgoSchema)
 
+class FilesSchema(Schema):
+    id = fields.Int()
+    original = fields.Str()
+    save = fields.Str()
+    filename = fields.Str()
+    regDate = fields.Date()
+    user_id = fields.Int()
 
 
 
@@ -70,3 +77,6 @@ ngos_schema = NgoSchema(many=True)
 
 sgfp_schema = SgsSchema()
 sgfps_schema = SgsSchema(many=True)
+
+file_schema = FilesSchema()
+files_schema = FilesSchema(many=True)
