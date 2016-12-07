@@ -163,7 +163,7 @@ def login():
     user = User.query.filter((User.username==username) | (User.email==username)).first()
 
     try:
-        pw_hash = bcrypt.check_password_hash(ngo.password, password)
+        pw_hash = bcrypt.check_password_hash(user.password, password)
         if pw_hash:
             result = user_schema.dump(User.query.get(user.id))
             return jsonify({'auth': 1, 'user': result.data})
