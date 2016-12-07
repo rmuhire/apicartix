@@ -129,6 +129,6 @@ class Cover(db.Model):
     user_id=db.Column(db.Integer,db.ForeignKey('user.id'))
     code=db.Column(db.Integer)
 
-    def __init__(self, ngo_id,code):
-        self.ngo_id=ngo_id
+    def __init__(self, user_id,code):
+        self.user_id=user_id
         self.code=code
