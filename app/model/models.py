@@ -28,7 +28,7 @@ class User(db.Model):
     job_title = db.Column(db.String(80))
     ngo_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
 
-    files = db.relationship('files', backref='user', lazy='dynamic')
+    files = db.relationship('Files', backref='user', lazy='dynamic')
 
     def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, regDate=None):
         self.names = names
@@ -40,7 +40,9 @@ class User(db.Model):
         self.gender = gender
 
         if regDate is None:
-            self.regDate = datetime.utcnow()
+            regDate = datetime.utcnow()
+        self.regDate = regDate
+
         self.ngo_id = ngo_id
 
 
@@ -63,10 +65,8 @@ class SavingGroup(db.Model):
         self.member_male = member_male
         self.sector_id = sector_id
         if regDate is None:
+            self.regDate = datetime.utcnow()
 
-                regDate = datetime.utcnow()
-
-        self.regDate = regDate
 
 class Amount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -115,16 +115,19 @@ class Sgs(db.Model):
 
 
 class Files(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
-    original = db.Column(db.String(25))
-    saved = db.Column(db.String(25))
+    original = db.Column(db.String(175))
+    saved = db.Column(db.String(175))
     filename = db.Column(db.String(150))
     regDate = db.Column(db.DateTime)
-    user_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, original, saved, filename, regDate, user_id):
+    def __init__(self, original, saved, filename, user_id, regDate=None):
         self.original = original
         self.saved = saved
         self.filename = filename
-        self.regDate = regDate
         self.user_id = user_id
+        if regDate is None:
+            regDate = datetime.utcnow()
+        self.regDate = regDate
