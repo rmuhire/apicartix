@@ -187,7 +187,6 @@ def file_save():
         last_file = file_schema.dump(Files.query.get(files.id)).data
         return jsonify({'auth': 1, 'file': last_file})
 
-
     except IntegrityError:
         pass
 
