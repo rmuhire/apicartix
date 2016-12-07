@@ -1,5 +1,12 @@
-def changePass(json_data,pas):
+from flask import Flask, jsonify, request
+from flask_bcrypt import Bcrypt
 
-    json_data["password"]=pas
-    pas = json_data["password"]
+app = Flask(__name__)
+
+bcrypt = Bcrypt(app)
+
+
+def changePass(json_data,pas):
+    pwd_hash = bcrypt.generate_password_hash(pas)
+    pas=pwd_hash
     return pas
