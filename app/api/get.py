@@ -8,6 +8,7 @@ from flask import jsonify
 from app.controller.cont import *
 from flask_mail import Mail, Message
 from random import randint
+from app.controller.user_to_ngo import *
 
 mail=Mail(app)
 
@@ -77,9 +78,9 @@ def get_fuaa():
     result = ngos_schema.dump(funs).data
     return jsonify({'ngos':result})
 
-@app.route('/api/v1/ngo/<name>')
-def get_fun(name):
-    ng = Ngo.query.filter_by(name=name).first()
+@app.route('/api/v1/ngo/<int:nid>')
+def get_fun(nid):
+    ng = Ngo.query.get(nid)
     if ng:
         result = ngo_schema.dump(ng)
         return jsonify({'ngo':result.data})
@@ -109,7 +110,7 @@ def getfup(id):
 
 @app.route("/api/v1/recover/<email>")
 def recover(email):
-    df=User.query.filter_by(email=email).first()
+    df = User.query.filter_by(email=email).first()
     if df is None:
         return jsonify({'Message':"0"})
     else:
@@ -120,15 +121,15 @@ def recover(email):
         dd=x
 
         try:
-            sa=Cover.query.filter_by(ngo_id=df.id)
-            if sa is None:
+            sa=Cover.query.filter_by(user_id=df.id).first()
+            if sa:
                 db.session.delete(sa)
-                fj=Cover(ngo_id = df.id,code = dd)
+                fj=Cover(user_id = df.id,code = dd)
                 db.session.add(fj)
                 db.session.commit()
                 return jsonify({"message":"1"})
             else:
-                fj=Cover(ngo_id = df.id,code = dd)
+                fj=Cover(user_id = df.id,code = dd)
                 db.session.add(fj)
                 db.session.commit()
                 return jsonify({"message":"1"})
@@ -139,15 +140,15 @@ def recover(email):
 
 @app.route("/api/v1/rec/<code>/<pas>")
 def rec(code,pas):
-    ll=Cover.query.filter_by(code = code ).order_by(Cover.ngo_id.desc()).first()
+    ll=Cover.query.filter_by(code = code ).order_by(Cover.user_id.desc()).first()
     if ll is None:
         return jsonify({'message':'0'})
     else:
-        ld=Ngo.query.filter_by(id=ll.ngo_id).first()
+        ld=User.query.filter_by(id=ll.user_id).first()
         if ld is None:
             return jsonify({'message':'0'})
         else:
-            json_data=ngo_schema.dump(ld).data
+            json_data=user_schema.dump(ld).data
             pas = changePass(json_data,pas);
 
             ld.password=pas
@@ -155,18 +156,15 @@ def rec(code,pas):
 
             return jsonify({"message":'1'})
 
-'''@app.route('/api/v1/ngos')
-def ngos():
-    ngo = Ngo.query.all()
-    result = ngos_schema.dump(ngo).data
-    return jsonify({'NGOs':result})
 
-@app.route('/api/v1/ngo/<name>')
-def ngo(name):
-    ngo = Ngo.query.filter_by(name=name).first()
-    if ngo:
-        result = ngo_schema.dump(ngo)
-        return jsonify({'NGO':result.data})
+#============================================ USER TO NGO ==============================================
 
+@app.route('/api/v1/usertongo/<int:uid>')
+def us_id(uid):
+    user = User.query.get(uid)
+    if user is None:
+        return jsonify({'message':'0'})
     else:
-        return jsonify({'Message':'0'})'''
+        json_data=user_schema.dump(user).data
+        ngo = user_to_ngo(json_data);
+        return jsonify(ngo)
