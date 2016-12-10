@@ -5,6 +5,8 @@ from sqlalchemy.exc import IntegrityError
 import xlwt
 from xlrd import open_workbook
 from app.controller.uniqid import uniqid
+from app.controller.sector_id import sector_id
+
 
 class Excellentodb:
     def __init__(self, file):
@@ -12,14 +14,16 @@ class Excellentodb:
         self.json_data = Excellento(self.file).json()
 
     def todb(self):
+
         for data in self.json_data:
             try:
+                s_id = sector_id(data['sector'], data['district'])
                 saving = SavingGroup(
                     name=data['saving_group_name'],
                     year=data['sgs_year_of_creation'],
                     member_female=data['sgs_members__female'],
-                    member_male=data['sgs_members__male'],
-                    sector_id=data['sector_code'],
+                    member_male=data['sgs_members__male_'],
+                    sector_id=s_id,
                     regDate=None
                 )
                 db.session.add(saving)
@@ -97,7 +101,8 @@ class Excellentodb:
 
             sgs = Sgs(
                 partner_id=local_ngo_id,
-                funding_id=intl_ngo_id
+                funding_id=intl_ngo_id,
+                sg_id=saving.id
             )
 
             db.session.add(sgs)
@@ -198,9 +203,11 @@ class Excellentodb:
             return [1,json_data]
         else:
             filename = uniqid() + ".xls"
-            save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            #save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            save = "/var/www/html/uploads/save/" + filename
+            download = "http://cartix.io/uploads/save/" + filename
             book.save(save)
-            return [0,save]
+            return [0,download]
 
 
 
