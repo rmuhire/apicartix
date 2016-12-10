@@ -144,8 +144,8 @@ def upload():
 
         re_filename = uniqid()+file_extension
 
-        destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
-        #destination = "/var/www/html/apiasprin/pdf/"+re_filename
+        #destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
+        destination = "/var/www/html/uploads/user/"+re_filename
         os.rename(tmp_filename, destination)
 
         status, data = Excellentodb(destination).toexcel()
@@ -186,6 +186,40 @@ def file_save():
 
         last_file = file_schema.dump(Files.query.get(files.id)).data
         return jsonify({'auth': 1, 'file': last_file})
+
+    except IntegrityError:
+        pass
+
+
+@app.route('/api/v1/file/user/', methods=['POST'])
+def file_user():
+
+    json_data = request.get_json()
+
+    if not json_data:
+        return jsonify({'message': 'no valid input provided'}), 400
+
+    data, errors = file_schema.load(json_data)
+
+    if errors:
+        return jsonify(errors), 422
+
+    try:
+        files = Files(
+            original=data['original'],
+            saved=data['save'],
+            filename=data['filename'],
+            regDate=None,
+            user_id=data['user_id']
+        )
+
+        db.session.add(files)
+        db.session.commit()
+
+        to_db = Excellentodb(data['original']).todb()
+
+        last_file = file_schema.dump(Files.query.get(files.id)).data
+        return jsonify({'auth': 1, 'file': last_file,'todb':to_db})
 
     except IntegrityError:
         pass
