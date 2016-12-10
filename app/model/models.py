@@ -10,7 +10,8 @@ CORS(app)
 
 db = SQLAlchemy(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
@@ -28,7 +29,7 @@ class User(db.Model):
     job_title = db.Column(db.String(80))
     ngo_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
 
-    files = db.relationship('files', backref='user', lazy='dynamic')
+    files = db.relationship('Files', backref='user', lazy='dynamic')
 
     def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, regDate=None):
         self.names = names
@@ -40,14 +41,16 @@ class User(db.Model):
         self.gender = gender
 
         if regDate is None:
-            self.regDate = datetime.utcnow()
+            regDate = datetime.utcnow()
+        self.regDate = regDate
+
         self.ngo_id = ngo_id
 
 
 class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(100), unique=True)
     year = db.Column(db.Integer)
     member_female = db.Column(db.Integer)
     member_male = db.Column(db.Integer)
@@ -63,10 +66,8 @@ class SavingGroup(db.Model):
         self.member_male = member_male
         self.sector_id = sector_id
         if regDate is None:
+            self.regDate = datetime.utcnow()
 
-                regDate = datetime.utcnow()
-
-        self.regDate = regDate
 
 class Amount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -108,23 +109,28 @@ class Sgs(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     partner_id = db.Column(db.Integer)
     funding_id = db.Column(db.Integer)
+    sg_id = db.Column(db.Integer)
 
-    def __init__(self, partner_id, funding_id):
+    def __init__(self, partner_id, funding_id, sg_id):
         self.partner_id = partner_id
         self.funding_id = funding_id
+        self.sg_id = sg_id
 
 
 class Files(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
-    original = db.Column(db.String(25))
-    saved = db.Column(db.String(25))
+    original = db.Column(db.String(175))
+    saved = db.Column(db.String(175))
     filename = db.Column(db.String(150))
     regDate = db.Column(db.DateTime)
-    user_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, original, saved, filename, regDate, user_id):
+    def __init__(self, original, saved, filename, user_id, regDate=None):
         self.original = original
         self.saved = saved
         self.filename = filename
-        self.regDate = regDate
         self.user_id = user_id
+        if regDate is None:
+            regDate = datetime.utcnow()
+        self.regDate = regDate

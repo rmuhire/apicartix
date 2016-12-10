@@ -1,7 +1,9 @@
 from xlrd import open_workbook
 import json
 
+
 class Excellento:
+
     def __init__(self, filepath):
         self.filepath =filepath
         self.wb = open_workbook(self.filepath)

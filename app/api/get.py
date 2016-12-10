@@ -8,6 +8,8 @@ def page_not_found(e):
     return 'Error 404: Page not found, Please check ur route well.'
 
 
+
+
 @app.route('/api/v1/users')
 def users():
     user = User.query.all()

@@ -49,6 +49,7 @@ class SgsSchema(Schema):
     partner_id = fields.Nested(NgoSchema)
     funding_id = fields.Nested(NgoSchema)
 
+
 class FilesSchema(Schema):
     id = fields.Int()
     original = fields.Str()
