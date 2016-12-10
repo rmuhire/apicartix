@@ -10,7 +10,8 @@ CORS(app)
 
 db = SQLAlchemy(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
@@ -49,7 +50,7 @@ class User(db.Model):
 class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(100), unique=True)
     year = db.Column(db.Integer)
     member_female = db.Column(db.Integer)
     member_male = db.Column(db.Integer)
@@ -108,10 +109,12 @@ class Sgs(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     partner_id = db.Column(db.Integer)
     funding_id = db.Column(db.Integer)
+    sg_id = db.Column(db.Integer)
 
-    def __init__(self, partner_id, funding_id):
+    def __init__(self, partner_id, funding_id, sg_id):
         self.partner_id = partner_id
         self.funding_id = funding_id
+        self.sg_id = sg_id
 
 
 class Files(db.Model):
