@@ -144,8 +144,8 @@ def upload():
 
         re_filename = uniqid()+file_extension
 
-        #destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
-        destination = "/var/www/html/uploads/user/"+re_filename
+        destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
+        #destination = "/var/www/html/uploads/user/"+re_filename
         os.rename(tmp_filename, destination)
 
         status, data = Excellentodb(destination).toexcel()
