@@ -9,6 +9,9 @@ from app.controller.cont import *
 from flask_mail import Mail, Message
 from random import randint
 from app.controller.user_to_ngo import *
+from datetime import datetime
+import platform
+from app.controller.geoloc import *
 
 mail=Mail(app)
 
@@ -116,7 +119,7 @@ def recover(email):
     else:
         x=randint(100, 9999)
         msg = Message('Hello', sender = 'getlunchex@gmail.com', recipients = [df.email])
-        msg.body = "your code is {}".format(x)
+        msg.html ="""<body style=color:black;background-color:#5DADE2;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold>HELLO, YOUR CARTIX PASSWORD RECOVERY CODE IS:<br><span style=text-align:center;color:white;padding:3cm;font-style:oblique>{code}</span></body>""".format(code=x)
         mail.send(msg)
         dd=x
 
@@ -153,7 +156,12 @@ def rec(code,pas):
 
             ld.password=pas
             db.session.commit()
-
+            loc=geoloc()
+            date=datetime.utcnow()
+            plat=platform.system()
+            msg = Message('Hello', sender = 'getlunchex@gmail.com', recipients = [ld.email])
+            msg.html ="""<body style=color:black;background-color:#5DADE2;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold>YOUR CARTIX PASSWORD WAS SUCCESSFULLY CHANGED<br><span style=text-align:center;color:white;padding:3cm;font-style:oblique> This happened:    {date} </span><br><span style=text-align:center;color:white;padding:3cm;font-style:oblique> Operating System:   {plat} </span><br><span style=text-align:center;color:white;padding:3cm;font-style:oblique> Done at :  {loc} </span></body>""".format(date=date,plat=plat,loc=loc)
+            mail.send(msg)
             return jsonify({"message":'1'})
 
 
