@@ -8,6 +8,12 @@ from app.controller.exellentodb import Excellentodb
 from app.controller.exellentodb import Excellento
 from app.controller.get_username import *
 from sqlalchemy.exc import IntegrityError
+from flask_mail import Mail, Message
+import platform
+from app.controller.geoloc import *
+from datetime import datetime
+
+mail=Mail(app)
 
 @app.route('/api/v1/exellento',methods=['POST'])
 def excellento():
@@ -88,6 +94,12 @@ def add_user():
         db.session.commit()
 
         last_user = user_schema.dump(User.query.get(user.id)).data
+        loc=geoloc()
+        date=datetime.utcnow()
+        plat=platform.system()
+        msg = Message('Hello', sender = 'getlunchex@gmail.com', recipients = [data['email']])
+        msg.html ="""<body style=color:black;background-color:#5DADE2;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold>HELLO, YOUR CARTIX ACCOUNT USERNAME IS:<br><span style=text-align:center;color:white;padding:3cm;font-style:oblique>{username}</span><br><span style=text-align:right;color:white;padding:3cm;font-style:oblique;font-size:50%> This happened:    {date} </span><br><span style=text-align:right;color:white;padding:3cm;font-style:oblique;font-size:50%> Operating System:   {plat} </span><br><span style=text-align:right;color:white;padding:3cm;font-style:oblique;font-size:50%>Done at :  {loc} </span></body>""".format(username=username,date=date,plat=plat,loc=loc)
+        mail.send(msg)
         return jsonify({'auth':1, 'user':last_user})
 
     except IntegrityError:
