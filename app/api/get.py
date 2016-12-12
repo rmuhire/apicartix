@@ -76,7 +76,7 @@ def amount_sg(id):
         return jsonify({'message':'0'})
 
 @app.route('/api/v1/ngos')
-def get_fuaa():
+def get_fuaas():
     funs = Ngo.query.all()
     result = ngos_schema.dump(funs).data
     return jsonify({'ngos':result})
