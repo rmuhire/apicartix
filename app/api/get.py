@@ -2,6 +2,8 @@ from app import *
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify
+from kenessa import Province, District
+import json
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -69,12 +71,23 @@ def ngos():
     result = ngos_schema.dump(ngo).data
     return jsonify({'NGOs':result})
 
-@app.route('/api/v1/ngo/<name>')
-def ngo(name):
-    ngo = Ngo.query.filter_by(name=name).first()
+@app.route('/api/v1/ngo/<id>')
+def ngo(id):
+    ngo = Ngo.query.get(id)
     if ngo:
         result = ngo_schema.dump(ngo)
-        return jsonify({'NGO':result.data})
+        return jsonify({'ngo':result.data})
 
     else:
         return jsonify({'Message':'0'})
+
+
+@app.route('/api/v1/province/<id>')
+def province(id):
+    province = json.loads(Province(id).province())
+    return jsonify({'province':province})
+
+@app.route('/api/v1/province/district/<id>')
+def district(id):
+    district = json.loads(Province(id).district())
+    return jsonify(district)
