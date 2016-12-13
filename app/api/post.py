@@ -92,14 +92,15 @@ def add_ngo():
         db.session.add(ngo)
         db.session.commit()
 
-        last_ngo = ngo_schema.dump(Ngo.query.get(ngo.id)).data
-        return jsonify({'result': True})
+        session['ngo_id'] = ngo.id
+
+        return jsonify({'result': session['ngo_id']})
 
     except IntegrityError:
         db.session().rollback()
         ngo = Ngo.query.filter_by(name=data['name'].upper()).first()
-        ngo_id = ngo.id
-        return jsonify({'result': False})
+        session['ngo_id'] = ngo.id
+        return jsonify({'result': session['ngo_id']})
 
 
 @app.route("/api/v1/login/", methods=['POST'])
@@ -120,8 +121,7 @@ def login():
         if pw_hash:
             session['logged_in'] = True
             session['user_id'] = user.id
-            status = True
-            return jsonify({'result': status})
+            return jsonify({'result': user.id})
         else:
             status = False
             return jsonify({'result': status})
