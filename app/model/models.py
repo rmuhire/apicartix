@@ -10,9 +10,10 @@ CORS(app)
 
 db = SQLAlchemy(app)
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['SECRET_KEY'] = 'rmuhire'
 
 
 class User(db.Model):
