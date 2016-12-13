@@ -4,7 +4,7 @@ from app.model.schema import *
 from flask import request
 from datetime import date
 from datetime import time
-from flask import jsonify
+from flask import jsonify,render_template
 from app.controller.cont import *
 from flask_mail import Mail, Message
 from random import randint
@@ -12,7 +12,6 @@ from app.controller.user_to_ngo import *
 from datetime import datetime
 import platform
 from app.controller.geoloc import *
-
 mail=Mail(app)
 
 @app.errorhandler(404)
@@ -68,7 +67,7 @@ def amountss():
 
 @app.route('/api/v1/amount/<int:id>')
 def amount_sg(id):
-    amount = Amount.query.filter_by(sg_id=id).first()
+    amount = Amount.query.filter_bby(sg_id=id).first()
     if amount:
         result = amount_schema.dump(amount)
         return jsonify({'sg-amount':result.data})
@@ -118,8 +117,9 @@ def recover(email):
         return jsonify({'Message':"0"})
     else:
         x=randint(100, 9999)
-        msg = Message('Hello', sender = 'getlunchex@gmail.com', recipients = [df.email])
-        msg.html ="""<body style=color:black;background-color:#5DADE2;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold>HELLO, YOUR CARTIX PASSWORD RECOVERY CODE IS:<br><span style=text-align:center;color:white;padding:3cm;font-style:oblique>{code}</span></body>""".format(code=x)
+        msg = Message('Hello', sender = 'noreply@cartix.io', recipients = [df.email])
+        msg.html ="""<body style="background-color:#7F4646  ;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold"><br><span style="color:white;font-size:250%;text-align:center">CARTIX</span><br><br><br><span style="color:white">HELLO, Your Cartix Recovery Password Is:</span><br><br><span style="text-align:center;color:white;padding:3cm;font-style:oblique;font-size:150%">{code}</span></body>""".format(code=x)
+        #msg.html="""<!DOCTYPE html><html lang="en"> <head> <title>Cartix-mail</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet"> <link rel="shortcut icon" href="img/cartix-favicon.png" type="image/x-icon"> <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> <link rel="stylesheet" href="http://cartix.io/assets/css/style_mail.css"> </head> <body> <!-- First Container --> <div class="container bg-1 text-center"> <div class="box-container"> <div class="row"> <div class="col-md-6"> <img src="http://cartix.io/assets/img/mail/cartix_logo.png" class="cartix-icon"> </div> <div class="col-md-6"> <img src="http://cartix.io/assets/img/mail/mail-icon.png" class=" mail-icon"> </div> </div> </div> </div> <div class="container bg-2 text-center"> <div class="box-container-2"> <h1 class="text-left">Your Password Recovery Code Is:</h1> <p class="text-left">{code}</p> </div> <div class="btn-box"> <div class="row"> <div class="col-md-3 col-md-offset-3"></div> <div class="col-md-3 col-md-offset-3"> <button type="button" class="btn btn-success btn-mail">Confirm</button> </div> </div> </div> <div class="mail-footer"> <img src="http://cartix.io/assets/img/mail/mail_footer.png" class="img-responsive"> </div> </div> </div> </body></html""".format(code=x)
         mail.send(msg)
         dd=x
 
@@ -159,8 +159,8 @@ def rec(code,pas):
             loc=geoloc()
             date=datetime.utcnow()
             plat=platform.system()
-            msg = Message('Hello', sender = 'getlunchex@gmail.com', recipients = [ld.email])
-            msg.html ="""<body style=color:black;background-color:#5DADE2;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold>YOUR CARTIX PASSWORD WAS SUCCESSFULLY CHANGED<br><span style=text-align:center;color:white;padding:3cm;font-style:oblique> This happened:    {date} </span><br><span style=text-align:center;color:white;padding:3cm;font-style:oblique> Operating System:   {plat} </span><br><span style=text-align:center;color:white;padding:3cm;font-style:oblique> Done at :  {loc} </span></body>""".format(date=date,plat=plat,loc=loc)
+            msg = Message('Hello', sender = 'noreply@cartix.io', recipients = [ld.email])
+            msg.html ="""<body style="background-color:#7F4646  ;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold"><br><span style="color:white;font-size:250%;text-align:center">CARTIX</span><br><br><br><span style="color:white">HELLO, Your Cartix Password Was Recovered Successfully</span><br><br><span style="text-align:center;color:white;padding:3cm;font-style:oblique;font-size:50%">this happened at :{date}</span><br><span style="text-align:center;color:white;padding:3cm;font-style:oblique;font-size:50%">operting system :{plat}</span><br><span style="text-align:center;color:white;padding:3cm;font-style:oblique;font-size:50%">Location : {loc}</span></body>""".format(date=date,plat=plat,loc=loc)
             mail.send(msg)
             return jsonify({"message":'1'})
 
