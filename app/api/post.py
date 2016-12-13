@@ -97,8 +97,8 @@ def add_user():
         loc=geoloc()
         date=datetime.utcnow()
         plat=platform.system()
-        msg = Message('Hello', sender = 'getlunchex@gmail.com', recipients = [data['email']])
-        msg.html ="""<body style=color:black;background-color:#5DADE2;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold>HELLO, YOUR CARTIX ACCOUNT USERNAME IS:<br><span style=text-align:center;color:white;padding:3cm;font-style:oblique>{username}</span><br><span style=text-align:right;color:white;padding:3cm;font-style:oblique;font-size:50%> This happened:    {date} </span><br><span style=text-align:right;color:white;padding:3cm;font-style:oblique;font-size:50%> Operating System:   {plat} </span><br><span style=text-align:right;color:white;padding:3cm;font-style:oblique;font-size:50%>Done at :  {loc} </span></body>""".format(username=username,date=date,plat=plat,loc=loc)
+        msg = Message('Hello', sender = 'noreply@cartix.io', recipients = [data['email']])
+        msg.html ="""<body style="background-color:#7F4646  ;margin:50px;text-align:center;padding:40px;font-size:150%;font-weight:bold"><br><span style="color:white;font-size:250%;text-align:center">CARTIX</span><br><br><span style="color:white">HELLO, Your Cartix Account Was Successfully Created,Your Username Is:</span><br><br><span style="text-align:center;color:white;padding:3cm;font-style:oblique;font-size:150%"> {username} </span><br><br><span style="text-align:center;color:white;padding:3cm;font-style:oblique;font-size:50%">this happened at :{date}</span><br><span style="text-align:center;color:white;padding:3cm;font-style:oblique;font-size:50%">operting system :{plat}</span><br><span style="text-align:center;color:white;padding:3cm;font-style:oblique;font-size:50%">Location : {loc}</span></body>""".format(username=username,date=date,plat=plat,loc=loc)
         mail.send(msg)
         return jsonify({'auth':1, 'user':last_user})
 
