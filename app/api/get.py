@@ -1,15 +1,14 @@
 from app import *
 from app.model.models import *
 from app.model.schema import *
-from flask import jsonify
+from flask import jsonify, session
 from kenessa import Province, District
 import json
+
 
 @app.errorhandler(404)
 def page_not_found(e):
     return 'Error 404: Page not found, Please check ur route well.'
-
-
 
 
 @app.route('/api/v1/users')
@@ -56,6 +55,7 @@ def amount():
     result = amounts_schema.dump(amount).data
     return jsonify({'Amounts':result})
 
+
 @app.route('/api/v1/amount/<int:id>')
 def amount_sg(id):
     amount = Amount.query.filter_by(sg_id=id).first()
@@ -65,11 +65,13 @@ def amount_sg(id):
     else:
         return jsonify({'Message':'0'})
 
+
 @app.route('/api/v1/ngos')
 def ngos():
     ngo = Ngo.query.all()
     result = ngos_schema.dump(ngo).data
     return jsonify({'NGOs':result})
+
 
 @app.route('/api/v1/ngo/<id>')
 def ngo(id):
@@ -87,7 +89,15 @@ def province(id):
     province = json.loads(Province(id).province())
     return jsonify({'province':province})
 
+
 @app.route('/api/v1/province/district/<id>')
 def district(id):
     district = json.loads(Province(id).district())
     return jsonify(district)
+
+
+@app.route('/api/v1/logout')
+def logout():
+    session.pop('logged_in', None)
+    session.pop('user_id', None)
+    return jsonify({'result': 'success'})
