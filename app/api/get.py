@@ -96,8 +96,3 @@ def district(id):
     return jsonify(district)
 
 
-@app.route('/api/v1/logout')
-def logout():
-    session.pop('logged_in', None)
-    session.pop('user_id', None)
-    return jsonify({'result': 'success'})
