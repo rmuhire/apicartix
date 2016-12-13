@@ -10,19 +10,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhos
 
 CORS(app)
 
-
 db = SQLAlchemy(app)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'getlunchex@gmail.com'
-app.config['MAIL_PASSWORD'] = 'lunchex@exuus.com'
+app.config['MAIL_USERNAME'] = 'noreply@cartix.io'
+app.config['MAIL_PASSWORD'] = 'NoReply=Cartix2016'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
 
 db = SQLAlchemy(app)
+
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -40,7 +41,6 @@ class User(db.Model):
 
     cover = db.relationship('Cover', backref='user', lazy='dynamic')
 
-
     def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, regDate=None):
         self.names = names
         self.username = username
@@ -53,6 +53,7 @@ class User(db.Model):
         if regDate is None:
             self.regDate = datetime.utcnow()
         self.ngo_id = ngo_id
+
 
 
 class SavingGroup(db.Model):
@@ -79,7 +80,6 @@ class SavingGroup(db.Model):
 
         self.regDate = regDate
 
-
 class Amount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     saving = db.Column(db.Float)
@@ -92,7 +92,6 @@ class Amount(db.Model):
         self.borrowing = borrowing
         self.year = year
         self.sg_id = sg_id
-
 
 class Ngo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
