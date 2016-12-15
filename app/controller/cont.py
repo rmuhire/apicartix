@@ -1,5 +1,6 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request,render_template
 from flask_bcrypt import Bcrypt
+import templates
 
 app = Flask(__name__)
 
