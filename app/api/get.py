@@ -1,8 +1,9 @@
 from app import *
 from app.model.models import *
 from app.model.schema import *
-from flask import jsonify, session
-from kenessa import Province, District
+from flask import jsonify
+from kenessa import Province
+from app.template.email import Email
 import json
 
 
@@ -96,3 +97,22 @@ def district(id):
     return jsonify(district)
 
 
+@app.route("/api/v1/recover/<email>")
+def recover(email):
+
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({'result': False})
+
+    status = Email(user.names, user.username, user.email).resetlink()
+
+    return jsonify({'result': status})
+
+
+@app.route('/api/v1/check/key/<email>/<key>')
+def reset_password(email, key):
+    user = User.query.filter(User.update_key == key).first()
+    if user is None:
+        return jsonify({'result' : False})
+
+    return jsonify({'result' : True})
