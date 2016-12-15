@@ -15,7 +15,7 @@ db = SQLAlchemy(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'noreply@cartix.io'
+app.config['MAIL_USERNAME'] = 'no-reply@cartix.io'
 app.config['MAIL_PASSWORD'] = 'NoReply=Cartix2016'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
