@@ -1,12 +1,13 @@
 from app.model.models import *
 from app.model.schema import *
-from flask import jsonify,request
+from flask import jsonify,request, session
 from app.controller.exellentodb import Excellentodb
 from app.controller.exellentodb import Excellento
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
 from app.controller.getusername import get_username
 from werkzeug import secure_filename
+from app.template.email import Email
 import os
 from app.controller.uniqid import uniqid
 
@@ -28,7 +29,7 @@ def visualize():
     return jsonify({'data':data})
 
 
-@app.route('/api/v1/user', methods=['POST'])
+@app.route('/api/v1/user/', methods=['POST'])
 def add_user():
     json_data = request.get_json()
 
@@ -53,6 +54,7 @@ def add_user():
             regDate=None,
             password=pwd_hash,
             gender=None,
+            update_key=None,
             ngo_id=data['ngo_id']
         )
 
@@ -60,13 +62,14 @@ def add_user():
         db.session.commit()
 
         last_user = user_schema.dump(User.query.get(user.id)).data
-        return jsonify({'auth':1, 'user':last_user})
+        Email(user.names, user.username, user.email).account()
+        return jsonify({'result':True})
 
     except IntegrityError:
-        return jsonify({'auth': 0, 'message': 'Already added.'})
+        return jsonify({'result': False})
 
 
-@app.route('/api/v1/ngo', methods=['POST'])
+@app.route('/api/v1/ngo/', methods=['POST'])
 def add_ngo():
     json_data = request.get_json()
 
@@ -92,14 +95,12 @@ def add_ngo():
         db.session.add(ngo)
         db.session.commit()
 
-        last_ngo = ngo_schema.dump(Ngo.query.get(ngo.id)).data
-        return jsonify({'auth':1, 'ngo':last_ngo})
+        return jsonify({'result': ngo.id})
 
     except IntegrityError:
         db.session().rollback()
         ngo = Ngo.query.filter_by(name=data['name'].upper()).first()
-        ngo_id = ngo.id
-        return jsonify({'auth': 0, 'ngo': ngo_id})
+        return jsonify({'result': ngo.id})
 
 
 @app.route("/api/v1/login/", methods=['POST'])
@@ -118,12 +119,14 @@ def login():
     try:
         pw_hash = bcrypt.check_password_hash(user.password, password)
         if pw_hash:
-            result = user_schema.dump(User.query.get(user.id))
-            return jsonify({'auth': 1, 'user': result.data})
+            session['logged_in'] = True
+            return jsonify({'result': user.id})
         else:
-            return jsonify({'auth': 0})
+            status = False
+            return jsonify({'result': status})
     except AttributeError:
-        return jsonify({'auth':2})
+        status = False
+        return jsonify({'result': status})
 
 
 

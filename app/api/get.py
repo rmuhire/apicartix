@@ -2,12 +2,14 @@ from app import *
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify
+from kenessa import Province
+from app.template.email import Email
+import json
+
 
 @app.errorhandler(404)
 def page_not_found(e):
     return 'Error 404: Page not found, Please check ur route well.'
-
-
 
 
 @app.route('/api/v1/users')
@@ -54,6 +56,7 @@ def amount():
     result = amounts_schema.dump(amount).data
     return jsonify({'Amounts':result})
 
+
 @app.route('/api/v1/amount/<int:id>')
 def amount_sg(id):
     amount = Amount.query.filter_by(sg_id=id).first()
@@ -63,18 +66,53 @@ def amount_sg(id):
     else:
         return jsonify({'Message':'0'})
 
+
 @app.route('/api/v1/ngos')
 def ngos():
     ngo = Ngo.query.all()
     result = ngos_schema.dump(ngo).data
     return jsonify({'NGOs':result})
 
-@app.route('/api/v1/ngo/<name>')
-def ngo(name):
-    ngo = Ngo.query.filter_by(name=name).first()
+
+@app.route('/api/v1/ngo/<id>')
+def ngo(id):
+    ngo = Ngo.query.get(id)
     if ngo:
         result = ngo_schema.dump(ngo)
-        return jsonify({'NGO':result.data})
+        return jsonify({'ngo':result.data})
 
     else:
         return jsonify({'Message':'0'})
+
+
+@app.route('/api/v1/province/<id>')
+def province(id):
+    province = json.loads(Province(id).province())
+    return jsonify({'province':province})
+
+
+@app.route('/api/v1/province/district/<id>')
+def district(id):
+    district = json.loads(Province(id).district())
+    return jsonify(district)
+
+
+@app.route("/api/v1/recover/<email>")
+def recover(email):
+
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({'result': False})
+
+    status = Email(user.names, user.username, user.email).resetlink()
+
+    return jsonify({'result': status})
+
+
+@app.route('/api/v1/check/key/<email>/<key>')
+def reset_password(email, key):
+    user = User.query.filter(User.update_key == key).first()
+    if user is None:
+        return jsonify({'result' : False})
+
+    return jsonify({'result' : True})
