@@ -11,6 +11,7 @@ class UserSchema(Schema):
     regDate = fields.Date()
     password = fields.String()
     gender = fields.String()
+    update_key = fields.String()
     job_title = fields.String()
     ngo_id = fields.Integer()
 
