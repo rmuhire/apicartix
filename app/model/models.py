@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_cors import cross_origin, CORS
+from flask_mail import Mail, Message
 
 
 app = Flask(__name__)
@@ -10,10 +11,18 @@ CORS(app)
 
 db = SQLAlchemy(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = 'rmuhire'
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_DEFAULT_SENDER'] = 'Cartix Team'
+app.config['MAIL_USERNAME'] = 'no-reply@cartix.io'
+app.config['MAIL_PASSWORD'] = 'NoReply=Cartix2016'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 
 
 class User(db.Model):
@@ -27,12 +36,13 @@ class User(db.Model):
     regDate = db.Column(db.DateTime)
     password = db.Column(db.String(80))
     gender = db.Column(db.String(10))
+    update_key = db.Column(db.String(240))
     job_title = db.Column(db.String(80))
     ngo_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
 
     files = db.relationship('Files', backref='user', lazy='dynamic')
 
-    def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, regDate=None):
+    def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, update_key, regDate=None):
         self.names = names
         self.username = username
         self.email = email
@@ -40,6 +50,7 @@ class User(db.Model):
         self.user_role = user_role
         self.password = password
         self.gender = gender
+        self.update_key = update_key
 
         if regDate is None:
             regDate = datetime.utcnow()
