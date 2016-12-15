@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
 from app.controller.getusername import get_username
 from werkzeug import secure_filename
+from app.template.email import Email
 import os
 from app.controller.uniqid import uniqid
 
@@ -53,6 +54,7 @@ def add_user():
             regDate=None,
             password=pwd_hash,
             gender=None,
+            update_key=None,
             ngo_id=data['ngo_id']
         )
 
@@ -60,10 +62,11 @@ def add_user():
         db.session.commit()
 
         last_user = user_schema.dump(User.query.get(user.id)).data
-        return jsonify({'result':last_user})
+        Email(user.names, user.username, user.email).account()
+        return jsonify({'result':True})
 
     except IntegrityError:
-        return jsonify({'result': '0'})
+        return jsonify({'result': False})
 
 
 @app.route('/api/v1/ngo/', methods=['POST'])
@@ -92,15 +95,12 @@ def add_ngo():
         db.session.add(ngo)
         db.session.commit()
 
-        session['ngo_id'] = ngo.id
-
-        return jsonify({'result': session['ngo_id']})
+        return jsonify({'result': ngo.id})
 
     except IntegrityError:
         db.session().rollback()
         ngo = Ngo.query.filter_by(name=data['name'].upper()).first()
-        session['ngo_id'] = ngo.id
-        return jsonify({'result': session['ngo_id']})
+        return jsonify({'result': ngo.id})
 
 
 @app.route("/api/v1/login/", methods=['POST'])
@@ -120,7 +120,6 @@ def login():
         pw_hash = bcrypt.check_password_hash(user.password, password)
         if pw_hash:
             session['logged_in'] = True
-            session['user_id'] = user.id
             return jsonify({'result': user.id})
         else:
             status = False
@@ -148,8 +147,8 @@ def upload():
 
         re_filename = uniqid()+file_extension
 
-        destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
-        #destination = "/var/www/html/uploads/user/"+re_filename
+        #destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
+        destination = "/var/www/html/uploads/user/"+re_filename
         os.rename(tmp_filename, destination)
 
         status, data = Excellentodb(destination).toexcel()
