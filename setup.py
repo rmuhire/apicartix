@@ -15,7 +15,8 @@ setup(name='cartix',
             'marshmallow',
             'kenessa',
             'xlwt',
-            'xlrd'
+            'xlrd',
+            'flask-mail'
       ],
       include_package_data=True,
       zip_safe=False)
