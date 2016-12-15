@@ -18,6 +18,7 @@ def change_password():
     user = User.query.filter_by(email = email).first()
 
     user.password = pw_hash
+    user.update_key = None
     db.session.commit()
 
     status = Email(user.names, user.username, user.email).resetsuccess()
