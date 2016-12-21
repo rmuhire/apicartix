@@ -120,7 +120,7 @@ def login():
         pw_hash = bcrypt.check_password_hash(user.password, password)
         if pw_hash:
             session['logged_in'] = True
-            return jsonify({'result': user.id})
+            return jsonify({'result': user.id, 'ngo_id':user.ngo_id})
         else:
             status = False
             return jsonify({'result': status})
@@ -147,8 +147,9 @@ def upload():
 
         re_filename = uniqid()+file_extension
 
-        #destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
-        destination = "/var/www/html/uploads/user/"+re_filename
+
+        destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
+        #destination = "/home/www/cartix/uploads/user/"+re_filename
         os.rename(tmp_filename, destination)
 
         status, data = Excellentodb(destination).toexcel()
