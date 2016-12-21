@@ -1,15 +1,12 @@
 from app import *
 from app.model.models import *
 from app.model.schema import *
-from flask import jsonify
+from flask import jsonify, send_from_directory
 from kenessa import Province
 from app.template.email import Email
 import json
 
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return 'Error 404: Page not found, Please check ur route well.'
 
 
 @app.route('/api/v1/users')
@@ -116,3 +113,9 @@ def reset_password(email, key):
         return jsonify({'result' : False})
 
     return jsonify({'result' : True})
+
+
+@app.route('/api/v1/save/<path:filename>', methods=['GET','POST'])
+def read_saved(filename):
+    uploads = '/home/www/cartix/uploads/save/'
+    return send_from_directory(directory=uploads, filename=filename)
