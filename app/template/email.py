@@ -37,7 +37,7 @@ class Email:
 
     def resetsuccess(self):
 
-        msg = Message('[Cartix] Password reset success', sender='Cartix Team', recipients=[self.email])
+        msg = Message('[Cartix] Password reset successful', sender='Cartix Team', recipients=[self.email])
         content = "<h4><span style='font-weight:200'>Hello</span> {names} <span style='font-weight:200'>,</span> </h4> <p> You've successfully changed your Cartix password. <br> {link}</p><p>{footer}</p>".format(
             names=self.names, link=self.login, footer=self.footer)
         msg.html = """ {content} """.format(content=content)

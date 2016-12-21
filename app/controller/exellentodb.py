@@ -203,9 +203,9 @@ class Excellentodb:
             return [1,json_data]
         else:
             filename = uniqid() + ".xls"
-            #save = "/Users/muhireremy/cartix/uploads/save/" + filename
-            save = "/var/www/html/uploads/save/" + filename
-            download = "http://cartix.io/uploads/save/" + filename
+            save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            #save = "/home/www/cartix/uploads/save/" + filename
+            download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
 <<<<<<< HEAD
             return [0,save]
