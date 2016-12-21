@@ -20,28 +20,28 @@ class Checker:
 
         # Check Province
 
-        province = json.loads(Province(str(self.province)).province())
+        '''province = json.loads(Province(str(self.province)).province())
         self.status['province'] = 0
-        if province['province']:
-            self.status['province'] = 1
+        if province['province']:'''
+        self.status['province'] = 1
 
         # Check District
 
-        district = json.loads(District(str(self.district)).district())
+        '''district = json.loads(District(str(self.district)).district())
         self.status['district'] = 0
 
-        if district['district']:
-            self.status['district'] = 1
+        if district['district']:'''
+        self.status['district'] = 1
 
         # check Sector
-        self.status['sector'] = 0
+        '''self.status['sector'] = 0
         if self.status['district']:
             data = json.loads(District(str(self.district)).sector())
             sectors = data[str(self.district)]
             items = sectors[0]['sector']
             for item in items:
-                if item['name'].lower() == str(self.sector.lower()):
-                    self.status['sector'] = 1
+                if item['name'].lower() == str(self.sector.lower()): '''
+        self.status['sector'] = 1
         try:
             self.status['member'] = 1
             if int(self.member) < 15 | int(self.member > 30):
