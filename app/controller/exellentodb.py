@@ -128,6 +128,7 @@ class Excellentodb:
             rows = sheet.nrows
             columns = sheet.ncols
             indexes = [0,1,2,5,11,12]
+            keys = ['province', 'district', 'sector', 'member', 'saved', 'borrow']
 
             #header
 
@@ -143,7 +144,8 @@ class Excellentodb:
             #value
 
             for row in range(1, rows):
-                data = [
+
+                cols_value = [
                     sheet.cell(row, 0).value,
                     sheet.cell(row, 1).value,
                     sheet.cell(row, 2).value,
@@ -151,43 +153,17 @@ class Excellentodb:
                     sheet.cell(row, 11).value,
                     sheet.cell(row, 12).value
                 ]
-                checker = Checker(data).checker()
 
-                if checker['province'] == 0:
-                    sheet1.write(row, 0, data[0], style)
-                    error_file = 0
-                else:
-                    sheet1.write(row, 0, data[0])
+                func = [
+                    Checker(cols_value[0]).province(),
+                    Checker(cols_value[1]).district(),
+                    Checker(cols_value[2]).sector(),
+                    Checker(cols_value[3]).member(),
+                    Checker(cols_value[4]).saved(),
+                    Checker(cols_value[5]).borrow()
+                ]
 
-                if checker['district'] == 0:
-                    sheet1.write(row, 1, data[1], style)
-                    error_file = 0
-                else:
-                    sheet1.write(row, 1, data[1])
-
-                if checker['sector'] == 0:
-                    sheet1.write(row, 2, data[2], style)
-                    error_file = 0
-                else:
-                    sheet1.write(row, 2, data[2])
-
-                if checker['member'] == 0:
-                    sheet1.write(row, 5, data[3], style)
-                    error_file = 0
-                else:
-                    sheet1.write(row, 5, data[3])
-
-                if checker['saved'] == 0:
-                    sheet1.write(row, 11, data[4], style)
-                    error_file = 0
-                else:
-                    sheet1.write(row, 11, data[4])
-
-                if checker['borrow'] == 0:
-                    sheet1.write(row, 12, data[5], style)
-                    error_file = 0
-                else:
-                    sheet1.write(row, 12, data[5])
+                #checker = Checker(data).checker()
 
                 for col in range(columns):
                     value = sheet.cell(row, col).value
@@ -198,13 +174,20 @@ class Excellentodb:
                         else:
                             sheet1.write(row, col, value, style)
 
+                for i in range(len(func)):
+                    if func[i]:
+                        sheet1.write(row, indexes[i], cols_value[i])
+                    else:
+                        sheet1.write(row, indexes[i], cols_value[i], style)
+                        error_file = 0
+
         if error_file:
             json_data = self.json_data
             return [1,json_data]
         else:
             filename = uniqid() + ".xls"
-            save = "/Users/muhireremy/cartix/uploads/save/" + filename
-            #save = "/home/www/cartix/uploads/save/" + filename
+            #save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            save = "/home/www/cartix/uploads/save/" + filename
             download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
             return [0,download]
