@@ -1,11 +1,11 @@
-from kenessa import Province, District
-import json
+from kenessa import Province
 
 
 class Checker:
 
-    def __init__(self, data):
-        if isinstance(data, list):
+    def __init__(self, identifier):
+        """if isinstance(data, list):
+            self.identifier = identifier
             self.province = data[0]
             self.district = data[1].lower().title()
             self.sector = data[2]
@@ -14,16 +14,50 @@ class Checker:
             self.borrow = data[5]
             self.status = {}
         else:
-            self.value = str(data)
+            self.value = str(data) """
+
+        self.identifier = identifier
+
+    def province(self):
+        province = Province(self.identifier).province()
+        if province is None:
+            return False
+        return True
+
+    def district(self):
+        return False
+
+    def sector(self):
+        return True
+
+    def member(self):
+        '''if int(self.member) < 15 | int(self.member > 30):
+            return False'''
+        return True
+
+    def saved(self):
+        """if int(self.saved) < int(15 * 100):
+            return False"""
+        return True
+
+    def borrow(self):
+        """if int(self.saved) <= 0 & int(self.borrow) != 0:
+            return False"""
+        return True
+
+
+
+
 
     def checker(self):
 
         # Check Province
+        province = Province(self.province).province()
+        if province is not None:
+            self.status['province'] = 1
+        else:
+            self.status['province'] = 0
 
-        '''province = json.loads(Province(str(self.province)).province())
-        self.status['province'] = 0
-        if province['province']:'''
-        self.status['province'] = 1
 
         # Check District
 
@@ -59,7 +93,6 @@ class Checker:
             if not self.saved:
                 self.status['saved'] = 0
 
-
         try:
             self.status['borrow'] = 1
             if int(self.saved) <= 0 & int(self.borrow) != 0:
@@ -73,7 +106,7 @@ class Checker:
         return self.status
 
     def empty(self):
-        if not self.value:
+        if not self.identifier:
             return 0
         else:
             return 1
