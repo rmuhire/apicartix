@@ -1,4 +1,4 @@
-from kenessa import Province
+from kenessa import Province, District
 
 
 class Checker:
@@ -25,10 +25,23 @@ class Checker:
         return True
 
     def district(self):
-        return False
+        district = District(self.identifier).district()
+        if district is None:
+            return False
+        return True
 
     def sector(self):
-        return True
+        sect, dist = self.identifier
+        district = District(dist).district()
+        if district is not None:
+            sectors = District(dist).sector()
+            for sector in sectors:
+                if sector['name'].lower() == sect.lower():
+                    return True
+        return False
+
+
+
 
     def member(self):
         '''if int(self.member) < 15 | int(self.member > 30):
@@ -107,9 +120,9 @@ class Checker:
 
     def empty(self):
         if not self.identifier:
-            return 0
+            return False
         else:
-            return 1
+            return True
 
 
 
