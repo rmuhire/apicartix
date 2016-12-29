@@ -122,7 +122,7 @@ class Excellentodb:
         sheet1 = book.add_sheet('Sheet 1')
         style = xlwt.easyxf('pattern: pattern solid, fore_colour custom_colour')
 
-        error_file = 1
+        error_file = True
 
         for sheet in wb.sheets():
             rows = sheet.nrows
@@ -157,7 +157,7 @@ class Excellentodb:
                 func = [
                     Checker(cols_value[0]).province(),
                     Checker(cols_value[1]).district(),
-                    Checker(cols_value[2]).sector(),
+                    Checker([cols_value[2], cols_value[1]]).sector(),
                     Checker(cols_value[3]).member(),
                     Checker(cols_value[4]).saved(),
                     Checker(cols_value[5]).borrow()
@@ -173,21 +173,22 @@ class Excellentodb:
                             sheet1.write(row, col, value)
                         else:
                             sheet1.write(row, col, value, style)
+                            error_file = False
 
                 for i in range(len(func)):
                     if func[i]:
                         sheet1.write(row, indexes[i], cols_value[i])
                     else:
                         sheet1.write(row, indexes[i], cols_value[i], style)
-                        error_file = 0
+                        error_file = False
 
         if error_file:
             json_data = self.json_data
             return [1,json_data]
         else:
             filename = uniqid() + ".xls"
-            #save = "/Users/muhireremy/cartix/uploads/save/" + filename
-            save = "/home/www/cartix/uploads/save/" + filename
+            save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            #save = "/home/www/cartix/uploads/save/" + filename
             download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
             return [0,download]
