@@ -38,7 +38,7 @@ class Checker:
             for sector in sectors:
                 if sector['name'].lower() == sect.lower():
                     return True
-        return False
+        return True
 
 
 
