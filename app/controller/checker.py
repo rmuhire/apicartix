@@ -40,22 +40,33 @@ class Checker:
                     return True
         return True
 
-
-
-
     def member(self):
-        '''if int(self.member) < 15 | int(self.member > 30):
-            return False'''
+        try:
+            if int(self.identifier) < 15 | int(self.identifier > 30):
+                return False
+        except ValueError:
+            return False
         return True
 
     def saved(self):
-        """if int(self.saved) < int(15 * 100):
-            return False"""
+        try:
+            if int(self.identifier) < int(15 * 100):
+                return False
+        except ValueError:
+            if not self.identifier:
+                return False
+
         return True
 
     def borrow(self):
-        """if int(self.saved) <= 0 & int(self.borrow) != 0:
-            return False"""
+        saved, borrow = self.identifier
+        try:
+            if int(saved) <= 0 & int(borrow) != 0:
+                return False
+        except ValueError:
+            if not borrow:
+                return False
+
         return True
 
 
