@@ -185,8 +185,8 @@ class Excellentodb:
             return [1,json_data]
         else:
             filename = uniqid() + ".xls"
-            save = "/Users/muhireremy/cartix/uploads/save/" + filename
-            #save = "/home/www/cartix/uploads/save/" + filename
+            #save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            save = "/home/www/cartix/uploads/save/" + filename
             download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
             return [0,download]
@@ -194,11 +194,12 @@ class Excellentodb:
 
 
 
+from celery import Celery
 
 
+celery_app = Celery(__file__, broker='redis://127.0.0.1:6379/0', backend='redis://127.0.0.1:6379/0')
 
-
-
-
-
+@celery_app.task(bind=True)
+def process_file(self, filename):
+    return Excellentodb(filename).toexcel()
 

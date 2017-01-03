@@ -5,4 +5,4 @@ from app.api.put import *
 
 
 if __name__ == '__main__':
-    app.run(threaded=True, debug=True)
+    flask_app.run(threaded=True, debug=True)

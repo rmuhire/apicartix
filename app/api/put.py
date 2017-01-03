@@ -3,10 +3,10 @@ from flask_bcrypt import Bcrypt
 from flask import jsonify,request
 from app.template.email import Email
 
-bcrypt = Bcrypt(app)
+bcrypt = Bcrypt(flask_app)
 
 
-@app.route('/api/v1/change/password', methods=["PUT"])
+@flask_app.route('/api/v1/change/password', methods=["PUT"])
 def change_password():
     json_data = request.get_json()
     if not json_data:

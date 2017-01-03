@@ -9,7 +9,7 @@ import json
 
 
 
-@app.route('/api/v1/users')
+@flask_app.route('/api/v1/users')
 def users():
     user = User.query.all()
     if user:
@@ -19,7 +19,7 @@ def users():
         return jsonify({'message':'0'})
 
 
-@app.route('/api/v1/user/<int:id>')
+@flask_app.route('/api/v1/user/<int:id>')
 def user(id):
     user = User.query.get(id)
 
@@ -30,14 +30,14 @@ def user(id):
         return jsonify({'message':'0'})
 
 
-@app.route('/api/v1/sg')
+@flask_app.route('/api/v1/sg')
 def sg():
     sg = SavingGroup.query.all()
     result = sgs_schema.dump(sg)
     return jsonify({'Saving groups':result.data})
 
 
-@app.route('/api/v1/sg/<name>')
+@flask_app.route('/api/v1/sg/<name>')
 def sg_name(name):
     sg = SavingGroup.query.filter_by(name=name).first()
     if sg:
@@ -47,14 +47,14 @@ def sg_name(name):
         return jsonify({'Message':'0'})
 
 
-@app.route('/api/v1/amount')
+@flask_app.route('/api/v1/amount')
 def amount():
     amount = Amount.query.all()
     result = amounts_schema.dump(amount).data
     return jsonify({'Amounts':result})
 
 
-@app.route('/api/v1/amount/<int:id>')
+@flask_app.route('/api/v1/amount/<int:id>')
 def amount_sg(id):
     amount = Amount.query.filter_by(sg_id=id).first()
     if amount:
@@ -64,14 +64,14 @@ def amount_sg(id):
         return jsonify({'Message':'0'})
 
 
-@app.route('/api/v1/ngos')
+@flask_app.route('/api/v1/ngos')
 def ngos():
     ngo = Ngo.query.all()
     result = ngos_schema.dump(ngo).data
     return jsonify({'NGOs':result})
 
 
-@app.route('/api/v1/ngo/<id>')
+@flask_app.route('/api/v1/ngo/<id>')
 def ngo(id):
     ngo = Ngo.query.get(id)
     if ngo:
@@ -82,19 +82,19 @@ def ngo(id):
         return jsonify({'Message':'0'})
 
 
-@app.route('/api/v1/province/<id>')
+@flask_app.route('/api/v1/province/<id>')
 def province(id):
     province = json.loads(Province(id).province())
     return jsonify({'province':province})
 
 
-@app.route('/api/v1/province/district/<id>')
+@flask_app.route('/api/v1/province/district/<id>')
 def district(id):
     district = json.loads(Province(id).district())
     return jsonify(district)
 
 
-@app.route("/api/v1/recover/<email>")
+@flask_app.route("/api/v1/recover/<email>")
 def recover(email):
 
     user = User.query.filter_by(email=email).first()
@@ -106,7 +106,7 @@ def recover(email):
     return jsonify({'result': status})
 
 
-@app.route('/api/v1/check/key/<email>/<key>')
+@flask_app.route('/api/v1/check/key/<email>/<key>')
 def reset_password(email, key):
     user = User.query.filter(User.update_key == key).first()
     if user is None:
@@ -115,7 +115,7 @@ def reset_password(email, key):
     return jsonify({'result' : True})
 
 
-@app.route('/api/v1/save/<path:filename>', methods=['GET','POST'])
+@flask_app.route('/api/v1/save/<path:filename>', methods=['GET', 'POST'])
 def read_saved(filename):
     uploads = '/home/www/cartix/uploads/save/'
     return send_from_directory(directory=uploads, filename=filename)

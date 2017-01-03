@@ -1,35 +1,23 @@
 from app.model.models import *
 from app.model.schema import *
-from flask import jsonify,request, session
-from app.controller.exellentodb import Excellentodb
-from app.controller.exellentodb import Excellento
+from flask import jsonify,request, session, url_for
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
 from app.controller.getusername import get_username
-from werkzeug import secure_filename
+from app.controller.exellentodb import Excellentodb
 from app.template.email import Email
 import os
 from app.controller.uniqid import uniqid
+from app.controller.exellentodb import process_file
+from werkzeug import secure_filename
 
 
-bcrypt = Bcrypt(app)
-app.config['UPLOAD_FOLDER'] = '/tmp'
-app.config['ALLOWED_EXTENSIONS'] = set(['xlsx','xls','csv'])
+bcrypt = Bcrypt(flask_app)
+flask_app.config['UPLOAD_FOLDER'] = '/tmp'
+flask_app.config['ALLOWED_EXTENSIONS'] = set(['xlsx', 'xls', 'csv'])
 
 
-@app.route('/api/v1/exellento',methods=['POST'])
-def excellento():
-    data = Excellentodb('faking_it_1.xlsx').toexcel()
-    return jsonify({'data':data})
-
-
-@app.route('/api/v1/visualize', methods=['POST'])
-def visualize():
-    data = Excellento('all.xlsx').json()
-    return jsonify({'data':data})
-
-
-@app.route('/api/v1/user/', methods=['POST'])
+@flask_app.route('/api/v1/user/', methods=['POST'])
 def add_user():
     json_data = request.get_json()
 
@@ -69,7 +57,7 @@ def add_user():
         return jsonify({'result': False})
 
 
-@app.route('/api/v1/ngo/', methods=['POST'])
+@flask_app.route('/api/v1/ngo/', methods=['POST'])
 def add_ngo():
     json_data = request.get_json()
 
@@ -103,7 +91,7 @@ def add_ngo():
         return jsonify({'result': ngo.id})
 
 
-@app.route("/api/v1/login/", methods=['POST'])
+@flask_app.route("/api/v1/login/", methods=['POST'])
 def login():
     json_data = request.get_json()
     if not json_data:
@@ -132,15 +120,15 @@ def login():
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
+           filename.rsplit('.', 1)[1] in flask_app.config['ALLOWED_EXTENSIONS']
 
 
-@app.route('/api/upload/', methods=['POST','GET'])
+@flask_app.route('/api/upload/', methods=['POST', 'GET'])
 def upload():
     file = request.files['file']
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        tmp_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        tmp_filename = os.path.join(flask_app.config['UPLOAD_FOLDER'], filename)
         file.save(tmp_filename)
 
         file_name,file_extension = os.path.splitext(tmp_filename)
@@ -148,22 +136,27 @@ def upload():
         re_filename = uniqid()+file_extension
 
 
-        destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
-        #destination = "/home/www/cartix/uploads/user/"+re_filename
+        #destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
+        destination = "/home/www/cartix/uploads/user/"+re_filename
         os.rename(tmp_filename, destination)
 
-        status, data = Excellentodb(destination).toexcel()
+        task = process_file.apply_async(args=[destination])
 
-        if status:
-            return jsonify({'status':status,'json':data,'originalpath':destination, 'filename':filename})
-        else:
-            return jsonify({'status':status, 'savepath':data, 'originalpath':destination, 'filename':filename})
+        return jsonify({'task_status': task.status, 'task_id': task.id, 'status':0, 'originalpath':destination, 'filename':filename})
+
 
     else:
         return jsonify({'status':2})
 
 
-@app.route('/api/v1/file/save/', methods=['POST'])
+@flask_app.route('/api/v1/status/<task_id>')
+def status(task_id):
+
+    task = process_file.AsyncResult(task_id)
+    return jsonify({'status':task.state, 'data': task.get()})
+
+
+@flask_app.route('/api/v1/file/save/', methods=['POST'])
 def file_save():
 
     json_data = request.get_json()
@@ -195,7 +188,7 @@ def file_save():
         pass
 
 
-@app.route('/api/v1/file/user/', methods=['POST'])
+@flask_app.route('/api/v1/file/user/', methods=['POST'])
 def file_user():
 
     json_data = request.get_json()

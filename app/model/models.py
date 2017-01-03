@@ -5,29 +5,29 @@ from flask_cors import cross_origin, CORS
 from flask_mail import Mail, Message
 
 
-app = Flask(__name__)
+flask_app = Flask(__name__)
 
-CORS(app)
+CORS(flask_app)
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(flask_app)
 
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SECRET_KEY'] = 'rmuhire'
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_DEFAULT_SENDER'] = 'Cartix Team'
-app.config['MAIL_USERNAME'] = 'no-reply@cartix.io'
-app.config['MAIL_PASSWORD'] = 'NoReply=Cartix2016'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-mail = Mail(app)
+flask_app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
+flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+flask_app.config['SECRET_KEY'] = 'rmuhire'
+flask_app.config['MAIL_SERVER']= 'smtp.gmail.com'
+flask_app.config['MAIL_PORT'] = 465
+flask_app.config['MAIL_DEFAULT_SENDER'] = 'Cartix Team'
+flask_app.config['MAIL_USERNAME'] = 'no-reply@cartix.io'
+flask_app.config['MAIL_PASSWORD'] = 'NoReply=Cartix2016'
+flask_app.config['MAIL_USE_TLS'] = False
+flask_app.config['MAIL_USE_SSL'] = True
+mail = Mail(flask_app)
 
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    names = db.Column(db.String(80))
+    names = db.Column(db.String(140))
     username = db.Column(db.String(40), unique=True)
     email = db.Column(db.String(80), unique=True)
     phone = db.Column(db.String(25))
