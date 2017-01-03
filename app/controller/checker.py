@@ -1,79 +1,63 @@
 from kenessa import Province, District
-import json
 
 
 class Checker:
 
-    def __init__(self, data):
-        if isinstance(data, list):
-            self.province = data[0]
-            self.district = data[1].lower().title()
-            self.sector = data[2]
-            self.member = data[3]
-            self.saved = data[4]
-            self.borrow = data[5]
-            self.status = {}
-        else:
-            self.value = str(data)
+    def __init__(self, identifier):
+        self.identifier = identifier
 
-    def checker(self):
+    def province(self):
+        province = Province(self.identifier).province()
+        if province is None:
+            return False
+        return True
 
-        # Check Province
+    def district(self):
+        district = District(self.identifier).district()
+        if district is None:
+            return False
+        return True
 
-        '''province = json.loads(Province(str(self.province)).province())
-        self.status['province'] = 0
-        if province['province']:'''
-        self.status['province'] = 1
+    def sector(self):
+        sect, dist = self.identifier
+        district = District(dist).district()
+        if district is not None:
+            sectors = District(dist).sector()
+            for sector in sectors:
+                if sector['name'].lower() == sect.lower():
+                    return True
+        return False
 
-        # Check District
-
-        '''district = json.loads(District(str(self.district)).district())
-        self.status['district'] = 0
-
-        if district['district']:'''
-        self.status['district'] = 1
-
-        # check Sector
-        '''self.status['sector'] = 0
-        if self.status['district']:
-            data = json.loads(District(str(self.district)).sector())
-            sectors = data[str(self.district)]
-            items = sectors[0]['sector']
-            for item in items:
-                if item['name'].lower() == str(self.sector.lower()): '''
-        self.status['sector'] = 1
+    def member(self):
         try:
-            self.status['member'] = 1
-            if int(self.member) < 15 | int(self.member > 30):
-                self.status['member'] = 0
+            if int(self.identifier) < 15 | int(self.identifier > 30):
+                return False
         except ValueError:
-            self.status['member'] = 0
+            return False
+        return True
 
-
+    def saved(self):
         try:
-            self.status['saved'] = 1
-            if int(self.saved) < int(15 * 100):
-                self.status['saved'] = 0
+            if int(self.identifier) < int(15 * 100):
+                return False
         except ValueError:
-            self.status['saved'] = 1
-            if not self.saved:
-                self.status['saved'] = 0
+            if not self.identifier:
+                return False
 
+        return True
 
+    def borrow(self):
+        saved, borrow = self.identifier
         try:
-            self.status['borrow'] = 1
-            if int(self.saved) <= 0 & int(self.borrow) != 0:
-                self.status['saved'] = 0
-                self.status['borrow'] = 0
+            if int(saved) <= 0 & int(borrow) != 0:
+                return False
         except ValueError:
-            self.status['borrow'] = 1
-            if not self.borrow:
-                self.status['borrow'] = 0
-
-        return self.status
+            if not borrow:
+                return False
+        return True
 
     def empty(self):
-        if not self.value:
-            return 0
-        else:
-            return 1
+        if len(str(self.identifier)) > 0:
+            return True
+        return False
+
