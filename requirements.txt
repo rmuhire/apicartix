@@ -33,7 +33,7 @@ ipaddress==1.0.17
 itsdangerous==0.24
 Jinja2==2.8
 jsondatabase==0.1.3
-kenessa==0.1.7
+kenessa==0.1.79
 lxml==3.6.4
 macholib==1.5.1
 Mako==1.0.4
