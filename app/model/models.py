@@ -67,16 +67,18 @@ class SavingGroup(db.Model):
     member_female = db.Column(db.Integer)
     member_male = db.Column(db.Integer)
     sector_id = db.Column(db.Integer)
+    sector_name = db.Column(db.String(100))
     regDate = db.Column(db.DateTime)
 
     Amount = db.relationship('Amount', backref='saving_group', lazy='dynamic')
 
-    def __init__(self, name, year, member_female, member_male, sector_id, regDate = None):
+    def __init__(self, name, year, member_female, member_male, sector_id, sector_name, regDate = None):
         self.name = name,
         self.year = year
         self.member_female = member_female
         self.member_male = member_male
         self.sector_id = sector_id
+        self.sector_name = sector_name
         if regDate is None:
             self.regDate = datetime.utcnow()
 
