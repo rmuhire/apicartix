@@ -17,13 +17,14 @@ class Excellentodb:
 
         for data in self.json_data:
             try:
-                s_id = sector_id(data['sector'], data['district'])
+                #s_id = sector_id(data['sector'], data['district'])
                 saving = SavingGroup(
                     name=data['saving_group_name'],
                     year=data['sgs_year_of_creation'],
                     member_female=data['sgs_members__female'],
                     member_male=data['sgs_members__male_'],
-                    sector_id=s_id,
+                    sector_id=None,
+                    sector_name=data['sector'],
                     regDate=None
                 )
                 db.session.add(saving)
@@ -163,6 +164,8 @@ class Excellentodb:
                     Checker([cols_value[4], cols_value[5]]).borrow()
                 ]
 
+
+
                 for col in range(columns):
                     value = sheet.cell(row, col).value
                     if col not in indexes:
@@ -185,8 +188,8 @@ class Excellentodb:
             return [1,json_data]
         else:
             filename = uniqid() + ".xls"
-            save = "/Users/muhireremy/cartix/uploads/save/" + filename
-            #save = "/home/www/cartix/uploads/save/" + filename
+            #save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            save = "/home/www/cartix/uploads/save/" + filename
             download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
             return [0,download]
