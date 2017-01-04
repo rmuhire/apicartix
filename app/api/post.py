@@ -148,8 +148,8 @@ def upload():
         re_filename = uniqid()+file_extension
 
 
-        destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
-        #destination = "/home/www/cartix/uploads/user/"+re_filename
+        #destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
+        destination = "/home/www/cartix/uploads/user/"+re_filename
         os.rename(tmp_filename, destination)
 
         status, data = Excellentodb(destination).toexcel()
@@ -226,7 +226,7 @@ def file_user():
         return jsonify({'auth': 1, 'file': last_file,'todb':to_db})
 
     except IntegrityError:
-        pass
+        return jsonify({'auth':0})
 
 
 
