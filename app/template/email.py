@@ -9,8 +9,8 @@ class Email:
         self.username = username
         self.email = email
         self.key = uniqidEmail()
-        self.login = "http://cartix.io/#/signin"
-        self.recover = "http://cartix.io/#/recover/{email}/{random}".format(email=email, random = self.key)
+        self.login = "http://savinggroup.cartix.io/#/signin"
+        self.recover = "http://savinggroup.cartix.io/#/recover/{email}/{random}".format(email=email, random = self.key)
         self.footer = "For any inquiry e-mail us on info@cartix.io or call us on +250 785-489-992</p><p>Thanks for using Cartix, enjoy.<br>Cartix Team"
 
 
