@@ -229,6 +229,12 @@ def file_user():
         return jsonify({'auth':0})
 
 
+@app.route('/api/v1/email/<names>/<username>/<email>')
+def send_email(names, username, email):
+    Email(names, username, email).account()
+    return jsonify({'email':'send'})
+
+
 
 
 
