@@ -25,6 +25,7 @@ class Excellentodb:
                     member_male=data['sgs_members__male_'],
                     sector_id=None,
                     sector_name=data['sector'],
+                    district_name=data['district'],
                     regDate=None
                 )
                 db.session.add(saving)
@@ -35,18 +36,18 @@ class Excellentodb:
 
             # Amount
 
-            saving_amount = data['saved_amount_as_of_december_2014']
-            if data['saved_amount_as_of_december_2014'] == 'N/A':
+            saving_amount = data['saved_amount']
+            if data['saved_amount'] == 'N/A':
                 saving_amount = -1
 
-            borrowing_amount = data['outstanding_loans_as_of_december_2014']
-            if data['outstanding_loans_as_of_december_2014'] == 'N/A':
+            borrowing_amount = data['outstanding_loans']
+            if data['outstanding_loans'] == 'N/A':
                 borrowing_amount = -1
 
             amount = Amount(
                 saving= saving_amount,
                 borrowing=borrowing_amount,
-                year=2014,
+                year=data['year_amount'],
                 sg_id=saving.id
             )
 
@@ -188,8 +189,8 @@ class Excellentodb:
             return [1,json_data]
         else:
             filename = uniqid() + ".xls"
-            #save = "/Users/muhireremy/cartix/uploads/save/" + filename
-            save = "/home/www/cartix/uploads/save/" + filename
+            save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            #save = "/home/www/cartix/uploads/save/" + filename
             download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
             return [0,download]
