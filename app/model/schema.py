@@ -23,7 +23,8 @@ class SavingGroupSchema(Schema):
     member_female = fields.Integer()
     member_male = fields.Integer()
     sector_id = fields.Integer()
-    sector_name = fields.Integer()
+    sector_name = fields.Str()
+    district_name = fields.Str()
     regDate = fields.Date()
 
 
