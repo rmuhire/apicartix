@@ -109,7 +109,7 @@ class Ngo(db.Model):
     picture = db.Column(db.String(100))
     address = db.Column(db.String(200))
 
-    user =  db.relationship('User', backref='ngo', lazy='dynamic')
+    user = db.relationship('User', backref='ngo', lazy='dynamic')
 
     def __init__(self, name, email, telephone, website, category, picture, address):
         self.name = name
@@ -134,7 +134,6 @@ class Sgs(db.Model):
 
 
 class Files(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
     original = db.Column(db.String(175))
     saved = db.Column(db.String(175))
@@ -150,3 +149,55 @@ class Files(db.Model):
         if regDate is None:
             regDate = datetime.utcnow()
         self.regDate = regDate
+
+
+class Province(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(10))
+    keyword = db.Column(db.String(150))
+
+    province = db.relationship('District', backref='province', lazy='dynamic')
+
+    def __init__(self, id, name, code, keyword):
+        self.id = id
+        self.name = name
+        self.code = code
+        self.keyword = keyword
+
+
+class District(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(10))
+    province_code = db.Column(db.String(10))
+    province_id = db.Column(db.Integer, db.ForeignKey('province.id'))
+
+    district = db.relationship('Sector', backref='district', lazy='dynamic')
+
+    def __init__(self, id, name, code, province_code, province_id):
+        self.id = id
+        self.name = name
+        self.code = code
+        self.province_code = province_code
+        self.province_id = province_id
+
+
+class Sector(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(100))
+    district_code = db.Column(db.String(10))
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
+
+    def __init__(self, id, name, code, district_code, district_id):
+        self.id = id
+        self.name = name
+        self.code = code
+        self.district_code = district_code
+        self.district_id = district_id
+
+
+
+
+
