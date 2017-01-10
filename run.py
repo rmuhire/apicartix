@@ -3,6 +3,7 @@ from app.api.post import *
 from app.controller.excellento import *
 from app.controller.excellentodb import *
 from app.api.get import *
+from app.api.ken import *
 
 @app.after_request
 def after_request(response):
