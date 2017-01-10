@@ -62,6 +62,29 @@ class FilesSchema(Schema):
     user_id = fields.Int()
 
 
+class ProvinceSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    code = fields.Str()
+    keyword = fields.Str()
+
+
+class DistrictSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    code = fields.Str()
+    province_code = fields.Str()
+    province_id = fields.Int()
+
+
+class SectorSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    code = fields.Str()
+    district_code = fields.Str()
+    district_id = fields.Int()
+
+
 
 
 ####### INITIALIZE ALL SCHEMA #######
@@ -84,3 +107,15 @@ sgfps_schema = SgsSchema(many=True)
 
 file_schema = FilesSchema()
 files_schema = FilesSchema(many=True)
+
+province_schema = ProvinceSchema()
+provinces_schema = ProvinceSchema(many=True)
+
+district_schema = DistrictSchema()
+districts_schema = DistrictSchema(many=True)
+
+sector_schema = SectorSchema()
+sectors_schema = SectorSchema(many=True)
+
+
+
