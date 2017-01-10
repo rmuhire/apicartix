@@ -1,4 +1,4 @@
-from kenessa import Province, District
+from app.controller.location import KenQuerydb
 
 
 class Checker:
@@ -7,27 +7,23 @@ class Checker:
         self.identifier = identifier
 
     def province(self):
-        """province = Province(self.identifier).province()
-        if province is None:
-            return False"""
-        return True
+        province = KenQuerydb(self.identifier).province()
+        if province:
+            return True
+        return False
 
     def district(self):
-        """district = District(self.identifier).district()
-        if district is None:
-            return False"""
-        return True
+        district = KenQuerydb(self.identifier).district()
+        if district:
+            return True
+        return False
 
     def sector(self):
-        """
-        sect, dist = self.identifier
-        district = District(dist).district()
-        if district is not None:
-            sectors = District(dist).sector()
-            for sector in sectors:
-                if sector['name'].lower() == sect.lower():
-                    return True """
-        return True
+        sector = KenQuerydb(self.identifier).sector()
+        if sector:
+            return True
+        return False
+
 
     def member(self):
         try:
