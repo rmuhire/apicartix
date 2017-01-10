@@ -159,7 +159,7 @@ class Excellentodb:
                 func = [
                     Checker(cols_value[0]).province(),
                     Checker(cols_value[1]).district(),
-                    Checker([cols_value[2], cols_value[1]]).sector(),
+                    Checker(cols_value[2]).sector(),
                     Checker(cols_value[3]).member(),
                     Checker(cols_value[4]).saved(),
                     Checker([cols_value[4], cols_value[5]]).borrow()
