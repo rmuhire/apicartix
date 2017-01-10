@@ -40,6 +40,14 @@ def user_(uid):
     else:
         return jsonify({'message':'0'})
 
+@app.route('/api/v1/deleteUser/<int:uid>')
+def deleteUser(uid):
+    try:
+        User.query.filter_by(id=uid).delete()
+        db.session.commit()
+        return jsonify({'Message':"1"})
+    except:
+        return jsonify({'Message':"0"})
 
 
 @app.route('/api/v1/sg')
