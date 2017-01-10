@@ -7,26 +7,27 @@ class Checker:
         self.identifier = identifier
 
     def province(self):
-        province = Province(self.identifier).province()
+        """province = Province(self.identifier).province()
         if province is None:
-            return False
+            return False"""
         return True
 
     def district(self):
-        district = District(self.identifier).district()
+        """district = District(self.identifier).district()
         if district is None:
-            return False
+            return False"""
         return True
 
     def sector(self):
+        """
         sect, dist = self.identifier
         district = District(dist).district()
         if district is not None:
             sectors = District(dist).sector()
             for sector in sectors:
                 if sector['name'].lower() == sect.lower():
-                    return True
-        return False
+                    return True """
+        return True
 
     def member(self):
         try:
