@@ -11,7 +11,7 @@ from app.template.email import Email
 import os
 from app.controller.uniqid import uniqid
 import json
-from app.controller.location import Ken
+from app.controller.location import Kendb, KenQuerydb
 
 
 bcrypt = Bcrypt(app)
@@ -231,36 +231,55 @@ def file_user():
         return jsonify({'auth':0})
 
 
+""" Runing Test """
+
 @app.route('/api/v1/email/<names>/<username>/<email>')
 def send_email(names, username, email):
     Email(names, username, email).account()
     return jsonify({'email':'send'})
 
 
+
+
 @app.route('/api/v1/province/')
 def province_json():
     json_province = json.loads(open('json/province.json').read())
-    result = Ken(json_province).province()
+    result = Kendb(json_province).province()
 
     return jsonify({'status':result})
 
 @app.route('/api/v1/district/')
 def district_json():
     json_district = json.loads(open('json/district.json').read())
-    result = Ken(json_district).district()
+    result = Kendb(json_district).district()
 
     return jsonify({'status': result})
+
 
 @app.route('/api/v1/sector/')
 def sector_json():
     json_sector = json.loads(open('json/sector.json').read())
-    result = Ken(json_sector).sector()
+    result = Kendb(json_sector).sector()
 
     return jsonify({'status': result})
 
 
+@app.route('/api/v1/pro')
+def pro():
+    data = KenQuerydb('1').province()
+    return jsonify(data)
 
 
+@app.route('/api/v1/dis')
+def dis():
+    data = KenQuerydb('nyarugenge').district()
+    return jsonify(data)
+
+
+@app.route('/api/v1/sec')
+def sec():
+    data = KenQuerydb('remera').sector()
+    return jsonify(data)
 
 
 
