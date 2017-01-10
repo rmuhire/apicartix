@@ -17,15 +17,15 @@ class Excellentodb:
 
         for data in self.json_data:
             try:
-                #s_id = sector_id(data['sector'], data['district'])
+                s_id = sector_id(data['sector'], data['district'])
                 saving = SavingGroup(
                     name=data['saving_group_name'],
                     year=data['sgs_year_of_creation'],
                     member_female=data['sgs_members__female'],
                     member_male=data['sgs_members__male_'],
-                    sector_id=None,
-                    sector_name=data['sector'],
-                    district_name=data['district'],
+                    sector_id=s_id,
+                    sector_name=None,
+                    district_name=None,
                     regDate=None
                 )
                 db.session.add(saving)
