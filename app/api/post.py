@@ -239,6 +239,16 @@ def send_email(names, username, email):
     return jsonify({'email':'send'})
 
 
+@app.route('/api/v1/reset/<names>/<username>/<email>')
+def send_email_reset(names, username, email):
+    Email(names, username, email).resetlink()
+    return jsonify({'email':'send'})
+
+
+@app.route('/api/v1/success/<names>/<username>/<email>')
+def send_email_success(names, username, email):
+    Email(names, username, email).resetsuccess()
+    return jsonify({'email':'send'})
 
 
 @app.route('/api/v1/province/')
