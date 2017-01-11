@@ -2,7 +2,7 @@ from app import *
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify, send_from_directory
-from kenessa import Province
+from kenessa import Province, District
 from app.template.email import Email
 import json
 
@@ -119,3 +119,36 @@ def reset_password(email, key):
 def read_saved(filename):
     uploads = '/home/www/cartix/uploads/save/'
     return send_from_directory(directory=uploads, filename=filename)
+
+
+from kenessa import Province, District
+
+
+@app.route('/api/v1/kenessa/province/province/<value>')
+def provinceKen(value):
+    province = Province(value).province()
+    return jsonify(province)
+
+
+@app.route('/api/v1/kenessa/province/district/<value>')
+def districtKen(value):
+    district = Province(value).district()
+    return jsonify(district)
+
+
+@app.route('/api/v1/kenessa/province/sector/<value>')
+def sectorKen(value):
+    sector = Province(value).sector()
+    return jsonify(sector)
+
+
+@app.route('/api/v1/kenessa/district/district/<value>')
+def district_districtKen(value):
+    district = District(value).district()
+    return jsonify(district)
+
+
+@app.route('/api/v1/kenessa/district/sector/<value>')
+def district_sectorKen(value):
+    sector = District(value).sector()
+    return jsonify(sector)
