@@ -174,6 +174,8 @@ class District(db.Model):
     province_id = db.Column(db.Integer, db.ForeignKey('province.id'))
 
     district = db.relationship('Sector', backref='district', lazy='dynamic')
+    bank_agent_district = db.relationship('BankAgent', backref='district', lazy='dynamic')
+    telco_agent_district = db.relationship('TelcoAgent', backref='district', lazy='dynamic')
 
     def __init__(self, id, name, code, province_code, province_id):
         self.id = id
@@ -190,12 +192,66 @@ class Sector(db.Model):
     district_code = db.Column(db.String(10))
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
+    sector_financial = db.relationship('Financial', backref='sector', lazy='dynamic')
+    sector_population = db.relationship('Population', backref='sector', lazy='dynamic')
+
     def __init__(self, id, name, code, district_code, district_id):
         self.id = id
         self.name = name
         self.code = code
         self.district_code = district_code
         self.district_id = district_id
+
+
+class Financial(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    branch_name = db.Column(db.String(100))
+    financial_name = db.Column(db.String(100))
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
+
+    def __init__(self, id, branch_name, financial_name, sector_id):
+        self.id = id
+        self.branch_name = branch_name
+        self.financial_name = financial_name
+        self.sector_id = sector_id
+
+
+class BankAgent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    distribution = db.Column(db.Integer)
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
+
+    def __init__(self, distribution, district_id):
+        self.distribution = distribution
+        self.district_id =  district_id
+
+
+class TelcoAgent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    distribution = db.Column(db.Integer)
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
+
+    def __init__(self, distribution, district_id):
+        self.distribution = distribution
+        self.district_id = district_id
+
+
+class Population(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    male = db.Column(db.Integer)
+    female = db.Column(db.Integer)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
+
+    def __init__(self, male, female, sector_id):
+        self.male = male
+        self.female = female
+        self.sector_id = sector_id
+
+
+
+
+
+
 
 
 
