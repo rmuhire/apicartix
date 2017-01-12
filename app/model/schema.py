@@ -85,6 +85,31 @@ class SectorSchema(Schema):
     district_id = fields.Int()
 
 
+class FinancialSchema(Schema):
+    id = fields.Int(dump_only=True)
+    branch_name = fields.Str()
+    financial_name = fields.Str()
+    sector_id = fields.Int()
+
+
+class BankAgentSchema(Schema):
+    id = fields.Int(dump_only=True)
+    distribution = fields.Int()
+    district_id = fields.Int()
+
+
+class TelcoAgentSchema(Schema):
+    id = fields.Int(dump_only=True)
+    distribution = fields.Int()
+    district_id = fields.Int()
+
+
+class Population(Schema):
+    id = fields.Int(dump_only=True)
+    male = fields.Int()
+    female = fields.Int()
+    sector_id = fields.Int()
+
 
 
 ####### INITIALIZE ALL SCHEMA #######
@@ -116,6 +141,11 @@ districts_schema = DistrictSchema(many=True)
 
 sector_schema = SectorSchema()
 sectors_schema = SectorSchema(many=True)
+
+financial_schema = FinancialSchema()
+financials_schema = FinancialSchema(many=True)
+
+
 
 
 
