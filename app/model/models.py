@@ -207,6 +207,7 @@ class Financial(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     branch_name = db.Column(db.String(100))
     financial_name = db.Column(db.String(100))
+    year = db.Column(db.Integer)
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
 
     def __init__(self, id, branch_name, financial_name, sector_id):
@@ -219,16 +220,18 @@ class Financial(db.Model):
 class BankAgent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     distribution = db.Column(db.Integer)
+    year = db.Column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
     def __init__(self, distribution, district_id):
         self.distribution = distribution
-        self.district_id =  district_id
+        self.district_id = district_id
 
 
 class TelcoAgent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     distribution = db.Column(db.Integer)
+    year = db.Column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
     def __init__(self, distribution, district_id):
@@ -240,6 +243,7 @@ class Population(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     male = db.Column(db.Integer)
     female = db.Column(db.Integer)
+    year = db.Column(db.Integer)
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
 
     def __init__(self, male, female, sector_id):
