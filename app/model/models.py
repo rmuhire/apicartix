@@ -90,7 +90,7 @@ class Amount(db.Model):
     saving = db.Column(db.Float)
     borrowing = db.Column(db.Float)
     year = db.Column(db.Integer)
-    sg_id =  db.Column(db.Integer, db.ForeignKey('saving_group.id'))
+    sg_id = db.Column(db.Integer, db.ForeignKey('saving_group.id'))
 
     def __init__(self, saving, borrowing, year, sg_id):
         self.saving = saving
