@@ -5,6 +5,7 @@ from flask import jsonify, send_from_directory
 from kenessa import Province, District
 from app.template.email import Email
 import json
+from app.controller.saving_year import generate_year
 
 
 
@@ -152,3 +153,9 @@ def district_districtKen(value):
 def district_sectorKen(value):
     sector = District(value).sector()
     return jsonify(sector)
+
+
+@app.route('/api/v1/saving_year/')
+def saving_year():
+    year = generate_year()
+    return jsonify(year)
