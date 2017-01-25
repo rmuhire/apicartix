@@ -83,6 +83,14 @@ def ngo(id):
         return jsonify({'Message':'0'})
 
 
+@app.route('/api/v1/int_ngo/')
+def int_ngo():
+    ngo = Ngo.query.filter_by(category=1)
+    if ngo:
+        result = ngos_schema.dump(ngo)
+        return jsonify(result.data)
+
+
 @app.route('/api/v1/province/<id>')
 def province(id):
     province = json.loads(Province(id).province())
