@@ -91,6 +91,18 @@ def int_ngo():
         return jsonify(result.data)
 
 
+@app.route('/api/v1/ngo_status/<id>')
+def ngo_status(id):
+    ngo = Ngo.query.get(id)
+    try:
+        if ngo.category:
+            return jsonify({'status': True})
+        return jsonify({'status': False})
+    except AttributeError:
+        return jsonify({'status': 'error'})
+
+
+
 @app.route('/api/v1/province/<id>')
 def province(id):
     province = json.loads(Province(id).province())
