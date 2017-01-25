@@ -184,6 +184,7 @@ def file_save():
             saved=data['save'],
             filename=data['filename'],
             regDate=None,
+            status=0,
             user_id=data['user_id']
         )
 
@@ -216,6 +217,7 @@ def file_user():
             saved=data['save'],
             filename=data['filename'],
             regDate=None,
+            status=1,
             user_id=data['user_id']
         )
 
