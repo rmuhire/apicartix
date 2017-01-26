@@ -16,44 +16,6 @@ class Excellentodb:
     def todb(self):
 
         for data in self.json_data:
-            try:
-                s_id = sector_id(data['sector'], data['district'])
-                saving = SavingGroup(
-                    name=data['saving_group_name'],
-                    year=data['sgs_year_of_creation'],
-                    member_female=data['sgs_members__female'],
-                    member_male=data['sgs_members__male_'],
-                    sector_id=s_id,
-                    sector_name=None,
-                    district_name=None,
-                    sg_status=data['sgs_status_(supervised/graduated)'],
-                    regDate=None
-                )
-                db.session.add(saving)
-                db.session.commit()
-            except IntegrityError:
-                db.session().rollback()
-                saving = SavingGroup.query.filter_by(name=data['saving_group_name']).first()
-
-            # Amount
-
-            saving_amount = data['saved_amount']
-            if data['saved_amount'] == 'N/A':
-                saving_amount = -1
-
-            borrowing_amount = data['outstanding_loans']
-            if data['outstanding_loans'] == 'N/A':
-                borrowing_amount = -1
-
-            amount = Amount(
-                saving= saving_amount,
-                borrowing=borrowing_amount,
-                year=data['year_amount'],
-                sg_id=saving.id
-            )
-
-            db.session.add(amount)
-            db.session.commit()
 
             # International NGO
 
@@ -100,15 +62,57 @@ class Excellentodb:
                 ngo = Ngo.query.filter_by(name=data['local_ngo'].upper()).first()
                 local_ngo_id = ngo.id
 
-            # SGS
+            # saving group
 
-            sgs = Sgs(
-                partner_id=local_ngo_id,
-                funding_id=intl_ngo_id,
+            try:
+                s_id = sector_id(data['sector'], data['district'])
+                saving = SavingGroup(
+                    name=data['saving_group_name'],
+                    year=data['sgs_year_of_creation'],
+                    member_female=data['sgs_members__female'],
+                    member_male=data['sgs_members__male_'],
+                    sector_id=s_id,
+                    sector_name=None,
+                    district_name=None,
+                    sg_status=data['sgs_status_(supervised/graduated)'],
+                    regDate=None
+                )
+                db.session.add(saving)
+                db.session.commit()
+
+                # SGS In case Integrity Error
+
+                sgs = Sgs(
+                    partner_id=local_ngo_id,
+                    funding_id=intl_ngo_id,
+                    sg_id=saving.id
+                )
+
+                db.session.add(sgs)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session().rollback()
+                saving = SavingGroup.query.filter_by(name=data['saving_group_name']).first()
+
+            # Amount
+
+            saving_amount = data['saved_amount']
+            if data['saved_amount'] == 'N/A':
+                saving_amount = -1
+
+            borrowing_amount = data['outstanding_loans']
+            if data['outstanding_loans'] == 'N/A':
+                borrowing_amount = -1
+
+            amount = Amount(
+                saving= saving_amount,
+                borrowing=borrowing_amount,
+                year=data['year_amount'],
                 sg_id=saving.id
             )
 
-            db.session.add(sgs)
+            db.session.add(amount)
             db.session.commit()
 
         return 1
