@@ -23,9 +23,7 @@ class SavingGroupSchema(Schema):
     member_female = fields.Integer()
     member_male = fields.Integer()
     sector_id = fields.Integer()
-    sector_name = fields.Str()
-    district_name = fields.Str()
-    status = fields.Str()
+    sg_status = fields.Str()
     regDate = fields.Date()
 
 
@@ -46,12 +44,6 @@ class NgoSchema(Schema):
     category = fields.Int()
     picture = fields.Str()
     address = fields.Str()
-
-
-class SgsSchema(Schema):
-    id = fields.Integer(dump_only=True)
-    partner_id = fields.Nested(NgoSchema)
-    funding_id = fields.Nested(NgoSchema)
 
 
 class FilesSchema(Schema):
@@ -128,9 +120,6 @@ amounts_schema = AmountSchema(many=True)
 
 ngo_schema = NgoSchema()
 ngos_schema = NgoSchema(many=True)
-
-sgfp_schema = SgsSchema()
-sgfps_schema = SgsSchema(many=True)
 
 file_schema = FilesSchema()
 files_schema = FilesSchema(many=True)
