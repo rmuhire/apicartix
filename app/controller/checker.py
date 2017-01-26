@@ -24,7 +24,6 @@ class Checker:
             return True
         return False
 
-
     def member(self):
         try:
             if int(self.identifier) < 15 | int(self.identifier > 30):
