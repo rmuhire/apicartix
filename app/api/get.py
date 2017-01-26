@@ -31,6 +31,14 @@ def user(id):
         return jsonify({'message':'0'})
 
 
+@app.route('/api/v1/user_role/<id>')
+def user_role(id):
+    user = User.query.get(id)
+    if user.user_role:
+        return jsonify({'status': True})
+    return jsonify({'status': False})
+
+
 @app.route('/api/v1/sg')
 def sg():
     sg = SavingGroup.query.all()
