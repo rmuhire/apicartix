@@ -26,6 +26,7 @@ class Excellentodb:
                     sector_id=s_id,
                     sector_name=None,
                     district_name=None,
+                    sg_status=data['sgs_status_(supervised/graduated)'],
                     regDate=None
                 )
                 db.session.add(saving)
@@ -58,7 +59,7 @@ class Excellentodb:
 
             try:
                 ngo = Ngo(
-                    name=data['funding_ngo'].upper(),
+                    name=data['international_ngo'].upper(),
                     email=None,
                     telephone=None,
                     website=None,
@@ -73,14 +74,14 @@ class Excellentodb:
 
             except IntegrityError:
                 db.session().rollback()
-                ngo = Ngo.query.filter_by(name=data['funding_ngo'].upper()).first()
+                ngo = Ngo.query.filter_by(name=data['international_ngo'].upper()).first()
                 intl_ngo_id = ngo.id
 
             # Local NGO
 
             try:
                 ngo = Ngo(
-                    name=data['partner_ngo'].upper(),
+                    name=data['local_ngo'].upper(),
                     email=None,
                     telephone=None,
                     website=None,
@@ -96,7 +97,7 @@ class Excellentodb:
 
             except IntegrityError:
                 db.session().rollback()
-                ngo = Ngo.query.filter_by(name=data['partner_ngo'].upper()).first()
+                ngo = Ngo.query.filter_by(name=data['local_ngo'].upper()).first()
                 local_ngo_id = ngo.id
 
             # SGS
