@@ -25,6 +25,7 @@ class SavingGroupSchema(Schema):
     sector_id = fields.Integer()
     sector_name = fields.Str()
     district_name = fields.Str()
+    status = fields.Str()
     regDate = fields.Date()
 
 
