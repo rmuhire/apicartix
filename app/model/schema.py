@@ -59,6 +59,7 @@ class FilesSchema(Schema):
     save = fields.Str()
     filename = fields.Str()
     regDate = fields.Date()
+    status = fields.Int()
     user_id = fields.Int()
 
 
