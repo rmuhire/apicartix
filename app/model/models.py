@@ -11,8 +11,8 @@ CORS(app)
 
 db = SQLAlchemy(app)
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = 'rmuhire'
 app.config['MAIL_SERVER']='smtp.gmail.com'
@@ -62,24 +62,26 @@ class User(db.Model):
 class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
+    name = db.Column(db.String(100))
     year = db.Column(db.Integer)
     member_female = db.Column(db.Integer)
     member_male = db.Column(db.Integer)
     sector_id = db.Column(db.Integer)
     sg_status = db.Column(db.String(100))
+    uniq_id = db.Column(db.String(240), unique=True)
     regDate = db.Column(db.DateTime)
 
     Amount = db.relationship('Amount', backref='saving_group', lazy='dynamic')
     sgs = db.relationship('Sgs', backref='saving_group', lazy='dynamic')
 
-    def __init__(self, name, year, member_female, member_male, sector_id, sector_name, district_name, sg_status, regDate = None):
+    def __init__(self, name, year, member_female, member_male, sector_id, sg_status, uniq_id, regDate = None):
         self.name = name,
         self.year = year
         self.member_female = member_female
         self.member_male = member_male
         self.sector_id = sector_id
         self.sg_status = sg_status
+        self.uniq_id = uniq_id
         if regDate is None:
             self.regDate = datetime.utcnow()
 
