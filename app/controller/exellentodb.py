@@ -6,6 +6,8 @@ import xlwt
 from xlrd import open_workbook
 from app.controller.uniqid import uniqid
 from app.controller.sector_id import sector_id
+from sqlalchemy import and_
+from app.controller.uniq_sq_id import uniq_sg_id
 
 
 class Excellentodb:
@@ -66,22 +68,35 @@ class Excellentodb:
 
             try:
                 s_id = sector_id(data['sector'], data['district'])
+                uniq_id = uniq_sg_id(str(intl_ngo_id), str(local_ngo_id), str(s_id), data['saving_group_name'])
                 saving = SavingGroup(
                     name=data['saving_group_name'],
                     year=data['sgs_year_of_creation'],
                     member_female=data['sgs_members__female'],
                     member_male=data['sgs_members__male_'],
                     sector_id=s_id,
-                    sector_name=None,
-                    district_name=None,
                     sg_status=data['sgs_status_(supervised/graduated)'],
+                    uniq_id= uniq_id,
                     regDate=None
                 )
                 db.session.add(saving)
                 db.session.commit()
+                sg_id  = saving.id
 
-                # SGS In case Integrity Error
+            except IntegrityError:
+                db.session().rollback()
+                saving = SavingGroup.query.filter_by(uniq_id=uniq_id).first()
+                sg_id = saving.id
 
+            # SGS In case Integrity Error
+
+            sgs_check = Sgs.query.filter(
+                and_(Sgs.funding_id == intl_ngo_id,
+                        Sgs.partner_id == local_ngo_id,
+                        Sgs.sg_id == sg_id)).first()
+
+            # import pdb; pdb.set_trace()
+            if not sgs_check:
                 sgs = Sgs(
                     partner_id=local_ngo_id,
                     funding_id=intl_ngo_id,
@@ -90,30 +105,34 @@ class Excellentodb:
 
                 db.session.add(sgs)
                 db.session.commit()
-
-            except IntegrityError:
                 db.session().rollback()
-                saving = SavingGroup.query.filter_by(name=data['saving_group_name']).first()
 
             # Amount
 
-            saving_amount = data['saved_amount']
-            if data['saved_amount'] == 'N/A':
-                saving_amount = -1
-
-            borrowing_amount = data['outstanding_loans']
-            if data['outstanding_loans'] == 'N/A':
-                borrowing_amount = -1
-
-            amount = Amount(
-                saving= saving_amount,
-                borrowing=borrowing_amount,
-                year=data['year_amount'],
-                sg_id=saving.id
+            sg_amount = Amount.query.filter(
+                and_(Amount.sg_id == sg_id,
+                     Amount.year == data['year_amount'])
             )
 
-            db.session.add(amount)
-            db.session.commit()
+            if not sg_amount:
+
+                saving_amount = data['saved_amount']
+                if data['saved_amount'] == 'N/A':
+                    saving_amount = -1
+
+                borrowing_amount = data['outstanding_loans']
+                if data['outstanding_loans'] == 'N/A':
+                    borrowing_amount = -1
+
+                amount = Amount(
+                    saving= saving_amount,
+                    borrowing=borrowing_amount,
+                    year=data['year_amount'],
+                    sg_id=saving.id
+                )
+
+                db.session.add(amount)
+                db.session.commit()
 
         return 1
 
