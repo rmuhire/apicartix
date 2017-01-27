@@ -24,6 +24,7 @@ class SavingGroupSchema(Schema):
     member_male = fields.Integer()
     sector_id = fields.Integer()
     sg_status = fields.Str()
+    uniq_id = fields.Str()
     regDate = fields.Date()
 
 
