@@ -191,16 +191,3 @@ def saving_year():
 
 
 
-# test sgs
-
-
-@app.route('/api/v1/test/<intl_ngo_id>/<local_ngo_id>/<sg_id>')
-def test_sgs(intl_ngo_id, local_ngo_id, sg_id):
-
-    sgs_check = Sgs.query.filter(
-        and_(Sgs.funding_id == intl_ngo_id,
-             Sgs.partner_id == local_ngo_id,
-             Sgs.sg_id == sg_id)).first()
-    if sgs_check:
-        return jsonify({'status': True})
-    return jsonify({'status': False})
