@@ -190,4 +190,23 @@ def saving_year():
     return jsonify(year)
 
 
+# script updating rows on amount table
+
+@app.route('/api/v1/rows/amount/')
+def row_amount():
+    amount = Amount.query.all()
+    if amount:
+        result = amounts_schema.dump(amount)
+
+        for item in result.data:
+            uniq_id = ''.join([str(item['year']), str(item['sg_id'])])
+            queryAmount = Amount.query.get(item['id'])
+            queryAmount.uniq_id = uniq_id
+            db.session.commit()
+
+        return jsonify('1')
+
+
+
+
 
