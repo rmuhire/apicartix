@@ -7,7 +7,7 @@ from xlrd import open_workbook
 from app.controller.uniqid import uniqid
 from app.controller.sector_id import sector_id
 from sqlalchemy import and_
-from app.controller.uniq_sq_id import uniq_sg_id
+from app.controller.uniq_sq_id import uniq_sg_id, uniq_id_amount
 
 
 class Excellentodb:
@@ -81,58 +81,50 @@ class Excellentodb:
                 )
                 db.session.add(saving)
                 db.session.commit()
-                sg_id  = saving.id
+                sg_id = saving.id
+
+                sgs = Sgs(
+                    partner_id=local_ngo_id,
+                    funding_id=intl_ngo_id,
+                    sg_id=sg_id
+                )
+
+                db.session.add(sgs)
+                db.session.commit()
 
             except IntegrityError:
                 db.session().rollback()
                 saving = SavingGroup.query.filter_by(uniq_id=uniq_id).first()
                 sg_id = saving.id
 
-            # SGS In case Integrity Error
 
-            sgs_check = Sgs.query.filter(
-                and_(Sgs.funding_id == intl_ngo_id,
-                        Sgs.partner_id == local_ngo_id,
-                        Sgs.sg_id == sg_id)).first()
-
-            # import pdb; pdb.set_trace()
-            if not sgs_check:
-                sgs = Sgs(
-                    partner_id=local_ngo_id,
-                    funding_id=intl_ngo_id,
-                    sg_id=saving.id
-                )
-
-                db.session.add(sgs)
-                db.session.commit()
-                db.session().rollback()
 
             # Amount
 
-            sg_amount = Amount.query.filter(
-                and_(Amount.sg_id == sg_id,
-                     Amount.year == data['year_amount'])
-            )
+            saving_amount = data['saved_amount']
+            if data['saved_amount'] == 'N/A':
+                saving_amount = -1
 
-            if not sg_amount:
+            borrowing_amount = data['outstanding_loans']
+            if data['outstanding_loans'] == 'N/A':
+                borrowing_amount = -1
 
-                saving_amount = data['saved_amount']
-                if data['saved_amount'] == 'N/A':
-                    saving_amount = -1
-
-                borrowing_amount = data['outstanding_loans']
-                if data['outstanding_loans'] == 'N/A':
-                    borrowing_amount = -1
-
+            saving_amount = int(str(saving_amount).replace(',',''))
+            borrowing_amount = int(str(borrowing_amount).replace(',',''))
+            try:
+                uniq_id_am = uniq_id_amount(str(data['year_amount']), str(sg_id))
                 amount = Amount(
                     saving= saving_amount,
                     borrowing=borrowing_amount,
                     year=data['year_amount'],
-                    sg_id=saving.id
+                    uniq_id=uniq_id_am,
+                    sg_id=sg_id
                 )
 
                 db.session.add(amount)
                 db.session.commit()
+            except IntegrityError:
+                db.session().rollback()
 
         return 1
 
@@ -213,8 +205,8 @@ class Excellentodb:
             return [1,json_data]
         else:
             filename = uniqid() + ".xls"
-            save = "/Users/muhireremy/cartix/uploads/save/" + filename
-            #save = "/home/www/cartix/uploads/save/" + filename
+            #save = "/Users/muhireremy/cartix/uploads/save/" + filename
+            save = "/home/www/cartix/uploads/save/" + filename
             download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
             return [0,download]
