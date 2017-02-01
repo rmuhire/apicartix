@@ -33,7 +33,8 @@ class AmountSchema(Schema):
     saving = fields.Float()
     borrowing = fields.Float()
     year = fields.Integer()
-    sg_id = fields.Nested(SavingGroupSchema, required=True)
+    uniq_id = fields.Str()
+    sg_id = fields.Str()
 
 
 class NgoSchema(Schema):
@@ -45,6 +46,13 @@ class NgoSchema(Schema):
     category = fields.Int()
     picture = fields.Str()
     address = fields.Str()
+
+
+class SgsSchema(Schema):
+    id = fields.Int(dump_only=True)
+    partner_id = fields.Int()
+    funding_id = fields.Int()
+    sg_id = fields.Int()
 
 
 class FilesSchema(Schema):
@@ -121,6 +129,11 @@ amounts_schema = AmountSchema(many=True)
 
 ngo_schema = NgoSchema()
 ngos_schema = NgoSchema(many=True)
+
+
+sgs_schema = SgsSchema()
+sgs_schemas = SgsSchema(many=True)
+
 
 file_schema = FilesSchema()
 files_schema = FilesSchema(many=True)
