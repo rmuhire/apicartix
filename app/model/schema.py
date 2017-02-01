@@ -1,6 +1,17 @@
 from marshmallow import Schema,fields
 
 
+class NgoSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    email = fields.Str()
+    telephone = fields.Str()
+    website = fields.Str()
+    category = fields.Int()
+    picture = fields.Str()
+    address = fields.Str()
+
+
 class UserSchema(Schema):
     id = fields.Integer(dump_only=True)
     names = fields.String()
@@ -9,11 +20,11 @@ class UserSchema(Schema):
     phone = fields.String()
     user_role = fields.String()
     regDate = fields.Date()
-    password = fields.String()
+    #password = fields.String()
     gender = fields.String()
-    update_key = fields.String()
+    #update_key = fields.String()
     job_title = fields.String()
-    ngo_id = fields.Integer()
+    ngo = fields.Nested(NgoSchema, only=["id","name"])
 
 
 class SavingGroupSchema(Schema):
@@ -37,16 +48,6 @@ class AmountSchema(Schema):
     sg_id = fields.Str()
 
 
-class NgoSchema(Schema):
-    id = fields.Int(dump_only=True)
-    name = fields.Str()
-    email = fields.Str()
-    telephone = fields.Str()
-    website = fields.Str()
-    category = fields.Int()
-    picture = fields.Str()
-    address = fields.Str()
-
 
 class SgsSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -62,7 +63,7 @@ class FilesSchema(Schema):
     filename = fields.Str()
     regDate = fields.Date()
     status = fields.Int()
-    user_id = fields.Int()
+    user = fields.Nested(UserSchema, only=["id","names", "ngo"])
 
 
 class ProvinceSchema(Schema):
