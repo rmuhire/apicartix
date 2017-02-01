@@ -11,8 +11,8 @@ CORS(app)
 
 db = SQLAlchemy(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = 'rmuhire'
 app.config['MAIL_SERVER']='smtp.gmail.com'
@@ -91,13 +91,15 @@ class Amount(db.Model):
     saving = db.Column(db.Float)
     borrowing = db.Column(db.Float)
     year = db.Column(db.Integer)
+    uniq_id = db.Column(db.String(240), unique=True)
     sg_id = db.Column(db.Integer, db.ForeignKey('saving_group.id'))
 
-    def __init__(self, saving, borrowing, year, sg_id):
+    def __init__(self, saving, borrowing, year, uniq_id, sg_id):
         self.saving = saving
         self.borrowing = borrowing
         self.year = year
         self.sg_id = sg_id
+        self.uniq_id = uniq_id
 
 
 class Ngo(db.Model):
