@@ -208,5 +208,19 @@ def row_amount():
 
 
 
+@app.route('/api/v1/files')
+def get_files():
+    files = Files.query.all()
+    if files:
+        result = files_schema.dump(files).data
+        return jsonify(result)
+
+
+@app.route('/api/v1/files/user/<id>')
+def get_user_file(id):
+    files = Files.query.filter_by(user_id=id)
+    if files:
+        result = files_schema.dump(files).data
+        return jsonify(result)
 
 
