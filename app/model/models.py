@@ -143,13 +143,15 @@ class Files(db.Model):
     filename = db.Column(db.String(150))
     regDate = db.Column(db.DateTime)
     status = db.Column(db.Integer)
+    size = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, original, saved, filename, status, user_id, regDate=None):
+    def __init__(self, original, saved, filename, status, user_id, size, regDate=None):
         self.original = original
         self.saved = saved
         self.filename = filename
         self.status = status
+        self.size = size
         self.user_id = user_id
         if regDate is None:
             regDate = datetime.utcnow()
