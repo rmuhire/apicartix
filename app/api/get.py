@@ -100,6 +100,14 @@ def int_ngo():
         return jsonify(result.data)
 
 
+@app.route('/api/v1/int_ngo/partner/<id>')
+def intNgoPartner(id):
+    ngo = Sgs.query.filter_by(funding_id=id)
+    if ngo:
+        result = sgs_schemas.dump(ngo).data
+        return jsonify(result)
+
+
 @app.route('/api/v1/ngo_status/<id>')
 def ngo_status(id):
     ngo = Ngo.query.get(id)
