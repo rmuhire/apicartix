@@ -48,7 +48,6 @@ class AmountSchema(Schema):
     sg_id = fields.Str()
 
 
-
 class SgsSchema(Schema):
     id = fields.Int(dump_only=True)
     partner_id = fields.Int()
@@ -59,10 +58,11 @@ class SgsSchema(Schema):
 class FilesSchema(Schema):
     id = fields.Int()
     original = fields.Str()
-    save = fields.Str()
+    saved = fields.Str()
     filename = fields.Str()
     regDate = fields.Date()
     status = fields.Int()
+    size = fields.Int()
     user = fields.Nested(UserSchema, only=["id","names", "ngo"])
 
 
