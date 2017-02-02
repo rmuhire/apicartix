@@ -63,6 +63,7 @@ class FilesSchema(Schema):
     regDate = fields.Date()
     status = fields.Int()
     size = fields.Int()
+    user_id = fields.Int()
     user = fields.Nested(UserSchema, only=["id","names", "ngo"])
 
 
