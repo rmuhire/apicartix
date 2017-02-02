@@ -14,6 +14,7 @@ import json
 from app.controller.location import Kendb, KenQuerydb
 
 
+
 bcrypt = Bcrypt(app)
 app.config['UPLOAD_FOLDER'] = '/tmp'
 app.config['ALLOWED_EXTENSIONS'] = set(['xlsx','xls','csv'])
@@ -177,13 +178,16 @@ def file_save():
     if errors:
         return jsonify(errors), 422
 
+    size = os.path.getsize(data['original'])
+
     try:
         files = Files(
             original=data['original'],
-            saved=data['save'],
+            saved=data['saved'],
             filename=data['filename'],
             regDate=None,
             status=0,
+            size=size,
             user_id=data['user_id']
         )
 
@@ -210,13 +214,16 @@ def file_user():
     if errors:
         return jsonify(errors), 422
 
+    size = os.path.getsize(data['original'])
+
     try:
         files = Files(
             original=data['original'],
-            saved=data['save'],
+            saved=data['saved'],
             filename=data['filename'],
             regDate=None,
             status=1,
+            size=size,
             user_id=data['user_id']
         )
 
