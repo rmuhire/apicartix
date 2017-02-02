@@ -6,6 +6,8 @@ from kenessa import Province, District
 from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
+from app.controller.list_partner import litPartnerNgo
+
 from sqlalchemy import and_
 
 
@@ -102,9 +104,10 @@ def int_ngo():
 
 @app.route('/api/v1/int_ngo/partner/<id>')
 def intNgoPartner(id):
-    ngo = Sgs.query.filter_by(funding_id=id)
+    ngo = Sgs.query.with_entities(Sgs.partner_id, Sgs.funding_id).filter_by(funding_id=id)
     if ngo:
         result = sgs_schemas.dump(ngo).data
+        data = litPartnerNgo(result)
         return jsonify(result)
 
 
