@@ -115,7 +115,6 @@ def login():
     if errors:
         return jsonify(errors), 422
 
-    import pdb; pdb.set_trace()
     username, password = data['username'], data['password']
 
     user = User.query.filter((User.username == username) | (User.email == username)).first()
@@ -130,7 +129,6 @@ def login():
     except AttributeError:
         status = False
         return jsonify({'result': status})
-
 
 
 def allowed_file(filename):
