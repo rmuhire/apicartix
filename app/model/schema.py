@@ -20,9 +20,9 @@ class UserSchema(Schema):
     phone = fields.String()
     user_role = fields.String()
     regDate = fields.Date()
-    #password = fields.String()
+    password = fields.String()
     gender = fields.String()
-    #update_key = fields.String()
+    update_key = fields.String()
     job_title = fields.String()
     ngo = fields.Nested(NgoSchema, only=["id","name"])
 
