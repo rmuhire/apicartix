@@ -103,15 +103,17 @@ def int_ngo():
 
 @app.route('/api/v1/int_ngo/partner/<id>')
 def intNgoPartner(id):
-    ngo = Sgs.query.with_entities(Sgs.partner_id, Sgs.funding_id).filter(Sgs.funding_id.in_(id))
+    ids = id.split(',')
+    ngo = Sgs.query.with_entities(Sgs.partner_id, Sgs.funding_id).filter(Sgs.funding_id.in_(ids))
     if ngo:
         result = sgs_schemas.dump(ngo).data
         data = litPartnerNgo(result)
 
-        partner = Ngo.query.filter(Ngo.id.in_(data))
+        partner = Ngo.query.with_entities(Ngo.id, Ngo.name).filter(Ngo.id.in_(data)).filter(Ngo.name != 'N/A')
         if partner:
             partner_ngo = ngos_schema.dump(partner).data
-            return jsonify(partner_ngo, data)
+            return jsonify(partner_ngo)
+
 
 
 @app.route('/api/v1/ngo_status/<id>')
