@@ -11,8 +11,8 @@ CORS(app)
 
 db = SQLAlchemy(app)
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = 'rmuhire'
 app.config['MAIL_SERVER']='smtp.gmail.com'
@@ -63,43 +63,33 @@ class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    year = db.Column(db.Integer)
+    year_of_creation = db.Column(db.Integer)
     member_female = db.Column(db.Integer)
     member_male = db.Column(db.Integer)
-    sector_id = db.Column(db.Integer)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
     sg_status = db.Column(db.String(100))
-    uniq_id = db.Column(db.String(240), unique=True)
+    saving = db.Column(db.Float)
+    borrowing = db.Column(db.Float)
+    year = db.Column(db.Integer)
+    partner_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+    funding_id = db.Column(db.Integer)
     regDate = db.Column(db.DateTime)
 
-    Amount = db.relationship('Amount', backref='saving_group', lazy='dynamic')
-    sgs = db.relationship('Sgs', backref='saving_group', lazy='dynamic')
-
-    def __init__(self, name, year, member_female, member_male, sector_id, sg_status, uniq_id, regDate = None):
+    def __init__(self, name, year_of_creation, member_female, member_male, sector_id, sg_status, saving, borrowing, year, partner_id, funding_id, regDate = None):
         self.name = name,
-        self.year = year
+        self.year_of_creation = year_of_creation
         self.member_female = member_female
         self.member_male = member_male
         self.sector_id = sector_id
         self.sg_status = sg_status
-        self.uniq_id = uniq_id
-        if regDate is None:
-            self.regDate = datetime.utcnow()
-
-
-class Amount(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    saving = db.Column(db.Float)
-    borrowing = db.Column(db.Float)
-    year = db.Column(db.Integer)
-    uniq_id = db.Column(db.String(240), unique=True)
-    sg_id = db.Column(db.Integer, db.ForeignKey('saving_group.id'))
-
-    def __init__(self, saving, borrowing, year, uniq_id, sg_id):
         self.saving = saving
         self.borrowing = borrowing
         self.year = year
-        self.sg_id = sg_id
-        self.uniq_id = uniq_id
+        self.partner_id = partner_id
+        self.funding_id = funding_id
+
+        if regDate is None:
+            self.regDate = datetime.utcnow()
 
 
 class Ngo(db.Model):
@@ -111,7 +101,7 @@ class Ngo(db.Model):
     category = db.Column(db.Integer) # Int NGO 1 : Local NGO : 0
     picture = db.Column(db.String(100))
     address = db.Column(db.String(200))
-
+    sg = db.relationship('SavingGroup', backref='ngo', lazy='dynamic')
     user = db.relationship('User', backref='ngo', lazy='dynamic')
 
     def __init__(self, name, email, telephone, website, category, picture, address):
@@ -122,18 +112,6 @@ class Ngo(db.Model):
         self.category = category
         self.picture = picture
         self.address = address
-
-
-class Sgs(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    partner_id = db.Column(db.Integer)
-    funding_id = db.Column(db.Integer)
-    sg_id = db.Column(db.Integer, db.ForeignKey('saving_group.id'))
-
-    def __init__(self, partner_id, funding_id, sg_id):
-        self.partner_id = partner_id
-        self.funding_id = funding_id
-        self.sg_id = sg_id
 
 
 class Files(db.Model):
@@ -201,6 +179,7 @@ class Sector(db.Model):
 
     sector_financial = db.relationship('Financial', backref='sector', lazy='dynamic')
     sector_population = db.relationship('Population', backref='sector', lazy='dynamic')
+    sg = db.relation('SavingGroup', backref='sector', lazy='dynamic')
 
     def __init__(self, id, name, code, district_code, district_id):
         self.id = id
