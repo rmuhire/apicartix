@@ -67,62 +67,36 @@ class Excellentodb:
             # saving group
 
             try:
+
+                saving_amount = data['saved_amount']
+                if data['saved_amount'] == 'N/A':
+                    saving_amount = -1
+
+                borrowing_amount = data['outstanding_loans']
+                if data['outstanding_loans'] == 'N/A':
+                    borrowing_amount = -1
+
+                saving_amount = int(str(saving_amount).replace(',', ''))
+                borrowing_amount = int(str(borrowing_amount).replace(',', ''))
                 s_id = sector_id(data['sector'], data['district'])
-                uniq_id = uniq_sg_id(str(intl_ngo_id), str(local_ngo_id), str(s_id), data['saving_group_name'])
+
                 saving = SavingGroup(
                     name=data['saving_group_name'],
-                    year=data['sgs_year_of_creation'],
+                    year_of_creation=data['sgs_year_of_creation'],
                     member_female=data['sgs_members__female'],
                     member_male=data['sgs_members__male_'],
                     sector_id=s_id,
                     sg_status=data['sgs_status_(supervised/graduated)'],
-                    uniq_id= uniq_id,
+                    saving=saving_amount,
+                    borrowing=borrowing_amount,
+                    year=data['year_amount'],
+                    partner_id=intl_ngo_id,
+                    funding_id=local_ngo_id,
                     regDate=None
                 )
                 db.session.add(saving)
                 db.session.commit()
-                sg_id = saving.id
 
-                sgs = Sgs(
-                    partner_id=local_ngo_id,
-                    funding_id=intl_ngo_id,
-                    sg_id=sg_id
-                )
-
-                db.session.add(sgs)
-                db.session.commit()
-
-            except IntegrityError:
-                db.session().rollback()
-                saving = SavingGroup.query.filter_by(uniq_id=uniq_id).first()
-                sg_id = saving.id
-
-
-
-            # Amount
-
-            saving_amount = data['saved_amount']
-            if data['saved_amount'] == 'N/A':
-                saving_amount = -1
-
-            borrowing_amount = data['outstanding_loans']
-            if data['outstanding_loans'] == 'N/A':
-                borrowing_amount = -1
-
-            saving_amount = int(str(saving_amount).replace(',',''))
-            borrowing_amount = int(str(borrowing_amount).replace(',',''))
-            try:
-                uniq_id_am = uniq_id_amount(str(data['year_amount']), str(sg_id))
-                amount = Amount(
-                    saving= saving_amount,
-                    borrowing=borrowing_amount,
-                    year=data['year_amount'],
-                    uniq_id=uniq_id_am,
-                    sg_id=sg_id
-                )
-
-                db.session.add(amount)
-                db.session.commit()
             except IntegrityError:
                 db.session().rollback()
 
@@ -180,8 +154,6 @@ class Excellentodb:
                     Checker(cols_value[4]).saved(),
                     Checker([cols_value[4], cols_value[5]]).borrow()
                 ]
-
-
 
                 for col in range(columns):
                     value = sheet.cell(row, col).value
