@@ -30,29 +30,17 @@ class UserSchema(Schema):
 class SavingGroupSchema(Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String()
-    year = fields.Integer()
+    year_of_creation = fields.Integer()
     member_female = fields.Integer()
     member_male = fields.Integer()
     sector_id = fields.Integer()
     sg_status = fields.Str()
-    uniq_id = fields.Str()
-    regDate = fields.Date()
-
-
-class AmountSchema(Schema):
-    id = fields.Integer(dump_only=True)
     saving = fields.Float()
     borrowing = fields.Float()
-    year = fields.Integer()
-    uniq_id = fields.Str()
-    sg_id = fields.Str()
-
-
-class SgsSchema(Schema):
-    id = fields.Int(dump_only=True)
-    partner_id = fields.Int()
-    funding_id = fields.Int()
-    sg_id = fields.Int()
+    year = fields.Date()
+    partner = fields.Nested(NgoSchema, only=["id","name"])
+    funding = fields.Int(NgoSchema, only=["id","name"])
+    regDate = fields.Date()
 
 
 class FilesSchema(Schema):
@@ -126,16 +114,8 @@ users_schema = UserSchema(many=True)
 sg_schema = SavingGroupSchema()
 sgs_schema = SavingGroupSchema(many=True)
 
-amount_schema = AmountSchema()
-amounts_schema = AmountSchema(many=True)
-
 ngo_schema = NgoSchema()
 ngos_schema = NgoSchema(many=True)
-
-
-sgs_schema = SgsSchema()
-sgs_schemas = SgsSchema(many=True)
-
 
 file_schema = FilesSchema()
 files_schema = FilesSchema(many=True)
