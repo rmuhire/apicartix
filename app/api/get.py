@@ -103,6 +103,7 @@ def int_ngo():
 
 @app.route('/api/v1/int_ngo/partner/<id>')
 def intNgoPartner(id):
+    return jsonify(id)
     ids = id.split(',')
     ngo = Sgs.query.with_entities(Sgs.partner_id, Sgs.funding_id).filter(Sgs.funding_id.in_(ids))
     if ngo:
@@ -237,6 +238,14 @@ def get_user_file(id):
     files = Files.query.filter_by(user_id=id)
     if files:
         result = files_schema.dump(files).data
+        return jsonify(result)
+
+
+@app.route('/api/v1/saving')
+def saving_group():
+    sg = SavingGroup.query.all()
+    if sg:
+        result = sgs_schema.dump(sg).data
         return jsonify(result)
 
 

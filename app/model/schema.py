@@ -37,9 +37,9 @@ class SavingGroupSchema(Schema):
     sg_status = fields.Str()
     saving = fields.Float()
     borrowing = fields.Float()
-    year = fields.Date()
-    partner = fields.Nested(NgoSchema, only=["id","name"])
-    funding = fields.Int(NgoSchema, only=["id","name"])
+    year = fields.Int()
+    partner_id = fields.Int()
+    funding_id = fields.Int()
     regDate = fields.Date()
 
 
