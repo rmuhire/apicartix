@@ -58,22 +58,6 @@ def sg_name(name):
         return jsonify({'Message':'0'})
 
 
-@app.route('/api/v1/amount')
-def amount():
-    amount = Amount.query.all()
-    result = amounts_schema.dump(amount).data
-    return jsonify({'Amounts':result})
-
-
-@app.route('/api/v1/amount/<int:id>')
-def amount_sg(id):
-    amount = Amount.query.filter_by(sg_id=id).first()
-    if amount:
-        result = amount_schema.dump(amount)
-        return jsonify({'SG-Amount':result.data})
-    else:
-        return jsonify({'Message':'0'})
-
 
 @app.route('/api/v1/ngos')
 def ngos():
