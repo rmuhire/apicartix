@@ -7,7 +7,7 @@ from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
 from app.controller.list_partner import litPartnerNgo
-from sqlalchemy import func, text
+from app.controller.analytics import provinceAnalytics, districtAnalytics, sectorAnalytics
 
 
 
@@ -224,53 +224,8 @@ def saving_group():
 
 @app.route('/api/v1/sqlsaving')
 def sql_saving():
-    sql_province = text('select count(saving_group.name)'
-               ', sum(saving_group.member_female) '
-               ', sum(saving_group.member_male)'
-               ', sum(saving_group.borrowing)'
-               ', sum(saving_group.saving)'
-               ', province.name '
-               'from saving_group, sector, district, province '
-               'where sector.id = saving_group.sector_id AND '
-               'district.id = sector.district_id AND '
-               'province.id = district.province_id '
-               'group by province.id')
-    result = db.engine.execute(sql_province)
-    province = []
-    for row in result:
-        data = [row[0], row[1], row[2], row[3], row[4], row[5]]
-        province.append(data)
-
-    sql_district = text('select count(saving_group.name)'
-                       ', sum(saving_group.member_female) '
-                       ', sum(saving_group.member_male)'
-                       ', sum(saving_group.borrowing)'
-                       ', sum(saving_group.saving)'
-                       ', district.name '
-                       'from saving_group, sector, district '
-                       'where sector.id = saving_group.sector_id AND '
-                       'district.id = sector.district_id '
-                       'group by district.id')
-    result = db.engine.execute(sql_district)
-    district = []
-    for row in result:
-        data = [row[0], row[1], row[2], row[3], row[4], row[5]]
-        district.append(data)
-
-    sql_district = text('select count(saving_group.name)'
-                        ', sum(saving_group.member_female) '
-                        ', sum(saving_group.member_male)'
-                        ', sum(saving_group.borrowing)'
-                        ', sum(saving_group.saving)'
-                        ', sector.name '
-                        'from saving_group, sector '
-                        'where sector.id = saving_group.sector_id '
-                        'group by sector.id')
-    result = db.engine.execute(sql_district)
-    sector = []
-    for row in result:
-        data = [row[0], row[1], row[2], row[3], row[4], row[5]]
-        sector.append(data)
-
+    province = provinceAnalytics()
+    district = districtAnalytics()
+    sector = sectorAnalytics()
     return jsonify({'province':province, 'district':district, 'sector':sector})
 
