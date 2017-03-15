@@ -25,31 +25,31 @@ class Checker:
         return False
 
     def member(self):
-        try:
-            if int(self.identifier) < 15 | int(self.identifier > 30):
-                return False
-        except ValueError:
-            return False
+        # try:
+        #     if int(self.identifier) < 15 | int(self.identifier > 30):
+        #         return False
+        # except ValueError:
+        #     return False
         return True
 
     def saved(self):
-        try:
-            if int(self.identifier) < int(15 * 100):
-                return False
-        except ValueError:
-            if not self.identifier:
-                return False
+        # try:
+        #     if int(self.identifier) < int(15 * 100):
+        #         return False
+        # except ValueError:
+        #     if not self.identifier:
+        #         return False
 
         return True
 
     def borrow(self):
-        saved, borrow = self.identifier
-        try:
-            if int(saved) <= 0 & int(borrow) != 0:
-                return False
-        except ValueError:
-            if not borrow:
-                return False
+        # saved, borrow = self.identifier
+        # try:
+        #     if int(saved) <= 0 & int(borrow) != 0:
+        #         return False
+        # except ValueError:
+        #     if not borrow:
+        #         return False
         return True
 
     def empty(self):
