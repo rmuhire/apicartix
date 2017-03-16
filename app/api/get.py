@@ -7,7 +7,7 @@ from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
 from app.controller.list_partner import litPartnerNgo
-from app.controller.analytics import provinceAnalytics, districtAnalytics, sectorAnalytics
+from app.controller.analytics import MapAnalytics
 
 
 
@@ -224,8 +224,8 @@ def saving_group():
 
 @app.route('/api/v1/sqlsaving')
 def sql_saving():
-    province = provinceAnalytics()
-    district = districtAnalytics()
-    sector = sectorAnalytics()
+    province = MapAnalytics().provinceAnalytics()
+    district = MapAnalytics().districtAnalytics()
+    sector = MapAnalytics().sectorAnalytics()
     return jsonify({'province':province, 'district':district, 'sector':sector})
 
