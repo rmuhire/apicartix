@@ -64,3 +64,9 @@ class MapAnalytics:
             data = [row[0], row[1], row[2], row[3], row[4], row[5]]
             sector.append(data)
         return sector
+
+    def json(self):
+        province = MapAnalytics().provinceAnalytics()
+        district = MapAnalytics().districtAnalytics()
+        sector = MapAnalytics().sectorAnalytics()
+        return [province, district, sector]
