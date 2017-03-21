@@ -17,7 +17,7 @@ class MapAnalytics:
                             'where sector.id = saving_group.sector_id AND '
                             'district.id = sector.district_id AND '
                             'province.id = district.province_id '
-                            'group by province.id')
+                            'group by province.name')
         result = db.engine.execute(sql_province)
         province = []
         for row in result:
@@ -52,7 +52,8 @@ class MapAnalytics:
                             ', sum(saving_group.member_male)'
                             ', sum(saving_group.borrowing)'
                             ', sum(saving_group.saving)'
-                            ', sector.name '
+                            ', sector.name'
+                            ', sector.district_id '
                             'from saving_group, sector '
                             'where sector.id = saving_group.sector_id '
                             'AND saving_group.borrowing != :x AND '
@@ -61,7 +62,7 @@ class MapAnalytics:
         result = db.engine.execute(sql_district, x=-1)
         sector = []
         for row in result:
-            data = [row[0], row[1], row[2], row[3], row[4], row[5]]
+            data = [row[0], row[1], row[2], row[3], row[4], row[5], returnDistrict(row[6])]
             sector.append(data)
         return sector
 
@@ -69,4 +70,68 @@ class MapAnalytics:
         province = MapAnalytics().provinceAnalytics()
         district = MapAnalytics().districtAnalytics()
         sector = MapAnalytics().sectorAnalytics()
-        return [province, district, sector]
+
+        # Province
+
+        provinces = []
+        for i in range(len(province)):
+            data = {}
+            value = province[i]
+            data['Province'] = returnProvince(value[5])
+            data['Density'] = value[0]
+            data['Membership'] = value[1] + value[2]
+            data['Female'] = value[1]
+            data['Male'] = value[2]
+            data['borrowing'] = value[3]
+            data['saving'] = value[4]
+            provinces.append(data)
+
+        # District
+
+        districts = []
+        for i in range(len(district)):
+            data = {}
+            value = district[i]
+            data['District'] = value[5].title()
+            data['Density'] = value[0]
+            data['Membership'] = value[1] + value[2]
+            data['Female'] = value[1]
+            data['Male'] = value[2]
+            data['borrowing'] = value[3]
+            data['saving'] = value[4]
+            districts.append(data)
+
+        # Sector
+
+        sectors = []
+        for i in range(len(sector)):
+            data = {}
+            value = sector[i]
+            data['District'] = value[6].title()
+            data['Sector'] = value[5].title()
+            data['Density'] = value[0]
+            data['Membership'] = value[1] + value[2]
+            data['Female'] = value[1]
+            data['Male'] = value[2]
+            data['borrowing'] = value[3]
+            data['saving'] = value[4]
+            sectors.append(data)
+
+        return [provinces, districts, sectors]
+
+
+def returnProvince(name):
+    val = ['kigali', 'north', 'south', 'west', 'east']
+    data = ['Kigali City', 'Northern', 'Southern', 'Western', 'Eastern']
+
+    for i in range(len(val)):
+        if name == val[i]:
+            return data[i]
+
+
+def returnDistrict(id):
+    district = text('select name from district where id = :id')
+    result = db.engine.execute(district, id=id)
+
+    for row in result:
+        return row[0]
