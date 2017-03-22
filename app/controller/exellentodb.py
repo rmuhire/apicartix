@@ -71,13 +71,17 @@ class Excellentodb:
                 saving_amount = data['saved_amount']
                 if data['saved_amount'] == 'N/A':
                     saving_amount = -1
+                if not data['saved_amount']:
+                    saving_amount = 0
 
                 borrowing_amount = data['outstanding_loans']
                 if data['outstanding_loans'] == 'N/A':
                     borrowing_amount = -1
+                if not data['outstanding_loans']:
+                    borrowing_amount = 0
 
-                saving_amount = int(str(saving_amount).replace(',', ''))
-                borrowing_amount = int(str(borrowing_amount).replace(',', ''))
+                saving_amount = float(str(saving_amount).replace(',', ''))
+                borrowing_amount = float(str(borrowing_amount).replace(',', ''))
                 s_id = sector_id(data['sector'], data['district'])
 
                 saving = SavingGroup(
