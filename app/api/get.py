@@ -221,9 +221,8 @@ def saving_group():
     return jsonify([i for i in sg])
 
 
-
-@app.route('/api/v1/sqlsaving')
-def sql_saving():
+@app.route('/api/v1/sqlsaving/<sg>/<year>')
+def sql_saving(sg, year):
     province, district, sector = MapAnalytics().json()
     return jsonify({
         "Provinces": province,
