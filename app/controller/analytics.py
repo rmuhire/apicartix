@@ -2,6 +2,7 @@ from app import *
 from app.model.models import *
 from sqlalchemy import text
 
+
 class MapAnalytics:
     def __init__(self):
         pass
@@ -118,6 +119,33 @@ class MapAnalytics:
             sectors.append(data)
 
         return [provinces, districts, sectors]
+
+
+class ChartAnalytics:
+    def __init__(self):
+        pass
+
+    # Membership per gender
+    def membership(self):
+        membership_sql = text('select sum(member_female)'
+                              ', sum(member_male) from saving_group, sector'
+                              ' where sector.id = saving_group.sector_id')
+        result = db.engine.execute(membership_sql)
+
+        val = []
+        labels = ['Male Members', 'Female Members']
+        for row in result:
+            val = [row[0], row[1]]
+
+        data = []
+        item = {}
+        item['values'] = val
+        item['labels'] = labels
+        item['type'] = 'pie'
+
+        data.append(item)
+
+        return data
 
 
 def returnProvince(name):
