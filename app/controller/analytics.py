@@ -147,6 +147,29 @@ class ChartAnalytics:
 
         return data
 
+    # SGS_status per Intl NGOs
+    def sg_status(self):
+
+        # Supervised query
+        supervised_sql = text('select count(sg_status), funding_id from saving_group '
+                              'WHERE sg_status = :val GROUP BY funding_id')
+        result = db.engine.execute(supervised_sql, val='Supervised')
+        supervised = []
+        for row in result:
+            data = [row[0], row[1]]
+            supervised.append(data)
+
+        # Graduated Query
+        graduated_sql = text('select count(sg_status), funding_id from saving_group '
+                              'WHERE sg_status = :val GROUP BY funding_id')
+        result = db.engine.execute(graduated_sql, val='Graduated')
+        graduated = []
+        for row in result:
+            data = [row[0], row[1]]
+            graduated.append(data)
+
+        return [supervised,graduated]
+
 
 def returnProvince(name):
     val = ['kigali', 'north', 'south', 'west', 'east']
