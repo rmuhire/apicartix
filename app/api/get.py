@@ -7,7 +7,7 @@ from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
 from app.controller.list_partner import litPartnerNgo
-from app.controller.analytics import MapAnalytics
+from app.controller.analytics import MapAnalytics, ChartAnalytics
 
 
 
@@ -230,3 +230,7 @@ def sql_saving(sg, year):
         "Sectors": sector
     })
 
+
+@app.route('/api/v1/chartanalytics')
+def chartanalytics():
+    return jsonify({"data": ChartAnalytics().membership()})
