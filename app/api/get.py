@@ -236,19 +236,17 @@ def chartanalytics():
     membership = ChartAnalytics().membership()
     status = ChartAnalytics().sg_status()
     amount = ChartAnalytics().savings_loans()
-    #creation = chartanalytics().creation()
     return jsonify({
         "membership": membership,
         "status": status,
-        "amount": amount,
-        "creation": "remy"
+        "amount": amount
     })
 
 
-@app.route('/api/v1/analytics/membership')
+@app.route('/api/v1/analytics/creation')
 def membership_chart():
-    membership = ChartAnalytics().membership()
+    creation = ChartAnalytics().creation()
 
     return jsonify({
-        "membership":membership
+        "creation":creation
     })
