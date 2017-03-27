@@ -233,4 +233,4 @@ def sql_saving(sg, year):
 
 @app.route('/api/v1/chartanalytics')
 def chartanalytics():
-    return jsonify({"data": ChartAnalytics().membership()})
+    return jsonify({"data": ChartAnalytics().membership(), "status":ChartAnalytics().sg_status()})
