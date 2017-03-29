@@ -291,7 +291,20 @@ class ChartAnalytics:
         return trace
 
 
+class NumberAnalytics:
+    def __init__(self, year):
+        self.year = year
+        if year == 'all':
+            pass
+        else:
+            pass
 
+    def years(self):
+        pass
+
+    def year(self):
+        pass
+        
 
 
 def returnProvince(name):
@@ -345,3 +358,6 @@ def getNgoName(id):
     result = db.engine.execute(ngo, id=id)
     for row in result:
         return row[0]
+
+
+
