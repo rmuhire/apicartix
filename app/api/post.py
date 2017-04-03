@@ -14,7 +14,6 @@ import json
 from app.controller.location import Kendb, KenQuerydb
 
 
-
 bcrypt = Bcrypt(app)
 app.config['UPLOAD_FOLDER'] = '/tmp'
 app.config['ALLOWED_EXTENSIONS'] = set(['xlsx','xls','csv'])
@@ -298,6 +297,16 @@ def dis():
 def sec():
     data = KenQuerydb('remera').sector()
     return jsonify(data)
+
+
+@app.route("/api/v1/data/finance")
+def data_finance():
+    folder = "/Users/muhireremy/cartix/test/data/Non-Umurenge SACCOs_Dec2014.xlsx"
+    data = Excellento(folder).json_data()
+
+    return jsonify(data)
+
+
 
 
 
