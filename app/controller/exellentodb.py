@@ -192,6 +192,8 @@ class Financialdb:
         self.items = items
 
     def bank(self):
+        for item in self.items:
+            pass
         return self.items
 
     def mfi(self):
