@@ -184,3 +184,28 @@ class Excellentodb:
             download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
             return [0,download]
+
+
+class Financialdb:
+
+    def __init__(self, items):
+        self.items = items
+
+    def bank(self):
+        return self.items
+
+    def mfi(self):
+        return self.items
+
+    def usacco(self):
+        return self.items
+
+    def nusacco(self):
+        return self.items
+
+    def bank_agent(self):
+        return self.items
+
+    def telco_agent(self):
+        return self.items
+
