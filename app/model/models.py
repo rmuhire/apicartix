@@ -189,10 +189,10 @@ class Sector(db.Model):
         self.district_id = district_id
 
 
-class Financial(db.Model):
+class Banks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     branch_name = db.Column(db.String(100))
-    financial_name = db.Column(db.String(100))
+    bank = db.Column(db.String(100))
     year = db.Column(db.Integer)
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
 
