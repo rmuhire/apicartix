@@ -24,6 +24,7 @@ class UserSchema(Schema):
     gender = fields.String()
     update_key = fields.String()
     job_title = fields.String()
+    ngo_id = fields.Int()
     ngo = fields.Nested(NgoSchema, only=["id","name"])
 
 
