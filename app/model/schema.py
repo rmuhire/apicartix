@@ -79,10 +79,10 @@ class SectorSchema(Schema):
     district_id = fields.Int()
 
 
-class FinancialSchema(Schema):
+class BanksSchema(Schema):
     id = fields.Int(dump_only=True)
     branch_name = fields.Str()
-    financial_name = fields.Str()
+    bank = fields.Str()
     sector_id = fields.Int()
 
 
