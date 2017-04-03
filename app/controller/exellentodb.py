@@ -187,14 +187,27 @@ class Excellentodb:
 
 
 class Financialdb:
-
     def __init__(self, items):
         self.items = items
 
     def bank(self):
         for item in self.items:
-            pass
-        return self.items
+            try:
+                s_id = sector_id(item['sector'].lower(), item['district'].lower())
+                bank = Bank(
+                    branch_name=item['branches'],
+                    bank=item['banks'],
+                    year = None,
+                    sector_id=s_id
+                )
+
+                db.session.add(bank)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session().rollback()
+
+        return 1
 
     def mfi(self):
         return self.items
