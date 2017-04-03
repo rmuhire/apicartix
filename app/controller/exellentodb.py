@@ -6,8 +6,6 @@ import xlwt
 from xlrd import open_workbook
 from app.controller.uniqid import uniqid
 from app.controller.sector_id import sector_id
-from sqlalchemy import and_
-from app.controller.uniq_sq_id import uniq_sg_id, uniq_id_amount
 
 
 class Excellentodb:
