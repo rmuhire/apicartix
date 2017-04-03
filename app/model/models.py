@@ -189,7 +189,7 @@ class Sector(db.Model):
         self.district_id = district_id
 
 
-class Banks(db.Model):
+class Bank(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     branch_name = db.Column(db.String(100))
     bank = db.Column(db.String(100))
