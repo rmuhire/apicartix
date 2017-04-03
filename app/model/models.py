@@ -177,7 +177,7 @@ class Sector(db.Model):
     district_code = db.Column(db.String(10))
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
-    sector_financial = db.relationship('Financial', backref='sector', lazy='dynamic')
+    sector_bank = db.relationship('Bank', backref='sector', lazy='dynamic')
     sector_population = db.relationship('Population', backref='sector', lazy='dynamic')
     sg = db.relation('SavingGroup', backref='sector', lazy='dynamic')
 
@@ -196,10 +196,10 @@ class Bank(db.Model):
     year = db.Column(db.Integer)
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
 
-    def __init__(self, id, branch_name, financial_name, sector_id):
-        self.id = id
+    def __init__(self, branch_name, bank, year, sector_id):
         self.branch_name = branch_name
-        self.financial_name = financial_name
+        self.bank = bank
+        self.year = year
         self.sector_id = sector_id
 
 
