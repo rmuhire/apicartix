@@ -1,7 +1,7 @@
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify,request, session
-from app.controller.exellentodb import Excellentodb
+from app.controller.exellentodb import Excellentodb, Financialdb
 from app.controller.exellentodb import Excellento
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
@@ -301,10 +301,29 @@ def sec():
 
 @app.route("/api/v1/data/finance")
 def data_finance():
-    folder = "/Users/muhireremy/cartix/test/data/Non-Umurenge SACCOs_Dec2014.xlsx"
-    data = Excellento(folder).json_data()
+    folder = "/Users/muhireremy/cartix/test/data/"
+    bank = Excellento(folder + "List_of_Banks_Dec2014.xlsx").json_data()
+    mfi = Excellento(folder + "List_of_MFIs_Dec2014.xlsx").json_data()
+    usacco = Excellento(folder + "Umurenge_SACCOs_Dec2014.xlsx").json_data()
+    nusacco = Excellento(folder + "Non_Umurenge_SACCOs_Dec2014.xlsx").json_data()
+    bank_agent = Excellento(folder + "Bank_agents_District_Dec2014.xlsx").json_data()
+    telco_agent = Excellento(folder + "Telcos_Agents_Per_District_Dec2014.xlsx").json_data()
 
-    return jsonify(data)
+    data_bank = Financialdb(bank).bank()
+    data_mfi = Financialdb(mfi).mfi()
+    data_usacco = Financialdb(usacco).usacco()
+    data_nusacco = Financialdb(nusacco).usacco()
+    data_bank_agent = Financialdb(bank_agent).bank_agent()
+    data_telco_agent = Financialdb(telco_agent).telco_agent()
+
+    return jsonify({
+        "bank":data_bank,
+        "mfi":len(data_mfi),
+        "usacco":len(data_usacco),
+        "nusacco":len(data_nusacco),
+        "bank agent":len(data_bank_agent),
+        "telco_agent":len(data_telco_agent)
+    })
 
 
 
