@@ -301,7 +301,7 @@ def sec():
 
 @app.route("/api/v1/data/finance")
 def data_finance():
-    folder = "/Users/muhireremy/cartix/test/data/"
+    """folder = "/Users/muhireremy/cartix/test/data/"
     bank = Excellento(folder + "List_of_Banks_Dec2014.xlsx").json_data()
     mfi = Excellento(folder + "List_of_MFIs_Dec2014.xlsx").json_data()
     usacco = Excellento(folder + "Umurenge_SACCOs_Dec2014.xlsx").json_data()
@@ -312,18 +312,20 @@ def data_finance():
     data_bank = Financialdb(bank).bank()
     data_mfi = Financialdb(mfi).mfi()
     data_usacco = Financialdb(usacco).usacco()
-    data_nusacco = Financialdb(nusacco).usacco()
+    data_nusacco = Financialdb(nusacco).nusacco()
     data_bank_agent = Financialdb(bank_agent).bank_agent()
     data_telco_agent = Financialdb(telco_agent).telco_agent()
 
     return jsonify({
         "bank":data_bank,
-        "mfi":len(data_mfi),
-        "usacco":len(data_usacco),
-        "nusacco":len(data_nusacco),
-        "bank agent":len(data_bank_agent),
-        "telco_agent":len(data_telco_agent)
-    })
+        "mfi":data_mfi,
+        "usacco":data_usacco,
+        "nusacco":data_nusacco,
+        "bank agent":data_bank_agent,
+        "telco_agent":data_telco_agent
+    }) """
+
+    return jsonify({"status": "already added"})
 
 
 
