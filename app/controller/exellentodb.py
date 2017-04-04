@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 import xlwt
 from xlrd import open_workbook
 from app.controller.uniqid import uniqid
-from app.controller.sector_id import sector_id
+from app.controller.sector_id import sector_id, district_id
 
 
 class Excellentodb:
@@ -192,12 +192,13 @@ class Financialdb:
 
     def bank(self):
         for item in self.items:
+            #return len(self.items)
             try:
                 s_id = sector_id(item['sector'].lower(), item['district'].lower())
                 bank = Bank(
-                    branch_name=item['branches'],
-                    bank=item['banks'],
-                    year = None,
+                    count=item['branch_count'],
+                    name=item['banks'],
+                    year=item['year'],
                     sector_id=s_id
                 )
 
@@ -210,17 +211,91 @@ class Financialdb:
         return 1
 
     def mfi(self):
-        return self.items
+        for item in self.items:
+            #return len(self.items)
+            try:
+                s_id = sector_id(item['sector'].lower(), item['district'].lower())
+                mfi = Mfi(
+                    count=item['count'],
+                    name=item['mfis'],
+                    year=item['year'],
+                    sector_id=s_id
+                )
+                db.session.add(mfi)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
+        return 1
 
     def usacco(self):
-        return self.items
+        for item in self.items:
+            #return len(self.items)
+            try:
+                s_id = sector_id(item['sector'].lower(), item['district'].lower())
+                usacco = UmurengeSacco(
+                    count=item['count'],
+                    name=item['name'],
+                    year=item['year'],
+                    sector_id=s_id
+                )
+                db.session.add(usacco)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+        return 1
 
     def nusacco(self):
-        return self.items
+        for item in self.items:
+            #return len(self.items)
+            try:
+                s_id = sector_id(item['sector'].lower(), item['district'].lower())
+                nusacco = NonUmurengeSacco(
+                    count=item['count'],
+                    name=item['name'],
+                    year=item['year'],
+                    sector_id=s_id
+                )
+                db.session.add(nusacco)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
+        return 1
 
     def bank_agent(self):
-        return self.items
+        for item in self.items:
+            #return len(self.items)
+            try:
+                d_id = district_id(item['district'])
+                bank_agent = BankAgent(
+                    count=item['bank_agents_count'],
+                    year=item['year'],
+                    district_id=d_id
+                )
+                db.session.add(bank_agent)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session.rollback()
+
+        return 1
 
     def telco_agent(self):
-        return self.items
+        for item in self.items:
+            #return len(self.items)
+            try:
+                d_id = district_id(item['district'])
+                telco_agent = TelcoAgent(
+                    count=item['agents_count'],
+                    year=item['year'],
+                    district_id=d_id
+                )
+                db.session.add(telco_agent)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session.rollback()
+
+        return 1
 
