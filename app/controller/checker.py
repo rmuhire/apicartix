@@ -26,7 +26,7 @@ class Checker:
 
     def member(self):
         # try:
-        #     int(self.identifier) < 10 | int(self.identifier) > 30:
+        #     if int(self.identifier) not in range(10,31):
         #         return False
         # except ValueError:
         #     return False
