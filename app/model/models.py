@@ -178,6 +178,9 @@ class Sector(db.Model):
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
     sector_bank = db.relationship('Bank', backref='sector', lazy='dynamic')
+    sector_mfi = db.relationship('Mfi', backref='mfi', lazy='dynamic')
+    sector_usacco = db.relationship('UmurengeSacco', backref='umurenge_sacco', lazy='dynamic')
+    sector_nusacoo = db.relationship('NonUmurengeSacco', backref='non_umurenge_sacco', lazy='dynamic')
     sector_population = db.relationship('Population', backref='sector', lazy='dynamic')
     sg = db.relation('SavingGroup', backref='sector', lazy='dynamic')
 
@@ -191,37 +194,83 @@ class Sector(db.Model):
 
 class Bank(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    branch_name = db.Column(db.String(100))
-    bank = db.Column(db.String(100))
+    count = db.Column(db.Integer)
+    name = db.Column(db.String(100))
     year = db.Column(db.Integer)
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
 
-    def __init__(self, branch_name, bank, year, sector_id):
-        self.branch_name = branch_name
-        self.bank = bank
+    def __init__(self, count, name, year, sector_id):
+        self.count = count
+        self.name = name
+        self.year = year
+        self.sector_id = sector_id
+
+
+class Mfi(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer)
+    name = db.Column(db.String(250))
+    year = db.Column(db.Integer)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
+
+    def __init__(self, count, name, year, sector_id):
+        self.count = count
+        self.name = name
+        self.year = year
+        self.sector_id = sector_id
+
+
+class UmurengeSacco(db.Model):
+    __tablename__ = 'umurenge_sacco'
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer)
+    name = db.Column(db.String(150))
+    year = db.Column(db.Integer)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
+
+    def __init__(self, count, name, year, sector_id):
+        self.count = count
+        self.name = name
+        self.year = year
+        self.sector_id = sector_id
+
+
+class NonUmurengeSacco(db.Model):
+    __tablename__ = 'non_umurenge_sacco'
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer)
+    name = db.Column(db.String(150))
+    year = db.Column(db.Integer)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
+
+    def __init__(self, count, name, year, sector_id):
+        self.count = count
+        self.name = name
         self.year = year
         self.sector_id = sector_id
 
 
 class BankAgent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    distribution = db.Column(db.Integer)
+    count = db.Column(db.Integer)
     year = db.Column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
-    def __init__(self, distribution, district_id):
-        self.distribution = distribution
+    def __init__(self, count, year, district_id):
+        self.count = count
+        self.year = year
         self.district_id = district_id
 
 
 class TelcoAgent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    distribution = db.Column(db.Integer)
+    count = db.Column(db.Integer)
     year = db.Column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
-    def __init__(self, distribution, district_id):
-        self.distribution = distribution
+    def __init__(self, count, year, district_id):
+        self.count = count
+        self.year = year
         self.district_id = district_id
 
 
