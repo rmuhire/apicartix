@@ -81,20 +81,47 @@ class SectorSchema(Schema):
 
 class BankSchema(Schema):
     id = fields.Int(dump_only=True)
-    branch_name = fields.Str()
-    bank = fields.Str()
+    count = fields.Int()
+    name = fields.Str()
+    year = fields.Int()
+    sector_id = fields.Int()
+
+
+class MfiSchema(Schema):
+    id = fields.Int(dump_only=True)
+    count = fields.Int()
+    name = fields.Str()
+    year = fields.Int()
+    sector_id = fields.Int()
+
+
+class UmurengeSacco(Schema):
+    id = fields.Int(dump_only=True)
+    count = fields.Int()
+    name = fields.Str()
+    year = fields.Int()
+    sector_id = fields.Int()
+
+
+class NonUmurengeSacco(Schema):
+    id = fields.Int(dump_only=True)
+    count = fields.Int()
+    name = fields.Str()
+    year = fields.Int()
     sector_id = fields.Int()
 
 
 class BankAgentSchema(Schema):
     id = fields.Int(dump_only=True)
-    distribution = fields.Int()
+    count = fields.Int()
+    year = fields.Int()
     district_id = fields.Int()
 
 
 class TelcoAgentSchema(Schema):
     id = fields.Int(dump_only=True)
-    distribution = fields.Int()
+    count = fields.Int()
+    year = fields.Int()
     district_id = fields.Int()
 
 
