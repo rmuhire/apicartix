@@ -2,12 +2,11 @@ from app import *
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify, send_from_directory
-from kenessa import Province, District
 from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
 from app.controller.list_partner import litPartnerNgo
-from app.controller.analytics import MapAnalytics, ChartAnalytics
+from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
 
 
 
@@ -249,4 +248,15 @@ def membership_chart():
 
     return jsonify({
         "creation":creation
+    })
+
+
+@app.route('/api/v1/analytics/numbers/<int:year>')
+def numbers(year):
+    sg_count, membership, saving, borrowing = NumberAnalytics(year).numbers()
+    return jsonify({
+        "sg_count": sg_count,
+        "membership": membership,
+        "saving": saving,
+        "borrowing": borrowing
     })
