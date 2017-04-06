@@ -1,4 +1,3 @@
-from app import *
 from app.model.models import *
 from sqlalchemy import text
 from saving_year import generate_year
@@ -294,17 +293,22 @@ class ChartAnalytics:
 class NumberAnalytics:
     def __init__(self, year):
         self.year = year
-        if year == 'all':
-            pass
-        else:
-            pass
 
-    def years(self):
-        pass
-
-    def year(self):
-        pass
-        
+    def numbers(self):
+        sql_number =  text('select count(id),'
+                           ' sum(member_female),'
+                           ' sum(member_male),'
+                           ' sum(saving),'
+                           ' sum(borrowing)'
+                           ' from saving_group'
+                           ' where year = :year')
+        result = db.engine.execute(sql_number, year = self.year)
+        if result:
+            for row in result:
+                if row[1] is None:
+                    return [0,0,0,0]
+                data = [row[0],row[1] + row[2], row[3], row[4]]
+            return data
 
 
 def returnProvince(name):
