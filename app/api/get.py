@@ -235,12 +235,14 @@ def chartanalytics():
     amount = ChartAnalytics().savings_loans()
     sg = ChartAnalytics().savingPerIntNgo()
     localPerIntNgo = ChartAnalytics().localPerIntNgo()
+    sgFinancial = ChartAnalytics().sgFinancialInstitution()
     return jsonify({
         "membership": membership,
         "status": status,
         "amount": amount,
         "sg":sg,
-        "sgNgos":localPerIntNgo
+        "sgNgos":localPerIntNgo,
+        "sgFinancial": sgFinancial
     })
 
 
