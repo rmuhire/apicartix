@@ -353,8 +353,8 @@ class ChartAnalytics:
         x = list()
         y = list()
         for row in result:
-            x.append(row[0])
-            y.append(row[1])
+            y.append(row[0])
+            x.append(row[1])
         json_sg = dict()
         json_sg['x'] = x
         json_sg['y'] = y
@@ -362,7 +362,7 @@ class ChartAnalytics:
         json_sg['type'] = 'bar'
 
         # Bank Data
-        sql_banks = text('select count(bank.id),'
+        sql_banks = text('select sum(bank.count),'
                          ' province.name'
                          ' from bank,'
                          ' sector,'
@@ -377,8 +377,8 @@ class ChartAnalytics:
         x = list()
         y = list()
         for row in result:
-            x.append(row[0])
-            y.append(row[1])
+            y.append(row[0])
+            x.append(row[1])
         json_bank = dict()
         json_bank['x'] = x
         json_bank['y'] = y
@@ -387,7 +387,7 @@ class ChartAnalytics:
 
 
         # mfi
-        sql_mfi = text('select count(mfi.id),'
+        sql_mfi = text('select sum(mfi.count),'
                        ' province.name'
                        ' from mfi, sector, district, province '
                        'where sector.id = mfi.sector_id AND'
@@ -398,8 +398,8 @@ class ChartAnalytics:
         x = list()
         y = list()
         for row in result:
-            x.append(row[0])
-            y.append(row[1])
+            y.append(row[0])
+            x.append(row[1])
         json_mfi = dict()
         json_mfi['x'] = x
         json_mfi['y'] = y
@@ -408,7 +408,7 @@ class ChartAnalytics:
 
         # umurenge sacco
 
-        sql_usacco = text('select count(umurenge_sacco.id),'
+        sql_usacco = text('select sum(umurenge_sacco.count),'
                           ' province.name'
                           ' from umurenge_sacco, sector, district, province'
                           ' where sector.id = umurenge_sacco.sector_id AND'
@@ -420,8 +420,8 @@ class ChartAnalytics:
         x = list()
         y = list()
         for row in result:
-            x.append(row[0])
-            y.append(row[1])
+            y.append(row[0])
+            x.append(row[1])
         json_usacco = dict()
         json_usacco['x'] = x
         json_usacco['y'] = y
@@ -430,7 +430,7 @@ class ChartAnalytics:
 
         # Non - Umurenge Sacco
 
-        sql_nusacco = text('select count(non_umurenge_sacco.id),'
+        sql_nusacco = text('select sum(non_umurenge_sacco.count),'
                            ' province.name'
                            ' from non_umurenge_sacco, sector, district, province'
                            ' where sector.id = non_umurenge_sacco.sector_id'
@@ -442,14 +442,81 @@ class ChartAnalytics:
         x = list()
         y = list()
         for row in result:
-            x.append(row[0])
-            y.append(row[1])
+            y.append(row[0])
+            x.append(row[1])
         json_nusacco = dict()
         json_nusacco['x'] = x
         json_nusacco['y'] = y
         json_nusacco['name'] = 'Non-Umurenge Sacco'
+        json_nusacco['type'] = 'bar'
 
         return [json_sg, json_bank, json_mfi, json_usacco, json_nusacco]
+
+    def sgTelcoAgent(self):
+        # telco agent
+        sql_telco = text('select sum(telco_agent.count),'
+                         ' province.name'
+                         ' from telco_agent, province, district'
+                         ' where telco_agent.district_id = district.id '
+                         'and district.province_id = province.id '
+                         'group by province.name '
+                         'order by province.name')
+        result = db.engine.execute(sql_telco)
+        x = list()
+        y = list()
+        for row in result:
+            y.append(row[0])
+            x.append(row[1])
+        json_telco = dict()
+        json_telco['x'] = x
+        json_telco['y'] = y
+        json_telco['name'] = 'Telco Agents'
+        json_telco['type'] = 'bar'
+
+        # bank agent
+        sql_bank = text('select sum(bank_agent.count),'
+                         ' province.name'
+                         ' from bank_agent, province, district'
+                         ' where bank_agent.district_id = district.id '
+                         'and district.province_id = province.id '
+                         'group by province.name '
+                         'order by province.name')
+        result = db.engine.execute(sql_bank)
+        x = list()
+        y = list()
+        for row in result:
+            y.append(row[0])
+            x.append(row[1])
+        json_bank = dict()
+        json_bank['x'] = x
+        json_bank['y'] = y
+        json_bank['name'] = 'Bank Agents'
+        json_bank['type'] = 'bar'
+
+        # sg
+
+        sql_sg = text('select count(saving_group.id),'
+                      ' province.name'
+                      ' from saving_group,'
+                      ' sector, district,'
+                      ' province where sector.id = saving_group.sector_id'
+                      ' AND district.id = sector.district_id'
+                      ' AND province.id = district.province_id'
+                      ' group by province.name'
+                      ' order by province.name')
+        result = db.engine.execute(sql_sg)
+        x = list()
+        y = list()
+        for row in result:
+            y.append(row[0])
+            x.append(row[1])
+        json_sg = dict()
+        json_sg['x'] = x
+        json_sg['y'] = y
+        json_sg['name'] = 'SGs'
+        json_sg['type'] = 'bar'
+
+        return [json_sg, json_telco, json_bank]
 
 
 class NumberAnalytics:
