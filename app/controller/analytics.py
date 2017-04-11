@@ -289,6 +289,59 @@ class ChartAnalytics:
 
         return trace
 
+    def savingPerIntNgo(self):
+        sql = text('select count(saving_group.id),'
+                   ' ngo.id,'
+                   ' ngo.name'
+                   ' from saving_group,'
+                   ' ngo where saving_group.partner_id = ngo.id'
+                   ' AND saving_group.year = 2014'
+                   ' group by ngo.id')
+
+        result = db.engine.execute(sql)
+        values = list()
+        labels = list()
+        for row in result:
+            values.append(row[0])
+            labels.append(row[2])
+
+        json = dict()
+        json['values'] = values
+        json['labels'] = labels
+        json['type'] = 'pie'
+
+        return [json]
+
+    def localPerIntNgo(self):
+        sql = text('select distinct(funding_id)'
+                    ' from saving_group'
+                    ' where year = 2014')
+        result = db.engine.execute(sql)
+        data = list()
+        for row in result:
+            funding_id = row[0]
+            x = list()
+            y = list()
+            sql = text('select distinct(partner_id),'
+                       ' count(id)'
+                       ' from saving_group'
+                       ' where funding_id = :funding_id'
+                       ' group by partner_id')
+            re = db.engine.execute(sql, funding_id=funding_id)
+            for item in re:
+                x.append(getNgoName(item[0]))
+                y.append(item[1])
+            json = dict()
+            json['x'] = x
+            json['y'] = y
+            json['name'] = getNgoName(funding_id)
+            json['type'] = 'bar'
+            data.append(json)
+        return data
+
+
+
+
 
 class NumberAnalytics:
     def __init__(self, year):
