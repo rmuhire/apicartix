@@ -339,8 +339,117 @@ class ChartAnalytics:
             data.append(json)
         return data
 
+    def sgFinancialInstitution(self):
+        sql_sg = text('select count(saving_group.id),'
+                      ' province.name'
+                      ' from saving_group,'
+                      ' sector, district,'
+                      ' province where sector.id = saving_group.sector_id'
+                      ' AND district.id = sector.district_id'
+                      ' AND province.id = district.province_id'
+                      ' group by province.name'
+                      ' order by province.name')
+        result = db.engine.execute(sql_sg)
+        x = list()
+        y = list()
+        for row in result:
+            x.append(row[0])
+            y.append(row[1])
+        json_sg = dict()
+        json_sg['x'] = x
+        json_sg['y'] = y
+        json_sg['name'] = 'SGs'
+        json_sg['type'] = 'bar'
+
+        # Bank Data
+        sql_banks = text('select count(bank.id),'
+                         ' province.name'
+                         ' from bank,'
+                         ' sector,'
+                         ' district,'
+                         ' province'
+                         ' where sector.id = bank.sector_id'
+                         ' AND district.id = sector.district_id'
+                         ' AND province.id = district.province_id'
+                         ' group by province.name order'
+                         ' by province.name')
+        result = db.engine.execute(sql_banks)
+        x = list()
+        y = list()
+        for row in result:
+            x.append(row[0])
+            y.append(row[1])
+        json_bank = dict()
+        json_bank['x'] = x
+        json_bank['y'] = y
+        json_bank['name'] = 'Banks'
+        json_bank['type'] = 'bar'
 
 
+        # mfi
+        sql_mfi = text('select count(mfi.id),'
+                       ' province.name'
+                       ' from mfi, sector, district, province '
+                       'where sector.id = mfi.sector_id AND'
+                       ' district.id = sector.district_id AND'
+                       ' province.id = district.province_id group by'
+                       ' province.name order by province.name')
+        result = db.engine.execute(sql_mfi)
+        x = list()
+        y = list()
+        for row in result:
+            x.append(row[0])
+            y.append(row[1])
+        json_mfi = dict()
+        json_mfi['x'] = x
+        json_mfi['y'] = y
+        json_mfi['name'] = 'MFIs'
+        json_mfi['type'] = 'bar'
+
+        # umurenge sacco
+
+        sql_usacco = text('select count(umurenge_sacco.id),'
+                          ' province.name'
+                          ' from umurenge_sacco, sector, district, province'
+                          ' where sector.id = umurenge_sacco.sector_id AND'
+                          ' district.id = sector.district_id AND'
+                          ' province.id = district.province_id'
+                          ' group by province.name'
+                          ' order by province.name')
+        result = db.engine.execute(sql_usacco)
+        x = list()
+        y = list()
+        for row in result:
+            x.append(row[0])
+            y.append(row[1])
+        json_usacco = dict()
+        json_usacco['x'] = x
+        json_usacco['y'] = y
+        json_usacco['name'] = 'Umurenge Sacco'
+        json_usacco['type'] = 'bar'
+
+        # Non - Umurenge Sacco
+
+        sql_nusacco = text('select count(non_umurenge_sacco.id),'
+                           ' province.name'
+                           ' from non_umurenge_sacco, sector, district, province'
+                           ' where sector.id = non_umurenge_sacco.sector_id'
+                           ' AND district.id = sector.district_id '
+                           'AND province.id = district.province_id '
+                           'group by province.name '
+                           'order by province.name')
+        result = db.engine.execute(sql_nusacco)
+        x = list()
+        y = list()
+        for row in result:
+            x.append(row[0])
+            y.append(row[1])
+        json_nusacco = dict()
+        json_nusacco['x'] = x
+        json_nusacco['y'] = y
+        json_nusacco['name'] = 'Non-Umurenge Sacco'
+
+        return [json_sg, json_bank, json_mfi, json_usacco, json_nusacco]
 
 
 class NumberAnalytics:
