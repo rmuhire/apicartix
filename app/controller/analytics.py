@@ -1,6 +1,6 @@
 from app.model.models import *
 from sqlalchemy import text
-from saving_year import generate_year
+from saving_year import creation_year
 
 
 class MapAnalytics:
@@ -259,7 +259,7 @@ class ChartAnalytics:
 
     # Saving Group creation year
     def creation(self):
-        years = generate_year()
+        years = creation_year()
         data = []
         for year in years:
             yearlist = list()
