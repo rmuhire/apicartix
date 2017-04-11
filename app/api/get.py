@@ -9,8 +9,6 @@ from app.controller.list_partner import litPartnerNgo
 from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
 
 
-
-
 @app.route('/api/v1/users')
 def users():
     user = User.query.all()
@@ -235,10 +233,14 @@ def chartanalytics():
     membership = ChartAnalytics().membership()
     status = ChartAnalytics().sg_status()
     amount = ChartAnalytics().savings_loans()
+    sg = ChartAnalytics().savingPerIntNgo()
+    localPerIntNgo = ChartAnalytics().localPerIntNgo()
     return jsonify({
         "membership": membership,
         "status": status,
-        "amount": amount
+        "amount": amount,
+        "sg":sg,
+        "sgNgos":localPerIntNgo
     })
 
 
@@ -259,4 +261,12 @@ def numbers(year):
         "membership": membership,
         "saving": saving,
         "borrowing": borrowing
+    })
+
+
+@app.route('/api/v1/chart/sg_intngo')
+def sg_intNgo():
+    sg = ChartAnalytics().localPerIntNgo()
+    return jsonify({
+        'sg':sg
     })
