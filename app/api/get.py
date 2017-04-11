@@ -236,13 +236,15 @@ def chartanalytics():
     sg = ChartAnalytics().savingPerIntNgo()
     localPerIntNgo = ChartAnalytics().localPerIntNgo()
     sgFinancial = ChartAnalytics().sgFinancialInstitution()
+    sgAgent = ChartAnalytics().sgTelcoAgent()
     return jsonify({
         "membership": membership,
         "status": status,
         "amount": amount,
         "sg":sg,
         "sgNgos":localPerIntNgo,
-        "sgFinancial": sgFinancial
+        "sgFinancial": sgFinancial,
+        "sgAgent": sgAgent
     })
 
 
@@ -268,7 +270,7 @@ def numbers(year):
 
 @app.route('/api/v1/chart/sg_intngo')
 def sg_intNgo():
-    sg = ChartAnalytics().localPerIntNgo()
+    sgAgent = ChartAnalytics().sgTelcoAgent()
     return jsonify({
-        'sg':sg
+        'sg':sgAgent
     })
