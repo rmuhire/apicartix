@@ -228,15 +228,15 @@ def sql_saving(sg, year):
     })
 
 
-@app.route('/api/v1/chartanalytics')
-def chartanalytics():
-    membership = ChartAnalytics().membership()
-    status = ChartAnalytics().sg_status()
-    amount = ChartAnalytics().savings_loans()
-    sg = ChartAnalytics().savingPerIntNgo()
-    localPerIntNgo = ChartAnalytics().localPerIntNgo()
-    sgFinancial = ChartAnalytics().sgFinancialInstitution()
-    sgAgent = ChartAnalytics().sgTelcoAgent()
+@app.route('/api/v1/chartanalytics/<int:year>')
+def chartanalytics(year):
+    membership = ChartAnalytics(year).membership()
+    status = ChartAnalytics(year).sg_status()
+    amount = ChartAnalytics(year).savings_loans()
+    sg = ChartAnalytics(year).savingPerIntNgo()
+    localPerIntNgo = ChartAnalytics(year).localPerIntNgo()
+    sgFinancial = ChartAnalytics(year).sgFinancialInstitution()
+    sgAgent = ChartAnalytics(year).sgTelcoAgent()
     return jsonify({
         "membership": membership,
         "status": status,
@@ -248,9 +248,9 @@ def chartanalytics():
     })
 
 
-@app.route('/api/v1/analytics/creation')
-def membership_chart():
-    creation = ChartAnalytics().creation()
+@app.route('/api/v1/analytics/creation/<int:year>')
+def membership_chart(year):
+    creation = ChartAnalytics(year).creation()
 
     return jsonify({
         "creation":creation
