@@ -122,15 +122,15 @@ class MapAnalytics:
 
 
 class ChartAnalytics:
-    def __init__(self):
-        pass
+    def __init__(self, year):
+        self.year = year
 
     # Membership per gender
     def membership(self):
         membership_sql = text('select sum(member_female)'
                               ', sum(member_male) from saving_group, sector'
-                              ' where sector.id = saving_group.sector_id')
-        result = db.engine.execute(membership_sql)
+                              ' where sector.id = saving_group.sector_id and saving_group.year = :year')
+        result = db.engine.execute(membership_sql, year= self.year)
 
         val = []
         labels = ['Male Members', 'Female Members']
@@ -153,7 +153,7 @@ class ChartAnalytics:
         # Supervised query
         supervised_sql = text('select count(sg_status), partner_id from saving_group '
                               'WHERE sg_status = :val GROUP BY partner_id')
-        result = db.engine.execute(supervised_sql, val='Supervised')
+        result = db.engine.execute(supervised_sql, val='Supervised', year=self.year)
         supervised = []
         for row in result:
             data = [row[0], getNgoName(row[1])]
