@@ -161,6 +161,7 @@ class District(db.Model):
     district = db.relationship('Sector', backref='district', lazy='dynamic')
     bank_agent_district = db.relationship('BankAgent', backref='district', lazy='dynamic')
     telco_agent_district = db.relationship('TelcoAgent', backref='district', lazy='dynamic')
+    finscope_district = db.relationship('Finscope', backref='district', lazy='dynamic')
 
     def __init__(self, id, name, code, province_code, province_id):
         self.id = id
@@ -286,6 +287,15 @@ class Population(db.Model):
         self.female = female
         self.sector_id = sector_id
 
+
+class Finscope(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    banked = db.Column(db.Integer)
+    other_formal = db.Column(db.Integer)
+    other_informal = db.Column(db.Integer)
+    excluded = db.Column(db.Integer)
+    year = db.column(db.Integer)
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
 
 
