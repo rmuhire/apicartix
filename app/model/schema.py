@@ -132,7 +132,7 @@ class Population(Schema):
     sector_id = fields.Int()
 
 
-class Finscope(Schema):
+class FinscopeSchema(Schema):
     id = fields.Int(dump_only=True)
     banked = fields.Int()
     other_formal = fields.Int()
@@ -169,6 +169,9 @@ sectors_schema = SectorSchema(many=True)
 
 bank_schema = BankSchema()
 banks_schema = BankSchema(many=True)
+
+finscope_schema = FinscopeSchema()
+finscopes_schema = FinscopeSchema(many=True)
 
 
 
