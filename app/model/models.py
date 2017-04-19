@@ -297,6 +297,14 @@ class Finscope(db.Model):
     year = db.column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
+    def __init__(self, banked, other_formal, other_informal, excluded, year, district_id):
+        self.banked = banked
+        self.other_formal = other_formal
+        self.other_informal = other_informal
+        self.excluded = excluded
+        self.year = year
+        self.district_id = district_id
+
 
 
 
