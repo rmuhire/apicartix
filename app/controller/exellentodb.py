@@ -299,3 +299,20 @@ class Financialdb:
 
         return 1
 
+    def finscope(self):
+        for item in self.items:
+            try:
+                d_id = district_id(item['district'])
+                finscope = Finscope(
+                    banked=item['banked'],
+                    other_formal=item['otehrformal'],
+                    other_informal=item['otherinformal'],
+                    excluded=item['excluded'],
+                    year=item['year'],
+                    district_id=d_id
+                )
+                db.session.add(finscope)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
