@@ -330,7 +330,7 @@ def data_finance():
 
 @app.route("/api/v1/data/finscope")
 def data_finscope():
-    folder = "/Users/muhireremy/cartix/test/data/"
+    """folder = "/Users/muhireremy/cartix/test/data/"
     fin_2012 = Excellento(folder + "newF2012.xlsx").json_data()
     fin_2015 = Excellento(folder + "newF2015.xlsx").json_data()
 
@@ -340,6 +340,10 @@ def data_finscope():
     return jsonify({
         "2012":data_2012,
         "2015":data_2015
+    })"""
+
+    return jsonify({
+        "status":"already added"
     })
 
 
