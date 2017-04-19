@@ -334,9 +334,12 @@ def data_finscope():
     fin_2012 = Excellento(folder + "newF2012.xlsx").json_data()
     fin_2015 = Excellento(folder + "newF2015.xlsx").json_data()
 
+    data_2012 =Financialdb(fin_2012).finscope()
+    data_2015 = Financialdb(fin_2015).finscope()
+
     return jsonify({
-        "2012":fin_2012,
-        "2015":fin_2015
+        "2012":data_2012,
+        "2015":data_2015
     })
 
 
