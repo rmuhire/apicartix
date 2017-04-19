@@ -294,7 +294,7 @@ class Finscope(db.Model):
     other_formal = db.Column(db.Integer)
     other_informal = db.Column(db.Integer)
     excluded = db.Column(db.Integer)
-    year = db.column(db.Integer)
+    year = db.Column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
     def __init__(self, banked, other_formal, other_informal, excluded, year, district_id):
