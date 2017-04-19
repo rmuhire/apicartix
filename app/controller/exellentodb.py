@@ -315,4 +315,5 @@ class Financialdb:
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
+        return 1
 
