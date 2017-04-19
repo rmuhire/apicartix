@@ -132,6 +132,16 @@ class Population(Schema):
     sector_id = fields.Int()
 
 
+class Finscope(Schema):
+    id = fields.Int(dump_only=True)
+    banked = fields.Int()
+    other_formal = fields.Int()
+    other_informal = fields.Int()
+    excluded = fields.Int()
+    year = fields.Int()
+    district_id = fields.Int()
+
+
 
 ####### INITIALIZE ALL SCHEMA #######
 
