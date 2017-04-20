@@ -570,8 +570,29 @@ class ChartAnalytics:
         json_other['y'] = y
         json_other['name'] = 'Other Informal'
         json_other['type'] = 'bar'
-        
-        return [json_sg, json_other]
+
+        # Excluded data
+        exluded_2012 = text('select sum(excluded) from finscope where year = 2012')
+        result = db.engine.execute(exluded_2012)
+        x = list()
+        y = list()
+        for row in result:
+            x.append('SGs vs Finecope 2012')
+            y.append(row[0])
+
+        exluded_2015 = text('select sum(excluded) from finscope where year = 2015')
+        result = db.engine.execute(exluded_2015)
+        for row in result:
+            x.append('SGs vs Finecope 2015')
+            y.append(row[0])
+
+        json_excluded = dict()
+        json_excluded['x'] = x
+        json_excluded['y'] = y
+        json_excluded['name'] = 'Excluded'
+        json_excluded['type'] = 'bar'
+
+        return [json_sg, json_other, json_excluded]
 
 
 class NumberAnalytics:
