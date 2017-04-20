@@ -518,6 +518,61 @@ class ChartAnalytics:
 
         return [json_sg, json_telco, json_bank]
 
+    def finscope(self):
+        sg_2012 = text('select sum(member_female), sum(member_male) '
+                  'from saving_group'
+                  ' where year_of_creation = 2012')
+        result = db.engine.execute(sg_2012)
+        x = list()
+        y = list()
+        for row in result:
+            sum_sg_2012 = convertNonType(row[0]) + convertNonType(row[1])
+            x.append('SGs vs Finecope 2012')
+            y.append(sum_sg_2012)
+
+        sg_2015 = text('select sum(member_female),'
+                       ' sum(member_male)'
+                  ' from saving_group'
+                  ' where year_of_creation = 2015')
+        result = db.engine.execute(sg_2015)
+        for row in result:
+            sum_sg_2015 = convertNonType(row[0]) + convertNonType(row[1])
+            x.append('SGs vs Finecope 2015')
+            y.append(sum_sg_2015)
+
+        json_sg = dict()
+        json_sg['x'] = x
+        json_sg['y'] = y
+        json_sg['name'] = 'SGs'
+        json_sg['type'] = 'bar'
+
+
+        o_informal_2012 = text('select sum(other_informal)'
+                               ' from finscope where year = 2012')
+        result = db.engine.execute(o_informal_2012)
+        x = list()
+        y = list()
+        for row in result:
+            remain = convertNonType(row[0]) - sum_sg_2012
+            x.append('SGs vs Finecope 2012')
+            y.append(remain)
+
+        o_informal_2015 = text('select sum(other_informal)'
+                               ' from finscope where year = 2012')
+        result = db.engine.execute(o_informal_2015)
+        for row in result:
+            remain = convertNonType(row[0]) - sum_sg_2015
+            x.append('SGs vs Finecope 2015')
+            y.append(remain)
+
+        json_other = dict()
+        json_other['x'] = x
+        json_other['y'] = y
+        json_other['name'] = 'Other Informal'
+        json_other['type'] = 'bar'
+        
+        return [json_sg, json_other]
+
 
 class NumberAnalytics:
     def __init__(self, year):
@@ -538,6 +593,15 @@ class NumberAnalytics:
                     return [0,0,0,0]
                 data = [row[0],row[1] + row[2], row[3], row[4]]
             return data
+
+
+def convertNonType(val):
+    try:
+        val = int(val)
+    except TypeError:
+        val = 0
+        return val
+    return val
 
 
 def returnProvince(name):
