@@ -275,7 +275,7 @@ def numbers(year):
 
 @app.route('/api/v1/chart/sg_intngo/<int:year>')
 def sg_intNgo(year):
-    sgAgent = ChartAnalytics(year).finscope()
+    sgAgent = ChartAnalytics(year).finscope_all()
     return jsonify({
         'sg':sgAgent
     })
