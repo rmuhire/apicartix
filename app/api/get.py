@@ -238,6 +238,7 @@ def chartanalytics(year):
     sgFinancial = ChartAnalytics(year).sgFinancialInstitution()
     sgAgent = ChartAnalytics(year).sgTelcoAgent()
     finscope = ChartAnalytics(year).finscope()
+    finscope_sg_2012, finscope_sg_2015 = ChartAnalytics(year).finscope_sg()
     return jsonify({
         "membership": membership,
         "status": status,
@@ -246,7 +247,9 @@ def chartanalytics(year):
         "sgNgos":localPerIntNgo,
         "sgFinancial": sgFinancial,
         "sgAgent": sgAgent,
-        "finscope":finscope
+        "finscope":finscope,
+        "finscope_sg_2012":[finscope_sg_2012],
+        "finscope_sg_2015":[finscope_sg_2015]
     })
 
 
