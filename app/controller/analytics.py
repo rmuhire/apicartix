@@ -645,6 +645,61 @@ class ChartAnalytics:
 
         return [json_2012, json_2015]
 
+    def finscope_all(self):
+        finscope_2012 = text('select sum(finscope.banked), sum(finscope.other_formal),'
+                             ' sum(finscope.other_informal), sum(finscope.excluded),'
+                             ' province.name from finscope, province,'
+                             ' district where finscope.district_id = district.id'
+                             ' and province.id = district.province_id'
+                             ' and finscope.year = 2012'
+                             ' group by province.name order by province.name')
+        result = db.engine.execute(finscope_2012)
+        x = list()
+        banked = list()
+        other_formal = list()
+        other_informal = list()
+        excluded = list()
+        for row in result:
+            x.append(row[4])
+            banked.append(row[0])
+            other_formal.append(row[1])
+            other_informal.append(row[2])
+            excluded.append(row[3])
+
+        """ JSon Banked """
+        json_banked = dict()
+        json_banked['x'] = x
+        json_banked['y'] = banked
+        json_banked['name'] = 'Banked'
+        json_banked['type'] = 'bar'
+
+        """ Json Other Formal """
+        json_other_formal = dict()
+        json_other_formal['x'] = x
+        json_other_formal['y'] = other_formal
+        json_other_formal['name'] = 'Other Formal'
+        json_other_formal['type'] = 'bar'
+
+        """ Json Other informal """
+        json_other_informal = dict()
+        json_other_informal['x'] = x
+        json_other_informal['y'] = other_informal
+        json_other_informal['name'] = 'Other Infomal'
+        json_other_informal['type'] = 'bar'
+
+        """ Json Excluded """
+        json_excluded = dict()
+        json_excluded['x'] = x
+        json_excluded['y'] = excluded
+        json_excluded['name'] = 'Excluded'
+        json_excluded['type'] = 'bar'
+
+        return [json_banked, json_other_formal, json_other_informal, json_excluded]
+
+        """ Next merge SGs array for substraction with other_informal to get the real value of 
+         other informal"""
+
+
 
 class NumberAnalytics:
     def __init__(self, year):
