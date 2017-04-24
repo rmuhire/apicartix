@@ -527,7 +527,7 @@ class ChartAnalytics:
         y = list()
         for row in result:
             sum_sg_2012 = convertNonType(row[0]) + convertNonType(row[1])
-            x.append('SGs vs Finecope 2012')
+            x.append('SGs vs Finscope 2012')
             y.append(sum_sg_2012)
 
         sg_2015 = text('select sum(member_female),'
@@ -537,7 +537,7 @@ class ChartAnalytics:
         result = db.engine.execute(sg_2015)
         for row in result:
             sum_sg_2015 = convertNonType(row[0]) + convertNonType(row[1])
-            x.append('SGs vs Finecope 2015')
+            x.append('SGs vs Finscope 2015')
             y.append(sum_sg_2015)
 
         json_sg = dict()
@@ -546,7 +546,6 @@ class ChartAnalytics:
         json_sg['name'] = 'SGs'
         json_sg['type'] = 'bar'
 
-
         o_informal_2012 = text('select sum(other_informal)'
                                ' from finscope where year = 2012')
         result = db.engine.execute(o_informal_2012)
@@ -554,7 +553,7 @@ class ChartAnalytics:
         y = list()
         for row in result:
             remain = convertNonType(row[0]) - sum_sg_2012
-            x.append('SGs vs Finecope 2012')
+            x.append('SGs vs Finscope 2012')
             y.append(remain)
 
         o_informal_2015 = text('select sum(other_informal)'
@@ -562,7 +561,7 @@ class ChartAnalytics:
         result = db.engine.execute(o_informal_2015)
         for row in result:
             remain = convertNonType(row[0]) - sum_sg_2015
-            x.append('SGs vs Finecope 2015')
+            x.append('SGs vs Finscope 2015')
             y.append(remain)
 
         json_other = dict()
@@ -577,13 +576,13 @@ class ChartAnalytics:
         x = list()
         y = list()
         for row in result:
-            x.append('SGs vs Finecope 2012')
+            x.append('SGs vs Finscope 2012')
             y.append(row[0])
 
         exluded_2015 = text('select sum(excluded) from finscope where year = 2015')
         result = db.engine.execute(exluded_2015)
         for row in result:
-            x.append('SGs vs Finecope 2015')
+            x.append('SGs vs Finscope 2015')
             y.append(row[0])
 
         json_excluded = dict()
@@ -593,6 +592,58 @@ class ChartAnalytics:
         json_excluded['type'] = 'bar'
 
         return [json_sg, json_other, json_excluded]
+
+    def finscope_sg(self):
+        sg_2012 = text('select sum(member_female), sum(member_male) '
+                       'from saving_group'
+                       ' where year_of_creation = 2012')
+        result = db.engine.execute(sg_2012)
+        x = list()
+        y = list()
+        for row in result:
+            sum_sg_2012 = convertNonType(row[0]) + convertNonType(row[1])
+            x.append('SGs 2012')
+            y.append(sum_sg_2012)
+
+        o_informal_2012 = text('select sum(other_informal)'
+                               ' from finscope where year = 2012')
+        result = db.engine.execute(o_informal_2012)
+        for row in result:
+            remain = convertNonType(row[0]) - sum_sg_2012
+            x.append('Other Informal 2012')
+            y.append(remain)
+
+        json_2012 = dict()
+        json_2012['values'] = y
+        json_2012['labels'] = x
+        json_2012['type'] = 'pie'
+
+        """ 2015  """
+        sg_2015 = text('select sum(member_female), sum(member_male) '
+                       'from saving_group'
+                       ' where year_of_creation = 2015')
+        result = db.engine.execute(sg_2015)
+        x = list()
+        y = list()
+        for row in result:
+            sum_sg_2015 = convertNonType(row[0]) + convertNonType(row[1])
+            x.append('SGs 2015')
+            y.append(sum_sg_2015)
+
+        o_informal_2015 = text('select sum(other_informal)'
+                               ' from finscope where year = 2015')
+        result = db.engine.execute(o_informal_2015)
+        for row in result:
+            remain = convertNonType(row[0]) - sum_sg_2015
+            x.append('Other Informal 2015')
+            y.append(remain)
+
+        json_2015 = dict()
+        json_2015['values'] = y
+        json_2015['labels'] = x
+        json_2015['type'] = 'pie'
+
+        return [json_2012, json_2015]
 
 
 class NumberAnalytics:
