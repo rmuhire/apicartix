@@ -239,6 +239,8 @@ def chartanalytics(year):
     sgAgent = ChartAnalytics(year).sgTelcoAgent()
     finscope = ChartAnalytics(year).finscope()
     finscope_sg_2012, finscope_sg_2015 = ChartAnalytics(year).finscope_sg()
+    finscope_all_2012 = ChartAnalytics(year).finscope_all(2012)
+    finscope_all_2015 = ChartAnalytics(year).finscope_all(2015)
 
     return jsonify({
         "membership": membership,
@@ -250,7 +252,9 @@ def chartanalytics(year):
         "sgAgent": sgAgent,
         "finscope":finscope,
         "finscope_sg_2012":[finscope_sg_2012],
-        "finscope_sg_2015":[finscope_sg_2015]
+        "finscope_sg_2015":[finscope_sg_2015],
+        "finscope_all_2012": finscope_all_2012,
+        "finscope_all_2015": finscope_all_2015
     })
 
 
@@ -277,7 +281,7 @@ def numbers(year):
 @app.route('/api/v1/chart/sg_intngo/<int:year>')
 def sg_intNgo(year):
     finscope_all_2012 = ChartAnalytics(year).finscope_all(2012)
-    finscope_all_2015 = chartanalytics(year).finscope_all(2015)
+    finscope_all_2015 = ChartAnalytics(year).finscope_all(2015)
     return jsonify({
         'finscope_all_2012':finscope_all_2012,
         'finscope_all_2015':finscope_all_2015
