@@ -646,14 +646,14 @@ class ChartAnalytics:
         return [json_2012, json_2015]
 
     def finscope_all(self, year):
-        finscope_2012 = text('select sum(finscope.banked), sum(finscope.other_formal),'
+        finscope = text('select sum(finscope.banked), sum(finscope.other_formal),'
                              ' sum(finscope.other_informal), sum(finscope.excluded),'
                              ' province.name from finscope, province,'
                              ' district where finscope.district_id = district.id'
                              ' and province.id = district.province_id'
                              ' and finscope.year = :year'
                              ' group by province.name order by province.name')
-        result = db.engine.execute(finscope_2012, year=year)
+        result = db.engine.execute(finscope, year=year)
         x = list()
         banked = list()
         other_formal = list()
@@ -666,21 +666,20 @@ class ChartAnalytics:
             other_informal.append(row[2])
             excluded.append(row[3])
 
-        sgs_2012 = text('select sum(saving_group.member_female),'
+        sgs = text('select sum(saving_group.member_female),'
                         ' sum(saving_group.member_male), province.name'
                         ' from saving_group, province, district, sector'
                         ' where saving_group.sector_id = sector.id'
                         ' and sector.district_id = district.id'
                         ' and district.province_id = province.id'
-                        ' and saving_group.year_of_creation =2012'
+                        ' and saving_group.year_of_creation = :year'
                         ' group by province.name order by province.name')
 
-        result = db.engine.execute(sgs_2012)
-        sg =list()
-        x = list()
+        result = db.engine.execute(sgs, year=year)
+        sg = list()
         for row in result:
-            x.append(row[2])
             sg.append(convertNonType(row[0]) + convertNonType(row[1]))
+
 
         """ JSon Banked """
         json_banked = dict()
