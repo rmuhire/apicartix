@@ -645,15 +645,15 @@ class ChartAnalytics:
 
         return [json_2012, json_2015]
 
-    def finscope_all(self):
+    def finscope_all(self, year):
         finscope_2012 = text('select sum(finscope.banked), sum(finscope.other_formal),'
                              ' sum(finscope.other_informal), sum(finscope.excluded),'
                              ' province.name from finscope, province,'
                              ' district where finscope.district_id = district.id'
                              ' and province.id = district.province_id'
-                             ' and finscope.year = 2012'
+                             ' and finscope.year = :year'
                              ' group by province.name order by province.name')
-        result = db.engine.execute(finscope_2012)
+        result = db.engine.execute(finscope_2012, year=year)
         x = list()
         banked = list()
         other_formal = list()
@@ -665,6 +665,22 @@ class ChartAnalytics:
             other_formal.append(row[1])
             other_informal.append(row[2])
             excluded.append(row[3])
+
+        sgs_2012 = text('select sum(saving_group.member_female),'
+                        ' sum(saving_group.member_male), province.name'
+                        ' from saving_group, province, district, sector'
+                        ' where saving_group.sector_id = sector.id'
+                        ' and sector.district_id = district.id'
+                        ' and district.province_id = province.id'
+                        ' and saving_group.year_of_creation =2012'
+                        ' group by province.name order by province.name')
+
+        result = db.engine.execute(sgs_2012)
+        sg =list()
+        x = list()
+        for row in result:
+            x.append(row[2])
+            sg.append(convertNonType(row[0]) + convertNonType(row[1]))
 
         """ JSon Banked """
         json_banked = dict()
@@ -694,10 +710,26 @@ class ChartAnalytics:
         json_excluded['name'] = 'Excluded'
         json_excluded['type'] = 'bar'
 
-        return [json_banked, json_other_formal, json_other_informal, json_excluded]
+        """ Json SGs """
+        json_sgs = dict()
+        json_sgs['x'] = x
+        json_sgs['y'] = sg
+        json_sgs['name'] = 'SGs'
+        json_sgs['type'] = 'bar'
+
+        """ Calculate other informal """
+        val = list()
+        for i in range(len(sg)):
+            val.append(convertNonType(other_informal[i]) - convertNonType(sg[i]))
+
+        json_other_informal['y'] = val
+
+        return [json_banked, json_other_formal, json_other_informal, json_excluded, json_sgs]
 
         """ Next merge SGs array for substraction with other_informal to get the real value of 
          other informal"""
+
+
 
 
 
