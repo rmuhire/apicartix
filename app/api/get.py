@@ -7,6 +7,7 @@ import json
 from app.controller.saving_year import generate_year
 from app.controller.list_partner import litPartnerNgo
 from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
+from app.controller.convert_size import convert_array_file_size
 
 
 @app.route('/api/v1/users')
@@ -190,17 +191,17 @@ def saving_year():
 
 @app.route('/api/v1/files')
 def get_files():
-    files = Files.query.all()
+    files = Files.query.all().order_by(Files.regDate.desc())
     if files:
-        result = files_schema.dump(files).data
+        result = convert_array_file_size(files_schema.dump(files).data)
         return jsonify(result)
 
 
 @app.route('/api/v1/files/user/<id>')
 def get_user_file(id):
-    files = Files.query.filter_by(user_id=id)
+    files = Files.query.filter_by(user_id=id).order_by(Files.regDate.desc())
     if files:
-        result = files_schema.dump(files).data
+        result = convert_array_file_size(files_schema.dump(files).data)
         return jsonify(result)
 
 
