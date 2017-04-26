@@ -1,4 +1,11 @@
 import math
+import arrow
+
+def convert_array_file_size(items):
+   for item in items:
+      item['size'] = convert_size(item['size'])
+      item['regDate'] = arrow.get(item['regDate']).to('Africa/Kigali').humanize()
+   return items
 
 
 def convert_size(size_bytes):
