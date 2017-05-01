@@ -10,6 +10,15 @@ from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalyti
 from app.controller.convert_size import convert_array_file_size
 
 
+
+@app.route('/api/v1/data/district/<province>')
+def data_district(province):
+    distr = District.query.all()
+    if district:
+        result = districts_schema.dump(distr)
+        return jsonify(result)
+
+
 @app.route('/api/v1/users')
 def users():
     user = User.query.all()
@@ -287,3 +296,6 @@ def sg_intNgo(year):
         'finscope_all_2012':finscope_all_2012,
         'finscope_all_2015':finscope_all_2015
     })
+
+
+
