@@ -86,3 +86,19 @@ class KenQuerydb:
         if sector:
             return True
         return False
+
+
+class KenQuerydbJson:
+    def __init__(self, data):
+        self.data = data.split(",")
+
+    def district(self):
+        district = District.query.filter(District.province_id.in_(self.data))
+        if district:
+            return districts_schema.dump(district).data
+
+    def sector(self):
+        sector = Sector.query.filter(Sector.district_id.in_(self.data))
+        if sector:
+            return sectors_schema.dump(sector).data
+
