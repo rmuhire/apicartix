@@ -8,15 +8,7 @@ from app.controller.saving_year import generate_year
 from app.controller.list_partner import litPartnerNgo
 from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
 from app.controller.convert_size import convert_array_file_size
-
-
-
-@app.route('/api/v1/data/district/<province>')
-def data_district(province):
-    distr = District.query.all()
-    if district:
-        result = districts_schema.dump(distr)
-        return jsonify(result)
+from app.controller.location import KenQuerydbJson
 
 
 @app.route('/api/v1/users')
@@ -297,5 +289,16 @@ def sg_intNgo(year):
         'finscope_all_2015':finscope_all_2015
     })
 
+
+@app.route('/api/v1/data/district/<province>')
+def data_district(province):
+    district = KenQuerydbJson(province).district()
+    return jsonify(district)
+
+
+@app.route('/api/v1/data/sector/<district>')
+def data_sector(district):
+    sector = KenQuerydbJson(district).sector()
+    return jsonify(sector)
 
 
