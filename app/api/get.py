@@ -9,6 +9,7 @@ from app.controller.list_partner import litPartnerNgo
 from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
 from app.controller.convert_size import convert_array_file_size
 from app.controller.location import KenQuerydbJson
+from app.controller.viewdata import ViewData
 
 
 @app.route('/api/v1/users')
@@ -302,3 +303,6 @@ def data_sector(district):
     return jsonify(sector)
 
 
+@app.route('/api/v1/data/view/<province>/<district>/<sector>/<ngo>')
+def view_data(province, district, sector, ngo):
+    return jsonify(ViewData(province, district, sector, ngo).viewData())
