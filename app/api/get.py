@@ -305,4 +305,22 @@ def data_sector(district):
 
 @app.route('/api/v1/data/view/<province>/<district>/<sector>/<ngo>')
 def view_data(province, district, sector, ngo):
-    return jsonify(ViewData(province, district, sector, ngo).viewData())
+    data = ViewData(province, district, sector, ngo).viewData()
+    graduated = ViewData(province, district, sector, ngo).viewDataGraduated()
+    supervided = ViewData(province, district, sector, ngo).viewDataSupervised()
+    year_of_creation = ViewData(province, district, sector, ngo).viewDataYearOfCreation()
+    funding_ngo = ViewData(province, district, sector, ngo).viewDataFundingNgo()
+
+    data_json = dict()
+    data_json['saving_group'] = data[0]
+    data_json['member_female'] = data[1]
+    data_json['member_male'] = data[2]
+    data_json['total_member'] = data[1] + data[2]
+    data_json['funding_ngo'] = funding_ngo
+    data_json['year_of_creation'] = year_of_creation
+    data_json['supervised'] = supervided
+    data_json['graduated'] = graduated
+    data_json['saving'] = data[3]
+    data_json['borrowing'] = data[4]
+
+    return jsonify(data_json)
