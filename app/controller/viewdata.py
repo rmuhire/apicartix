@@ -3,11 +3,12 @@ from sqlalchemy import text
 
 
 class ViewData:
-    def __init__(self, province, district, sector, ngo):
+    def __init__(self, province, district, sector, ngo, year):
         self.provinces = province.split(",")
         self.districts = district.split(",")
         self.sectors = sector.split(",")
         self.ngos = ngo.split(",")
+        self.year = int(year)
 
     def viewData(self):
         query = "select count(saving_group.id)," \
@@ -23,7 +24,8 @@ class ViewData:
                 " where saving_group.sector_id =sector.id" \
                 " and sector.district_id = district.id" \
                 " and district.province_id = province.id" \
-                " and saving_group.partner_id = ngo.id"
+                " and saving_group.partner_id = ngo.id" \
+                " and saving_group.year = :year"
 
         if self.provinces != ['null']:
             mini_query = miniQueryProvince(self.provinces)
@@ -42,7 +44,7 @@ class ViewData:
             query += " and " + mini_query
 
         sql_query = text(query)
-        result = db.engine.execute(sql_query)
+        result = db.engine.execute(sql_query, year=self.year)
 
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4]]
@@ -60,7 +62,8 @@ class ViewData:
                 " and sector.district_id = district.id" \
                 " and district.province_id = province.id" \
                 " and saving_group.partner_id = ngo.id" \
-                " and sg_status = :val"
+                " and sg_status = :val" \
+                " and saving_group.year = :year"
 
         if self.provinces != ['null']:
             mini_query = miniQueryProvince(self.provinces)
@@ -79,7 +82,7 @@ class ViewData:
             query += " and " + mini_query
 
         sql_query = text(query)
-        result = db.engine.execute(sql_query, val='Graduated')
+        result = db.engine.execute(sql_query, val='Graduated', year=self.year)
         for row in result:
             data = row[0]
 
@@ -96,7 +99,8 @@ class ViewData:
                 " and sector.district_id = district.id" \
                 " and district.province_id = province.id" \
                 " and saving_group.partner_id = ngo.id" \
-                " and sg_status = :val"
+                " and sg_status = :val" \
+                " and saving_group.year = :year"
 
         if self.provinces != ['null']:
             mini_query = miniQueryProvince(self.provinces)
@@ -115,7 +119,7 @@ class ViewData:
             query += " and " + mini_query
 
         sql_query = text(query)
-        result = db.engine.execute(sql_query, val='Supervised')
+        result = db.engine.execute(sql_query, val='Supervised', year=self.year)
         for row in result:
             data = row[0]
 
@@ -131,7 +135,8 @@ class ViewData:
                 " where saving_group.sector_id =sector.id" \
                 " and sector.district_id = district.id" \
                 " and district.province_id = province.id" \
-                " and saving_group.partner_id = ngo.id"
+                " and saving_group.partner_id = ngo.id" \
+                " and saving_group.year_of_creation <= :year"
 
         if self.provinces != ['null']:
             mini_query = miniQueryProvince(self.provinces)
@@ -150,7 +155,7 @@ class ViewData:
             query += " and " + mini_query
 
         sql_query = text(query)
-        result = db.engine.execute(sql_query)
+        result = db.engine.execute(sql_query, year=self.year)
         data = list()
         for row in result:
             data.append(row[0])
@@ -167,7 +172,8 @@ class ViewData:
                 " where saving_group.sector_id =sector.id" \
                 " and sector.district_id = district.id" \
                 " and district.province_id = province.id" \
-                " and saving_group.partner_id = ngo.id"
+                " and saving_group.partner_id = ngo.id" \
+                " and saving_group.year = :year"
 
         if self.provinces != ['null']:
             mini_query = miniQueryProvince(self.provinces)
@@ -186,7 +192,7 @@ class ViewData:
             query += " and " + mini_query
 
         sql_query = text(query)
-        result = db.engine.execute(sql_query)
+        result = db.engine.execute(sql_query, year=self.year)
         data = list()
         for row in result:
             data.append(ngoName(row[0]))
