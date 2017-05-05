@@ -9,7 +9,8 @@ from app.controller.list_partner import litPartnerNgo
 from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
 from app.controller.convert_size import convert_array_file_size
 from app.controller.location import KenQuerydbJson
-from app.controller.viewdata import ViewData
+from app.controller.viewdata import ViewData, ngoName
+from sqlalchemy import text
 
 
 @app.route('/api/v1/users')
@@ -87,18 +88,18 @@ def int_ngo():
 
 @app.route('/api/v1/int_ngo/partner/<id>')
 def intNgoPartner(id):
-    return jsonify(id)
-    ids = id.split(',')
-    ngo = Sgs.query.with_entities(Sgs.partner_id, Sgs.funding_id).filter(Sgs.funding_id.in_(ids))
-    if ngo:
-        result = sgs_schemas.dump(ngo).data
-        data = litPartnerNgo(result)
-
-        partner = Ngo.query.with_entities(Ngo.id, Ngo.name).filter(Ngo.id.in_(data)).filter(Ngo.name != 'N/A')
-        if partner:
-            partner_ngo = ngos_schema.dump(partner).data
-            return jsonify(partner_ngo)
-
+    query = text("select distinct(saving_group.funding_id)" \
+            " from saving_group, ngo" \
+            " where saving_group.partner_id = ngo.id" \
+            " and saving_group.partner_id = :id")
+    result = db.engine.execute(query, id=id)
+    data = list()
+    for row in result:
+        x = dict()
+        x['name'] = ngoName(row[0])
+        x['id'] = row[0]
+        data.append(x)
+    return jsonify(data)
 
 
 @app.route('/api/v1/ngo_status/<id>')
