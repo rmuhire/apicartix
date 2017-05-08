@@ -304,13 +304,16 @@ def data_sector(district):
     return jsonify(sector)
 
 
-@app.route('/api/v1/data/view/<province>/<district>/<sector>/<ngo>/<year>')
-def view_data(province, district, sector, ngo, year):
-    data = ViewData(province, district, sector, ngo, year).viewData()
-    graduated = ViewData(province, district, sector, ngo, year).viewDataGraduated()
-    supervided = ViewData(province, district, sector, ngo, year).viewDataSupervised()
-    year_of_creation = ViewData(province, district, sector, ngo, year).viewDataYearOfCreation()
-    funding_ngo = ViewData(province, district, sector, ngo, year).viewDataFundingNgo()
+@app.route('/api/v1/data/view/<province>/<district>/<sector>/<ngo>/<year>/<int:type>')
+def view_data(province, district, sector, ngo, year, type):
+    data = ViewData(province, district, sector, ngo, year, type).viewData()
+    graduated = ViewData(province, district, sector, ngo, year, type).viewDataGraduated()
+    supervided = ViewData(province, district, sector, ngo, year, type).viewDataSupervised()
+    year_of_creation = ViewData(province, district, sector, ngo, year, type).viewDataYearOfCreation()
+    if type == 2:
+        funding_ngo = ViewData(province, district, sector, ngo, year, type).viewDataPartnerNgo()
+    else:
+        funding_ngo = ViewData(province, district, sector, ngo, year, type).viewDataFundingNgo()
 
     data_json = dict()
     data_json['saving_group'] = data[0]
