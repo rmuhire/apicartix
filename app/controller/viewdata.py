@@ -3,12 +3,13 @@ from sqlalchemy import text
 
 
 class ViewData:
-    def __init__(self, province, district, sector, ngo, year):
+    def __init__(self, province, district, sector, ngo, year, type):
         self.provinces = province.split(",")
         self.districts = district.split(",")
         self.sectors = sector.split(",")
         self.ngos = ngo.split(",")
         self.year = int(year)
+        self.type = type
 
     def viewData(self):
         query = "select count(saving_group.id)," \
@@ -40,14 +41,23 @@ class ViewData:
             query += " and " + mini_query
 
         if self.ngos != ['null']:
-            mini_query = miniQueryNgo(self.ngos)
+            if self.type == 0:
+                mini_query = miniQueryNgo(self.ngos)
+            else:
+                mini_query = miniQueryLocalNgo(self.ngos)
             query += " and " + mini_query
 
         sql_query = text(query)
         result = db.engine.execute(sql_query, year=self.year)
 
         for row in result:
-            data = [row[0], row[1], row[2], row[3], row[4]]
+            data = [
+                    convertNonType(row[0]),
+                    convertNonType(row[1]),
+                    convertNonType(row[2]),
+                    convertNonType(row[3]),
+                    convertNonType(row[4])
+            ]
 
         return data
 
@@ -78,7 +88,10 @@ class ViewData:
             query += " and " + mini_query
 
         if self.ngos != ['null']:
-            mini_query = miniQueryNgo(self.ngos)
+            if self.type == 0:
+                mini_query = miniQueryNgo(self.ngos)
+            else:
+                mini_query = miniQueryLocalNgo(self.ngos)
             query += " and " + mini_query
 
         sql_query = text(query)
@@ -115,7 +128,10 @@ class ViewData:
             query += " and " + mini_query
 
         if self.ngos != ['null']:
-            mini_query = miniQueryNgo(self.ngos)
+            if self.type == 0:
+                mini_query = miniQueryNgo(self.ngos)
+            else:
+                mini_query = miniQueryLocalNgo(self.ngos)
             query += " and " + mini_query
 
         sql_query = text(query)
@@ -151,7 +167,10 @@ class ViewData:
             query += " and " + mini_query
 
         if self.ngos != ['null']:
-            mini_query = miniQueryNgo(self.ngos)
+            if self.type == 0:
+                mini_query = miniQueryNgo(self.ngos)
+            else:
+                mini_query = miniQueryLocalNgo(self.ngos)
             query += " and " + mini_query
 
         sql_query = text(query)
@@ -188,7 +207,10 @@ class ViewData:
             query += " and " + mini_query
 
         if self.ngos != ['null']:
-            mini_query = miniQueryNgo(self.ngos)
+            if self.type == 0:
+                mini_query = miniQueryNgo(self.ngos)
+            else:
+                mini_query = miniQueryLocalNgo(self.ngos)
             query += " and " + mini_query
 
         sql_query = text(query)
@@ -199,6 +221,45 @@ class ViewData:
 
         return data
 
+    def viewDataPartnerNgo(self):
+        query = "select distinct(saving_group.partner_id)" \
+                " from saving_group," \
+                " province," \
+                " district," \
+                " sector," \
+                " ngo" \
+                " where saving_group.sector_id =sector.id" \
+                " and sector.district_id = district.id" \
+                " and district.province_id = province.id" \
+                " and saving_group.partner_id = ngo.id" \
+                " and saving_group.year = :year"
+
+        if self.provinces != ['null']:
+            mini_query = miniQueryProvince(self.provinces)
+            query += " and " + mini_query
+
+        if self.districts != ['null']:
+            mini_query = miniQueryDistrict(self.districts)
+            query += " and " + mini_query
+
+        if self.sectors != ['null']:
+            mini_query = miniQuerySector(self.sectors)
+            query += " and " + mini_query
+
+        if self.ngos != ['null']:
+            if self.type == 0:
+                mini_query = miniQueryNgo(self.ngos)
+            else:
+                mini_query = miniQueryLocalNgo(self.ngos)
+            query += " and " + mini_query
+
+        sql_query = text(query)
+        result = db.engine.execute(sql_query, year=self.year)
+        data = list()
+        for row in result:
+            data.append(ngoName(row[0]))
+
+        return data
 
 
 def miniQueryProvince(provinces):
@@ -253,8 +314,30 @@ def miniQueryNgo(ngos):
     return mini_query
 
 
+def miniQueryLocalNgo(ngos):
+    mini_query = "saving_group.funding_id IN ("
+    for i, ngo in enumerate(ngos):
+        if i == len(ngos) - 1:
+            mini_query += ngo
+        else:
+            mini_query += ngo + ","
+
+    mini_query += ")"
+
+    return mini_query
+
+
 def ngoName(id):
     sql = text('select name from ngo where id = :id')
     result = db.engine.execute(sql, id=id)
     for row in result:
         return row[0]
+
+
+def convertNonType(val):
+    try:
+        val = int(val)
+    except TypeError:
+        val = 0
+        return val
+    return val
