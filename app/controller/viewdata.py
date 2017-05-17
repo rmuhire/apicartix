@@ -11,6 +11,49 @@ class ViewData:
         self.year = int(year)
         self.type = type
 
+    def queryDownload(self):
+        query = "select saving_group.name, " \
+                "saving_group.year, " \
+                "saving_group.member_female, " \
+                "saving_group.member_male, " \
+                "saving_group.sector_id, " \
+                "saving_group.sg_status, " \
+                "saving_group.borrowing, " \
+                "saving_group.funding_id, " \
+                "saving_group.partner_id, " \
+                "saving_group.year_of_creation " \
+                " from saving_group," \
+                " province," \
+                " district," \
+                " sector," \
+                " ngo" \
+                " where saving_group.sector_id =sector.id" \
+                " and sector.district_id = district.id" \
+                " and district.province_id = province.id" \
+                " and saving_group.partner_id = ngo.id" \
+                " and saving_group.year = :year"
+
+        if self.provinces != ['null']:
+            mini_query = miniQueryProvince(self.provinces)
+            query += " and "+ mini_query
+
+        if self.districts != ['null']:
+            mini_query = miniQueryDistrict(self.districts)
+            query += " and " + mini_query
+
+        if self.sectors != ['null']:
+            mini_query = miniQuerySector(self.sectors)
+            query += " and " + mini_query
+
+        if self.ngos != ['null']:
+            if self.type == 0:
+                mini_query = miniQueryNgo(self.ngos)
+            else:
+                mini_query = miniQueryLocalNgo(self.ngos)
+            query += " and " + mini_query
+
+        return query
+
     def viewData(self):
         query = "select count(saving_group.id)," \
                 " sum(saving_group.member_female)," \
