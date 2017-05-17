@@ -113,7 +113,6 @@ def ngo_status(id):
         return jsonify({'status': 'error'})
 
 
-
 @app.route('/api/v1/province/<id>')
 def province(id):
     province = json.loads(Province(id).province())
@@ -310,6 +309,7 @@ def view_data(province, district, sector, ngo, year, type):
     graduated = ViewData(province, district, sector, ngo, year, type).viewDataGraduated()
     supervided = ViewData(province, district, sector, ngo, year, type).viewDataSupervised()
     year_of_creation = ViewData(province, district, sector, ngo, year, type).viewDataYearOfCreation()
+    query = ViewData(province, district, sector, ngo, year, type).queryDownload()
     if type == 2:
         funding_ngo = ViewData(province, district, sector, ngo, year, type).viewDataPartnerNgo()
     else:
@@ -326,5 +326,6 @@ def view_data(province, district, sector, ngo, year, type):
     data_json['graduated'] = graduated
     data_json['saving'] = data[3]
     data_json['borrowing'] = data[4]
+    data_json['query'] = query
 
     return jsonify(data_json)
