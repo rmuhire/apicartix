@@ -21,7 +21,8 @@ class ViewData:
                 "saving_group.borrowing, " \
                 "saving_group.funding_id, " \
                 "saving_group.partner_id, " \
-                "saving_group.year_of_creation " \
+                "saving_group.year_of_creation, " \
+                "saving_group.saving "\
                 " from saving_group," \
                 " province," \
                 " district," \
@@ -53,6 +54,8 @@ class ViewData:
             query += " and " + mini_query
 
         return query
+
+
 
     def viewData(self):
         query = "select count(saving_group.id)," \
@@ -303,6 +306,54 @@ class ViewData:
             data.append(ngoName(row[0]))
 
         return data
+
+
+class DownloadExcel:
+    def __init__(self, query, year):
+        self.query = query
+        self.year = year
+
+    def download(self):
+        sql = text(self.query)
+        result = db.engine.execute(sql, year=self.year)
+        data = list()
+        for row in result:
+            province, district, sector = getLocation(row[4])
+            tot=row[2]+row[3]
+            data.append([province,
+                         district,
+                         sector,
+                         row[0],
+                         row[9],
+                         tot,
+                         row[2],
+                         row[3],
+                         row[7],
+                         row[8],
+                         row[5],
+                         row[6],
+                         row[10]
+                         ])
+        header =[
+            'Province',
+            'District',
+            'Sector',
+            'Saving Group name',
+            'SGs Year of creation',
+            'SGs Members Total']
+        return data
+
+
+def getLocation(sector_id):
+    sql = text("select province.name, district.name, "
+               "sector.name "
+               "from province, district, sector "
+               "where province.id = district.province_id "
+               "and sector.district_id = district.id "
+               "and sector.id = :sector_id")
+    result = db.engine.execute(sql, sector_id=sector_id)
+    for row in result:
+        return [row[0], row[1], row[2]]
 
 
 def miniQueryProvince(provinces):
