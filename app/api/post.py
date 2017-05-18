@@ -12,6 +12,7 @@ import os
 from app.controller.uniqid import uniqid
 import json
 from app.controller.location import Kendb, KenQuerydb
+from app.controller.viewdata import DownloadExcel
 
 
 bcrypt = Bcrypt(app)
@@ -347,25 +348,12 @@ def data_finscope():
     })
 
 
-
-
-@app.route('/api/upload/test_adra/', methods=['POST','GET'])
-def upload_adra():
-    files = [request.files['file'], request.files['file_1'], request.files['file_2']]
-    dest = list()
-    for file in files:
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            tmp_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(tmp_filename)
-
-            file_name,file_extension = os.path.splitext(tmp_filename)
-            re_filename = uniqid()+file_extension
-            destination = "/Users/muhireremy/cartix/uploads/user/"+re_filename
-            #destination = "/home/www/cartix/uploads/user/"+re_filename
-            os.rename(tmp_filename, destination)
-            dest.append(destination)
-
-    return jsonify(dest)
+@app.route('/api/v1/data/download/', methods=['POST'])
+def download_excel():
+    json_data = request.get_json()
+    query = json_data['query']
+    year = json_data['year']
+    query = DownloadExcel(query, year).download()
+    return jsonify(query)
 
 
