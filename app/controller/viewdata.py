@@ -1,5 +1,7 @@
 from app.model.models import *
 from sqlalchemy import text
+import xlwt
+from app.controller.uniqid import uniqid
 
 
 class ViewData:
@@ -320,28 +322,62 @@ class DownloadExcel:
         for row in result:
             province, district, sector = getLocation(row[4])
             tot=row[2]+row[3]
-            data.append([province,
-                         district,
-                         sector,
-                         row[0],
-                         row[9],
-                         tot,
-                         row[2],
-                         row[3],
-                         row[7],
-                         row[8],
-                         row[5],
-                         row[6],
-                         row[10]
-                         ])
-        header =[
+            data.append(
+                [
+                    province,
+                    district,
+                    sector,
+                    row[0],
+                    row[9],
+                    tot,
+                    row[2],
+                    row[3],
+                    row[7],
+                    row[8],
+                    row[5],
+                    checkNA(row[6]),
+                    checkNA(row[10])
+                ]
+            )
+
+        headers =[
             'Province',
             'District',
             'Sector',
             'Saving Group name',
             'SGs Year of creation',
-            'SGs Members Total']
-        return data
+            'SGs Members Total',
+            'SGs Members - Female',
+            'SGs Members - Male',
+            'Funding NGO',
+            'Partner NGO',
+            'SGs Status',
+            'Saved Amount as of December '+self.year+' (In Rwf)',
+            'Outstanding Loans as of December '+self.year+' (In Rwf)'
+        ]
+
+        wb = xlwt.Workbook()
+        sg = wb.add_sheet('Saving Group')
+
+        for row in range(1):
+            for col in range(len(headers)):
+                sg.write(row, col, headers[col])
+
+        for row in range(1, len(data)):
+            item = data[row]
+            for col in range(len(headers)):
+                sg.write(row, col, item[col])
+
+        filename = uniqid() + "saving_group.xls"
+        location ='/Users/muhireremy/cartix/downloads/'+filename
+        wb.save(location)
+        return location
+
+
+def checkNA(amount):
+    if amount == -1:
+        return 'N/A'
+    return amount
 
 
 def getLocation(sector_id):
