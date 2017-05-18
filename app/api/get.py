@@ -5,11 +5,10 @@ from flask import jsonify, send_from_directory
 from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
-from app.controller.list_partner import litPartnerNgo
 from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
 from app.controller.convert_size import convert_array_file_size
 from app.controller.location import KenQuerydbJson
-from app.controller.viewdata import ViewData, ngoName
+from app.controller.viewdata import ViewData, ngoName, DownloadExcel
 from sqlalchemy import text
 
 
@@ -329,3 +328,5 @@ def view_data(province, district, sector, ngo, year, type):
     data_json['query'] = query
 
     return jsonify(data_json)
+
+
