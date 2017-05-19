@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 import xlwt
 from xlrd import open_workbook
 from app.controller.uniqid import uniqid
-from app.controller.sector_id import sector_id
+from app.controller.sector_id import sector_id, district_id
 
 
 class Excellentodb:
@@ -16,44 +16,6 @@ class Excellentodb:
     def todb(self):
 
         for data in self.json_data:
-            try:
-                s_id = sector_id(data['sector'], data['district'])
-                saving = SavingGroup(
-                    name=data['saving_group_name'],
-                    year=data['sgs_year_of_creation'],
-                    member_female=data['sgs_members__female'],
-                    member_male=data['sgs_members__male_'],
-                    sector_id=s_id,
-                    sector_name=None,
-                    district_name=None,
-                    sg_status=data['sgs_status_(supervised/graduated)'],
-                    regDate=None
-                )
-                db.session.add(saving)
-                db.session.commit()
-            except IntegrityError:
-                db.session().rollback()
-                saving = SavingGroup.query.filter_by(name=data['saving_group_name']).first()
-
-            # Amount
-
-            saving_amount = data['saved_amount']
-            if data['saved_amount'] == 'N/A':
-                saving_amount = -1
-
-            borrowing_amount = data['outstanding_loans']
-            if data['outstanding_loans'] == 'N/A':
-                borrowing_amount = -1
-
-            amount = Amount(
-                saving= saving_amount,
-                borrowing=borrowing_amount,
-                year=data['year_amount'],
-                sg_id=saving.id
-            )
-
-            db.session.add(amount)
-            db.session.commit()
 
             # International NGO
 
@@ -100,16 +62,45 @@ class Excellentodb:
                 ngo = Ngo.query.filter_by(name=data['local_ngo'].upper()).first()
                 local_ngo_id = ngo.id
 
-            # SGS
+            # saving group
 
-            sgs = Sgs(
-                partner_id=local_ngo_id,
-                funding_id=intl_ngo_id,
-                sg_id=saving.id
-            )
+            try:
 
-            db.session.add(sgs)
-            db.session.commit()
+                saving_amount = data['saved_amount']
+                if data['saved_amount'] == 'N/A':
+                    saving_amount = -1
+                if not data['saved_amount']:
+                    saving_amount = 0
+
+                borrowing_amount = data['outstanding_loans']
+                if data['outstanding_loans'] == 'N/A':
+                    borrowing_amount = -1
+                if not data['outstanding_loans']:
+                    borrowing_amount = 0
+
+                saving_amount = float(str(saving_amount).replace(',', ''))
+                borrowing_amount = float(str(borrowing_amount).replace(',', ''))
+                s_id = sector_id(data['sector'], data['district'])
+
+                saving = SavingGroup(
+                    name=data['saving_group_name'],
+                    year_of_creation=data['sgs_year_of_creation'],
+                    member_female=data['sgs_members__female'],
+                    member_male=data['sgs_members__male_'],
+                    sector_id=s_id,
+                    sg_status=data['sgs_status_(supervised/graduated)'],
+                    saving=saving_amount,
+                    borrowing=borrowing_amount,
+                    year=data['year_amount'],
+                    partner_id=intl_ngo_id,
+                    funding_id=local_ngo_id,
+                    regDate=None
+                )
+                db.session.add(saving)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session().rollback()
 
         return 1
 
@@ -166,8 +157,6 @@ class Excellentodb:
                     Checker([cols_value[4], cols_value[5]]).borrow()
                 ]
 
-
-
                 for col in range(columns):
                     value = sheet.cell(row, col).value
                     if col not in indexes:
@@ -195,3 +184,136 @@ class Excellentodb:
             download = "http://api.cartix.io/api/v1/save/" + filename
             book.save(save)
             return [0,download]
+
+
+class Financialdb:
+    def __init__(self, items):
+        self.items = items
+
+    def bank(self):
+        for item in self.items:
+            #return len(self.items)
+            try:
+                s_id = sector_id(item['sector'].lower(), item['district'].lower())
+                bank = Bank(
+                    count=item['branch_count'],
+                    name=item['banks'],
+                    year=item['year'],
+                    sector_id=s_id
+                )
+
+                db.session.add(bank)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session().rollback()
+
+        return 1
+
+    def mfi(self):
+        for item in self.items:
+            #return len(self.items)
+            try:
+                s_id = sector_id(item['sector'].lower(), item['district'].lower())
+                mfi = Mfi(
+                    count=item['count'],
+                    name=item['mfis'],
+                    year=item['year'],
+                    sector_id=s_id
+                )
+                db.session.add(mfi)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
+        return 1
+
+    def usacco(self):
+        for item in self.items:
+            #return len(self.items)
+            try:
+                s_id = sector_id(item['sector'].lower(), item['district'].lower())
+                usacco = UmurengeSacco(
+                    count=item['count'],
+                    name=item['name'],
+                    year=item['year'],
+                    sector_id=s_id
+                )
+                db.session.add(usacco)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+        return 1
+
+    def nusacco(self):
+        for item in self.items:
+            #return len(self.items)
+            try:
+                s_id = sector_id(item['sector'].lower(), item['district'].lower())
+                nusacco = NonUmurengeSacco(
+                    count=item['count'],
+                    name=item['name'],
+                    year=item['year'],
+                    sector_id=s_id
+                )
+                db.session.add(nusacco)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
+        return 1
+
+    def bank_agent(self):
+        for item in self.items:
+            #return len(self.items)
+            try:
+                d_id = district_id(item['district'])
+                bank_agent = BankAgent(
+                    count=item['bank_agents_count'],
+                    year=item['year'],
+                    district_id=d_id
+                )
+                db.session.add(bank_agent)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session.rollback()
+
+        return 1
+
+    def telco_agent(self):
+        for item in self.items:
+            #return len(self.items)
+            try:
+                d_id = district_id(item['district'])
+                telco_agent = TelcoAgent(
+                    count=item['agents_count'],
+                    year=item['year'],
+                    district_id=d_id
+                )
+                db.session.add(telco_agent)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session.rollback()
+
+        return 1
+
+    def finscope(self):
+        for item in self.items:
+            try:
+                d_id = district_id(item['district'])
+                finscope = Finscope(
+                    banked=item['banked'],
+                    other_formal=item['otehrformal'],
+                    other_informal=item['otherinformal'],
+                    excluded=item['excluded'],
+                    year=item['year'],
+                    district_id=d_id
+                )
+                db.session.add(finscope)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+        return 1
+

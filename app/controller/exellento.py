@@ -1,5 +1,4 @@
 from xlrd import open_workbook
-import json
 from saving_year import saving_year
 
 
@@ -48,6 +47,37 @@ class Excellento:
                 items.append(data_json)
 
         return items
+
+    def json_data(self):
+        for sheet in self.wb.sheets():
+            rows = sheet.nrows
+            cols = sheet.ncols
+
+            for row in range(0,1):
+                header_sheet = []
+                for col in range(cols):
+                    header_cell = sheet.cell(row, col).value.replace(" ","").replace("-","")
+                    header_sheet.append(header_cell.lower())
+
+            items = []
+            for row in range(1, rows):
+                data_json = {}
+                for col in range(cols):
+                    value = sheet.cell(row, col).value
+                    try:
+                        value = str(int(value))
+                    except ValueError:
+                        pass
+                    finally:
+                        data_json[header_sheet[col]] = value
+                items.append(data_json)
+
+            return items
+
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify,request, session
-from app.controller.exellentodb import Excellentodb
+from app.controller.exellentodb import Excellentodb, Financialdb
 from app.controller.exellentodb import Excellento
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
@@ -12,11 +12,12 @@ import os
 from app.controller.uniqid import uniqid
 import json
 from app.controller.location import Kendb, KenQuerydb
+from app.controller.viewdata import DownloadExcel
 
 
 bcrypt = Bcrypt(app)
 app.config['UPLOAD_FOLDER'] = '/tmp'
-app.config['ALLOWED_EXTENSIONS'] = set(['xlsx','xls','csv'])
+app.config['ALLOWED_EXTENSIONS'] = set(['xlsx','xls','csv','png'])
 
 
 @app.route('/api/v1/exellento',methods=['POST'])
@@ -131,7 +132,6 @@ def login():
         return jsonify({'result': status})
 
 
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
@@ -178,13 +178,16 @@ def file_save():
     if errors:
         return jsonify(errors), 422
 
+    size = os.path.getsize(data['original'])
+
     try:
         files = Files(
             original=data['original'],
-            saved=data['save'],
+            saved=data['saved'],
             filename=data['filename'],
             regDate=None,
             status=0,
+            size=size,
             user_id=data['user_id']
         )
 
@@ -211,13 +214,16 @@ def file_user():
     if errors:
         return jsonify(errors), 422
 
+    size = os.path.getsize(data['original'])
+
     try:
         files = Files(
             original=data['original'],
-            saved=data['save'],
+            saved=data['saved'],
             filename=data['filename'],
             regDate=None,
             status=1,
+            size=size,
             user_id=data['user_id']
         )
 
@@ -294,6 +300,60 @@ def sec():
     return jsonify(data)
 
 
+@app.route("/api/v1/data/finance")
+def data_finance():
+    """folder = "/Users/muhireremy/cartix/test/data/"
+    bank = Excellento(folder + "List_of_Banks_Dec2014.xlsx").json_data()
+    mfi = Excellento(folder + "List_of_MFIs_Dec2014.xlsx").json_data()
+    usacco = Excellento(folder + "Umurenge_SACCOs_Dec2014.xlsx").json_data()
+    nusacco = Excellento(folder + "Non_Umurenge_SACCOs_Dec2014.xlsx").json_data()
+    bank_agent = Excellento(folder + "Bank_agents_District_Dec2014.xlsx").json_data()
+    telco_agent = Excellento(folder + "Telcos_Agents_Per_District_Dec2014.xlsx").json_data()
 
+    data_bank = Financialdb(bank).bank()
+    data_mfi = Financialdb(mfi).mfi()
+    data_usacco = Financialdb(usacco).usacco()
+    data_nusacco = Financialdb(nusacco).nusacco()
+    data_bank_agent = Financialdb(bank_agent).bank_agent()
+    data_telco_agent = Financialdb(telco_agent).telco_agent()
+
+    return jsonify({
+        "bank":data_bank,
+        "mfi":data_mfi,
+        "usacco":data_usacco,
+        "nusacco":data_nusacco,
+        "bank agent":data_bank_agent,
+        "telco_agent":data_telco_agent
+    }) """
+
+    return jsonify({"status": "already added"})
+
+
+@app.route("/api/v1/data/finscope")
+def data_finscope():
+    """folder = "/Users/muhireremy/cartix/test/data/"
+    fin_2012 = Excellento(folder + "newF2012.xlsx").json_data()
+    fin_2015 = Excellento(folder + "newF2015.xlsx").json_data()
+
+    data_2012 =Financialdb(fin_2012).finscope()
+    data_2015 = Financialdb(fin_2015).finscope()
+
+    return jsonify({
+        "2012":data_2012,
+        "2015":data_2015
+    })"""
+
+    return jsonify({
+        "status":"already added"
+    })
+
+
+@app.route('/api/v1/data/download/', methods=['POST'])
+def download_excel():
+    json_data = request.get_json()
+    query = json_data['query']
+    year = json_data['year']
+    query = DownloadExcel(query, year).download()
+    return jsonify(query)
 
 

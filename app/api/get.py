@@ -2,12 +2,14 @@ from app import *
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify, send_from_directory
-from kenessa import Province, District
 from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
-
-
+from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
+from app.controller.convert_size import convert_array_file_size
+from app.controller.location import KenQuerydbJson
+from app.controller.viewdata import ViewData, ngoName, DownloadExcel
+from sqlalchemy import text
 
 
 @app.route('/api/v1/users')
@@ -56,22 +58,6 @@ def sg_name(name):
         return jsonify({'Message':'0'})
 
 
-@app.route('/api/v1/amount')
-def amount():
-    amount = Amount.query.all()
-    result = amounts_schema.dump(amount).data
-    return jsonify({'Amounts':result})
-
-
-@app.route('/api/v1/amount/<int:id>')
-def amount_sg(id):
-    amount = Amount.query.filter_by(sg_id=id).first()
-    if amount:
-        result = amount_schema.dump(amount)
-        return jsonify({'SG-Amount':result.data})
-    else:
-        return jsonify({'Message':'0'})
-
 
 @app.route('/api/v1/ngos')
 def ngos():
@@ -99,6 +85,22 @@ def int_ngo():
         return jsonify(result.data)
 
 
+@app.route('/api/v1/int_ngo/partner/<id>')
+def intNgoPartner(id):
+    query = text("select distinct(saving_group.funding_id)" \
+            " from saving_group, ngo" \
+            " where saving_group.partner_id = ngo.id" \
+            " and saving_group.partner_id = :id")
+    result = db.engine.execute(query, id=id)
+    data = list()
+    for row in result:
+        x = dict()
+        x['name'] = ngoName(row[0])
+        x['id'] = row[0]
+        data.append(x)
+    return jsonify(data)
+
+
 @app.route('/api/v1/ngo_status/<id>')
 def ngo_status(id):
     ngo = Ngo.query.get(id)
@@ -108,7 +110,6 @@ def ngo_status(id):
         return jsonify({'status': False})
     except AttributeError:
         return jsonify({'status': 'error'})
-
 
 
 @app.route('/api/v1/province/<id>')
@@ -187,3 +188,145 @@ def district_sectorKen(value):
 def saving_year():
     year = generate_year()
     return jsonify(year)
+
+
+@app.route('/api/v1/files')
+def get_files():
+    files = Files.query.all().order_by(Files.regDate.desc())
+    if files:
+        result = convert_array_file_size(files_schema.dump(files).data)
+        return jsonify(result)
+
+
+@app.route('/api/v1/files/user/<id>')
+def get_user_file(id):
+    files = Files.query.filter_by(user_id=id).order_by(Files.regDate.desc())
+    if files:
+        result = convert_array_file_size(files_schema.dump(files).data)
+        return jsonify(result)
+
+
+@app.route('/api/v1/saving')
+def saving_group():
+    sg = db.session.query(db.func.count(SavingGroup.name),
+                          db.func.sum(SavingGroup.member_female),
+                          db.func.sum(SavingGroup.member_male),
+                          db.func.sum(SavingGroup.borrowing),
+                          db.func.sum(SavingGroup.saving),
+                          SavingGroup.sector_id).\
+        join(Sector, SavingGroup.sector_id == Sector.id).\
+        filter(SavingGroup.sector_id == Sector.id).\
+        group_by(SavingGroup.sector_id).all()
+    return jsonify([i for i in sg])
+
+
+@app.route('/api/v1/sqlsaving/<sg>/<year>')
+def sql_saving(sg, year):
+    province, district, sector = MapAnalytics().json()
+    return jsonify({
+        "Provinces": province,
+        "Districts": district,
+        "Sectors": sector
+    })
+
+
+@app.route('/api/v1/chartanalytics/<int:year>')
+def chartanalytics(year):
+    membership = ChartAnalytics(year).membership()
+    status = ChartAnalytics(year).sg_status()
+    amount = ChartAnalytics(year).savings_loans()
+    sg = ChartAnalytics(year).savingPerIntNgo()
+    localPerIntNgo = ChartAnalytics(year).localPerIntNgo()
+    sgFinancial = ChartAnalytics(year).sgFinancialInstitution()
+    sgAgent = ChartAnalytics(year).sgTelcoAgent()
+    finscope = ChartAnalytics(year).finscope()
+    finscope_sg_2012, finscope_sg_2015 = ChartAnalytics(year).finscope_sg()
+    finscope_all_2012 = ChartAnalytics(year).finscope_all(2012)
+    finscope_all_2015 = ChartAnalytics(year).finscope_all(2015)
+
+    return jsonify({
+        "membership": membership,
+        "status": status,
+        "amount": amount,
+        "sg":sg,
+        "sgNgos":localPerIntNgo,
+        "sgFinancial": sgFinancial,
+        "sgAgent": sgAgent,
+        "finscope":finscope,
+        "finscope_sg_2012":[finscope_sg_2012],
+        "finscope_sg_2015":[finscope_sg_2015],
+        "finscope_all_2012": finscope_all_2012,
+        "finscope_all_2015": finscope_all_2015
+    })
+
+
+@app.route('/api/v1/analytics/creation/<int:year>')
+def membership_chart(year):
+    creation = ChartAnalytics(year).creation()
+
+    return jsonify({
+        "creation":creation
+    })
+
+
+@app.route('/api/v1/analytics/numbers/<int:year>')
+def numbers(year):
+    sg_count, membership, saving, borrowing = NumberAnalytics(year).numbers()
+    return jsonify({
+        "sg_count": sg_count,
+        "membership": membership,
+        "saving": saving,
+        "borrowing": borrowing
+    })
+
+
+@app.route('/api/v1/chart/sg_intngo/<int:year>')
+def sg_intNgo(year):
+    finscope_all_2012 = ChartAnalytics(year).finscope_all(2012)
+    finscope_all_2015 = ChartAnalytics(year).finscope_all(2015)
+    return jsonify({
+        'finscope_all_2012':finscope_all_2012,
+        'finscope_all_2015':finscope_all_2015
+    })
+
+
+@app.route('/api/v1/data/district/<province>')
+def data_district(province):
+    district = KenQuerydbJson(province).district()
+    return jsonify(district)
+
+
+@app.route('/api/v1/data/sector/<district>')
+def data_sector(district):
+    sector = KenQuerydbJson(district).sector()
+    return jsonify(sector)
+
+
+@app.route('/api/v1/data/view/<province>/<district>/<sector>/<ngo>/<year>/<int:type>')
+def view_data(province, district, sector, ngo, year, type):
+    data = ViewData(province, district, sector, ngo, year, type).viewData()
+    graduated = ViewData(province, district, sector, ngo, year, type).viewDataGraduated()
+    supervided = ViewData(province, district, sector, ngo, year, type).viewDataSupervised()
+    year_of_creation = ViewData(province, district, sector, ngo, year, type).viewDataYearOfCreation()
+    query = ViewData(province, district, sector, ngo, year, type).queryDownload()
+    if type == 2:
+        funding_ngo = ViewData(province, district, sector, ngo, year, type).viewDataPartnerNgo()
+    else:
+        funding_ngo = ViewData(province, district, sector, ngo, year, type).viewDataFundingNgo()
+
+    data_json = dict()
+    data_json['saving_group'] = data[0]
+    data_json['member_female'] = data[1]
+    data_json['member_male'] = data[2]
+    data_json['total_member'] = data[1] + data[2]
+    data_json['funding_ngo'] = funding_ngo
+    data_json['year_of_creation'] = year_of_creation
+    data_json['supervised'] = supervided
+    data_json['graduated'] = graduated
+    data_json['saving'] = data[3]
+    data_json['borrowing'] = data[4]
+    data_json['query'] = query
+
+    return jsonify(data_json)
+
+

@@ -19,4 +19,13 @@ def generate_year():
     return years
 
 
+def creation_year():
+    now = datetime.datetime.now()
+    current_year = now.year
+    years = []
+    for i in range(2010, current_year + 1):
+        years.append(i)
+    return years
+
+
 

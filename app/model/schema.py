@@ -1,6 +1,17 @@
 from marshmallow import Schema,fields
 
 
+class NgoSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    email = fields.Str()
+    telephone = fields.Str()
+    website = fields.Str()
+    category = fields.Int()
+    picture = fields.Str()
+    address = fields.Str()
+
+
 class UserSchema(Schema):
     id = fields.Integer(dump_only=True)
     names = fields.String()
@@ -13,55 +24,36 @@ class UserSchema(Schema):
     gender = fields.String()
     update_key = fields.String()
     job_title = fields.String()
-    ngo_id = fields.Integer()
+    ngo_id = fields.Int()
+    ngo = fields.Nested(NgoSchema, only=["id","name"])
 
 
 class SavingGroupSchema(Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String()
-    year = fields.Integer()
+    year_of_creation = fields.Integer()
     member_female = fields.Integer()
     member_male = fields.Integer()
     sector_id = fields.Integer()
-    sector_name = fields.Str()
-    district_name = fields.Str()
-    status = fields.Str()
-    regDate = fields.Date()
-
-
-class AmountSchema(Schema):
-    id = fields.Integer(dump_only=True)
+    sg_status = fields.Str()
     saving = fields.Float()
     borrowing = fields.Float()
-    year = fields.Integer()
-    sg_id = fields.Nested(SavingGroupSchema, required=True)
-
-
-class NgoSchema(Schema):
-    id = fields.Int(dump_only=True)
-    name = fields.Str()
-    email = fields.Str()
-    telephone = fields.Str()
-    website = fields.Str()
-    category = fields.Int()
-    picture = fields.Str()
-    address = fields.Str()
-
-
-class SgsSchema(Schema):
-    id = fields.Integer(dump_only=True)
-    partner_id = fields.Nested(NgoSchema)
-    funding_id = fields.Nested(NgoSchema)
+    year = fields.Int()
+    partner_id = fields.Int()
+    funding_id = fields.Int()
+    regDate = fields.Date()
 
 
 class FilesSchema(Schema):
     id = fields.Int()
     original = fields.Str()
-    save = fields.Str()
+    saved = fields.Str()
     filename = fields.Str()
     regDate = fields.Date()
     status = fields.Int()
+    size = fields.Int()
     user_id = fields.Int()
+    user = fields.Nested(UserSchema, only=["id","names", "ngo"])
 
 
 class ProvinceSchema(Schema):
@@ -87,22 +79,49 @@ class SectorSchema(Schema):
     district_id = fields.Int()
 
 
-class FinancialSchema(Schema):
+class BankSchema(Schema):
     id = fields.Int(dump_only=True)
-    branch_name = fields.Str()
-    financial_name = fields.Str()
+    count = fields.Int()
+    name = fields.Str()
+    year = fields.Int()
+    sector_id = fields.Int()
+
+
+class MfiSchema(Schema):
+    id = fields.Int(dump_only=True)
+    count = fields.Int()
+    name = fields.Str()
+    year = fields.Int()
+    sector_id = fields.Int()
+
+
+class UmurengeSacco(Schema):
+    id = fields.Int(dump_only=True)
+    count = fields.Int()
+    name = fields.Str()
+    year = fields.Int()
+    sector_id = fields.Int()
+
+
+class NonUmurengeSacco(Schema):
+    id = fields.Int(dump_only=True)
+    count = fields.Int()
+    name = fields.Str()
+    year = fields.Int()
     sector_id = fields.Int()
 
 
 class BankAgentSchema(Schema):
     id = fields.Int(dump_only=True)
-    distribution = fields.Int()
+    count = fields.Int()
+    year = fields.Int()
     district_id = fields.Int()
 
 
 class TelcoAgentSchema(Schema):
     id = fields.Int(dump_only=True)
-    distribution = fields.Int()
+    count = fields.Int()
+    year = fields.Int()
     district_id = fields.Int()
 
 
@@ -111,6 +130,16 @@ class Population(Schema):
     male = fields.Int()
     female = fields.Int()
     sector_id = fields.Int()
+
+
+class FinscopeSchema(Schema):
+    id = fields.Int(dump_only=True)
+    banked = fields.Int()
+    other_formal = fields.Int()
+    other_informal = fields.Int()
+    excluded = fields.Int()
+    year = fields.Int()
+    district_id = fields.Int()
 
 
 
@@ -123,14 +152,8 @@ users_schema = UserSchema(many=True)
 sg_schema = SavingGroupSchema()
 sgs_schema = SavingGroupSchema(many=True)
 
-amount_schema = AmountSchema()
-amounts_schema = AmountSchema(many=True)
-
 ngo_schema = NgoSchema()
 ngos_schema = NgoSchema(many=True)
-
-sgfp_schema = SgsSchema()
-sgfps_schema = SgsSchema(many=True)
 
 file_schema = FilesSchema()
 files_schema = FilesSchema(many=True)
@@ -144,8 +167,11 @@ districts_schema = DistrictSchema(many=True)
 sector_schema = SectorSchema()
 sectors_schema = SectorSchema(many=True)
 
-financial_schema = FinancialSchema()
-financials_schema = FinancialSchema(many=True)
+bank_schema = BankSchema()
+banks_schema = BankSchema(many=True)
+
+finscope_schema = FinscopeSchema()
+finscopes_schema = FinscopeSchema(many=True)
 
 
 

@@ -11,8 +11,8 @@ CORS(app)
 
 db = SQLAlchemy(app)
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://muhireremy:8@localhost/afr_cartix'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:afr_cartix@2156@localhost/afr_cartix'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = 'rmuhire'
 app.config['MAIL_SERVER']='smtp.gmail.com'
@@ -62,43 +62,34 @@ class User(db.Model):
 class SavingGroup(db.Model):
     __tablename__ = 'saving_group'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-    year = db.Column(db.Integer)
+    name = db.Column(db.String(100))
+    year_of_creation = db.Column(db.Integer)
     member_female = db.Column(db.Integer)
     member_male = db.Column(db.Integer)
-    sector_id = db.Column(db.Integer)
-    sector_name = db.Column(db.String(100))
-    district_name = db.Column(db.String(100))
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
     sg_status = db.Column(db.String(100))
-    regDate = db.Column(db.DateTime)
-
-    Amount = db.relationship('Amount', backref='saving_group', lazy='dynamic')
-
-    def __init__(self, name, year, member_female, member_male, sector_id, sector_name, district_name, sg_status, regDate = None):
-        self.name = name,
-        self.year = year
-        self.member_female = member_female
-        self.member_male = member_male
-        self.sector_id = sector_id
-        self.sector_name = sector_name
-        self.district_name = district_name
-        self.sg_status = sg_status
-        if regDate is None:
-            self.regDate = datetime.utcnow()
-
-
-class Amount(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
     saving = db.Column(db.Float)
     borrowing = db.Column(db.Float)
     year = db.Column(db.Integer)
-    sg_id = db.Column(db.Integer, db.ForeignKey('saving_group.id'))
+    partner_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+    funding_id = db.Column(db.Integer)
+    regDate = db.Column(db.DateTime)
 
-    def __init__(self, saving, borrowing, year, sg_id):
+    def __init__(self, name, year_of_creation, member_female, member_male, sector_id, sg_status, saving, borrowing, year, partner_id, funding_id, regDate = None):
+        self.name = name,
+        self.year_of_creation = year_of_creation
+        self.member_female = member_female
+        self.member_male = member_male
+        self.sector_id = sector_id
+        self.sg_status = sg_status
         self.saving = saving
         self.borrowing = borrowing
         self.year = year
-        self.sg_id = sg_id
+        self.partner_id = partner_id
+        self.funding_id = funding_id
+
+        if regDate is None:
+            self.regDate = datetime.utcnow()
 
 
 class Ngo(db.Model):
@@ -110,7 +101,7 @@ class Ngo(db.Model):
     category = db.Column(db.Integer) # Int NGO 1 : Local NGO : 0
     picture = db.Column(db.String(100))
     address = db.Column(db.String(200))
-
+    sg = db.relationship('SavingGroup', backref='ngo', lazy='dynamic')
     user = db.relationship('User', backref='ngo', lazy='dynamic')
 
     def __init__(self, name, email, telephone, website, category, picture, address):
@@ -123,18 +114,6 @@ class Ngo(db.Model):
         self.address = address
 
 
-class Sgs(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    partner_id = db.Column(db.Integer)
-    funding_id = db.Column(db.Integer)
-    sg_id = db.Column(db.Integer)
-
-    def __init__(self, partner_id, funding_id, sg_id):
-        self.partner_id = partner_id
-        self.funding_id = funding_id
-        self.sg_id = sg_id
-
-
 class Files(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     original = db.Column(db.String(175))
@@ -142,13 +121,15 @@ class Files(db.Model):
     filename = db.Column(db.String(150))
     regDate = db.Column(db.DateTime)
     status = db.Column(db.Integer)
+    size = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, original, saved, filename, status, user_id, regDate=None):
+    def __init__(self, original, saved, filename, status, user_id, size, regDate=None):
         self.original = original
         self.saved = saved
         self.filename = filename
         self.status = status
+        self.size = size
         self.user_id = user_id
         if regDate is None:
             regDate = datetime.utcnow()
@@ -180,6 +161,7 @@ class District(db.Model):
     district = db.relationship('Sector', backref='district', lazy='dynamic')
     bank_agent_district = db.relationship('BankAgent', backref='district', lazy='dynamic')
     telco_agent_district = db.relationship('TelcoAgent', backref='district', lazy='dynamic')
+    finscope_district = db.relationship('Finscope', backref='district', lazy='dynamic')
 
     def __init__(self, id, name, code, province_code, province_id):
         self.id = id
@@ -196,8 +178,12 @@ class Sector(db.Model):
     district_code = db.Column(db.String(10))
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
-    sector_financial = db.relationship('Financial', backref='sector', lazy='dynamic')
+    sector_bank = db.relationship('Bank', backref='sector', lazy='dynamic')
+    sector_mfi = db.relationship('Mfi', backref='mfi', lazy='dynamic')
+    sector_usacco = db.relationship('UmurengeSacco', backref='umurenge_sacco', lazy='dynamic')
+    sector_nusacoo = db.relationship('NonUmurengeSacco', backref='non_umurenge_sacco', lazy='dynamic')
     sector_population = db.relationship('Population', backref='sector', lazy='dynamic')
+    sg = db.relation('SavingGroup', backref='sector', lazy='dynamic')
 
     def __init__(self, id, name, code, district_code, district_id):
         self.id = id
@@ -207,39 +193,85 @@ class Sector(db.Model):
         self.district_id = district_id
 
 
-class Financial(db.Model):
+class Bank(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    branch_name = db.Column(db.String(100))
-    financial_name = db.Column(db.String(100))
+    count = db.Column(db.Integer)
+    name = db.Column(db.String(100))
     year = db.Column(db.Integer)
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
 
-    def __init__(self, id, branch_name, financial_name, sector_id):
-        self.id = id
-        self.branch_name = branch_name
-        self.financial_name = financial_name
+    def __init__(self, count, name, year, sector_id):
+        self.count = count
+        self.name = name
+        self.year = year
+        self.sector_id = sector_id
+
+
+class Mfi(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer)
+    name = db.Column(db.String(250))
+    year = db.Column(db.Integer)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
+
+    def __init__(self, count, name, year, sector_id):
+        self.count = count
+        self.name = name
+        self.year = year
+        self.sector_id = sector_id
+
+
+class UmurengeSacco(db.Model):
+    __tablename__ = 'umurenge_sacco'
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer)
+    name = db.Column(db.String(150))
+    year = db.Column(db.Integer)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
+
+    def __init__(self, count, name, year, sector_id):
+        self.count = count
+        self.name = name
+        self.year = year
+        self.sector_id = sector_id
+
+
+class NonUmurengeSacco(db.Model):
+    __tablename__ = 'non_umurenge_sacco'
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer)
+    name = db.Column(db.String(150))
+    year = db.Column(db.Integer)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'))
+
+    def __init__(self, count, name, year, sector_id):
+        self.count = count
+        self.name = name
+        self.year = year
         self.sector_id = sector_id
 
 
 class BankAgent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    distribution = db.Column(db.Integer)
+    count = db.Column(db.Integer)
     year = db.Column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
-    def __init__(self, distribution, district_id):
-        self.distribution = distribution
+    def __init__(self, count, year, district_id):
+        self.count = count
+        self.year = year
         self.district_id = district_id
 
 
 class TelcoAgent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    distribution = db.Column(db.Integer)
+    count = db.Column(db.Integer)
     year = db.Column(db.Integer)
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
 
-    def __init__(self, distribution, district_id):
-        self.distribution = distribution
+    def __init__(self, count, year, district_id):
+        self.count = count
+        self.year = year
         self.district_id = district_id
 
 
@@ -255,6 +287,23 @@ class Population(db.Model):
         self.female = female
         self.sector_id = sector_id
 
+
+class Finscope(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    banked = db.Column(db.Integer)
+    other_formal = db.Column(db.Integer)
+    other_informal = db.Column(db.Integer)
+    excluded = db.Column(db.Integer)
+    year = db.Column(db.Integer)
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
+
+    def __init__(self, banked, other_formal, other_informal, excluded, year, district_id):
+        self.banked = banked
+        self.other_formal = other_formal
+        self.other_informal = other_informal
+        self.excluded = excluded
+        self.year = year
+        self.district_id = district_id
 
 
 
