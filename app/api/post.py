@@ -302,16 +302,16 @@ def sec():
 
 @app.route("/api/v1/data/finance")
 def data_finance():
-    """folder = "/Users/muhireremy/cartix/test/data/"
-    bank = Excellento(folder + "List_of_Banks_Dec2014.xlsx").json_data()
-    mfi = Excellento(folder + "List_of_MFIs_Dec2014.xlsx").json_data()
-    usacco = Excellento(folder + "Umurenge_SACCOs_Dec2014.xlsx").json_data()
-    nusacco = Excellento(folder + "Non_Umurenge_SACCOs_Dec2014.xlsx").json_data()
-    bank_agent = Excellento(folder + "Bank_agents_District_Dec2014.xlsx").json_data()
-    telco_agent = Excellento(folder + "Telcos_Agents_Per_District_Dec2014.xlsx").json_data()
+    folder = "/Users/muhireremy/cartix/test/data_2015/"
+    bank = Excellento(folder + "Bank_2015.xlsx").json_data()
+    """mfi = Excellento(folder + "MFIs_2015.xlsx").json_data()
+    usacco = Excellento(folder + "USACCOs_2015.xlsx").json_data()
+    nusacco = Excellento(folder + "NU_SACCOs_2015.xlsx").json_data()
+    bank_agent = Excellento(folder + "Bank_Agents_2015.xlsx").json_data()
+    telco_agent = Excellento(folder + "Telco_Agents_2015.xlsx").json_data()"""
 
     data_bank = Financialdb(bank).bank()
-    data_mfi = Financialdb(mfi).mfi()
+    """data_mfi = Financialdb(mfi).mfi()
     data_usacco = Financialdb(usacco).usacco()
     data_nusacco = Financialdb(nusacco).nusacco()
     data_bank_agent = Financialdb(bank_agent).bank_agent()
@@ -324,9 +324,9 @@ def data_finance():
         "nusacco":data_nusacco,
         "bank agent":data_bank_agent,
         "telco_agent":data_telco_agent
-    }) """
+    })"""
 
-    return jsonify({"status": "already added"})
+    return jsonify({"status": bank})
 
 
 @app.route("/api/v1/data/finscope")
