@@ -303,19 +303,19 @@ def sec():
 @app.route("/api/v1/data/finance")
 def data_finance():
     folder = "/Users/muhireremy/cartix/test/data_2015/"
-    bank = Excellento(folder + "Bank_2015.xlsx").json_data()
-    """mfi = Excellento(folder + "MFIs_2015.xlsx").json_data()
-    usacco = Excellento(folder + "USACCOs_2015.xlsx").json_data()
-    nusacco = Excellento(folder + "NU_SACCOs_2015.xlsx").json_data()
-    bank_agent = Excellento(folder + "Bank_Agents_2015.xlsx").json_data()
-    telco_agent = Excellento(folder + "Telco_Agents_2015.xlsx").json_data()"""
+    bank = Excellento(folder + "Bank_2015.xls").json_data()
+    """mfi = Excellento(folder + "MFIs_2016.xlsx").json_data()
+    usacco = Excellento(folder + "USACCOs_2016.xlsx").json_data()
+    nusacco = Excellento(folder + "NU_SACCOs_2016.xlsx").json_data()
+    bank_agent = Excellento(folder + "Bank_Agents_2016.xlsx").json_data()
+    telco_agent = Excellento(folder + "Telco_Agents_2016.xlsx").json_data()"""
 
     data_bank = Financialdb(bank).bank()
     """data_mfi = Financialdb(mfi).mfi()
     data_usacco = Financialdb(usacco).usacco()
     data_nusacco = Financialdb(nusacco).nusacco()
     data_bank_agent = Financialdb(bank_agent).bank_agent()
-    data_telco_agent = Financialdb(telco_agent).telco_agent()
+    data_telco_agent = Financialdb(telco_agent).telco_agent()"""
 
     return jsonify({
         "bank":data_bank,
@@ -324,9 +324,9 @@ def data_finance():
         "nusacco":data_nusacco,
         "bank agent":data_bank_agent,
         "telco_agent":data_telco_agent
-    })"""
+    })
 
-    return jsonify({"status": bank})
+    #return jsonify({"status": bank})
 
 
 @app.route("/api/v1/data/finscope")
