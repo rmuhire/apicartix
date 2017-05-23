@@ -1,25 +1,35 @@
 from app.model.models import *
 from sqlalchemy import text
 from saving_year import creation_year
+from viewdata import miniQueryNgo
 
 
 class MapAnalytics:
-    def __init__(self):
-        pass
+    def __init__(self, sg, year):
+        self.sg = sg
+        self.year = year
 
     def provinceAnalytics(self):
-        sql_province = text('select count(saving_group.name)'
-                            ', sum(saving_group.member_female) '
-                            ', sum(saving_group.member_male)'
-                            ', sum(saving_group.borrowing)'
-                            ', sum(saving_group.saving)'
-                            ', province.name '
-                            'from saving_group, sector, district, province '
-                            'where sector.id = saving_group.sector_id AND '
-                            'district.id = sector.district_id AND '
-                            'province.id = district.province_id '
-                            'group by province.name order by province.name')
-        result = db.engine.execute(sql_province)
+        query = 'select count(saving_group.name)' \
+                 ', sum(saving_group.member_female) '\
+                 ', sum(saving_group.member_male)' \
+                 ', sum(saving_group.borrowing)'\
+                 ', sum(saving_group.saving)'\
+                 ', province.name '\
+                 'from saving_group, sector, district, province, ngo '\
+                 'where sector.id = saving_group.sector_id AND ' \
+                 'district.id = sector.district_id AND '\
+                 'province.id = district.province_id AND '\
+                 'saving_group.year = :year AND ' \
+                 'saving_group.partner_id = ngo.id'
+
+        if self.sg != ['null']:
+            mini_query = miniQueryNgo(self.sg)
+            query += ' AND ' + mini_query
+        query += ' group by province.name order by province.name'
+
+        sql_province = text(query)
+        result = db.engine.execute(sql_province, year=self.year)
         province = []
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4], row[5]]
@@ -35,8 +45,9 @@ class MapAnalytics:
                         ' bank.sector_id = sector.id'
                         ' AND district.id = sector.district_id'
                         ' AND province.id = district.province_id'
+                        ' AND bank.year=:year'
                         ' group by province.name order by province.name')
-        bank = runQuery(sql_bank)
+        bank = runQuery(sql_bank, self.year)
 
         """ mfi data """
         sql_mfi = text('select sum(mfi.count),'
@@ -45,9 +56,10 @@ class MapAnalytics:
                        ' where mfi.sector_id = sector.id'
                        ' AND district.id = sector.district_id'
                        ' AND province.id = district.province_id'
+                       ' AND mfi.year = :year'
                        ' group by province.name'
                        ' order by province.name')
-        mfi = runQuery(sql_mfi)
+        mfi = runQuery(sql_mfi, self.year)
 
         """ umurengo sacco """
 
@@ -58,9 +70,10 @@ class MapAnalytics:
                           ' where umurenge_sacco.sector_id = sector.id'
                           ' AND district.id = sector.district_id'
                           ' AND province.id = district.province_id'
+                          ' AND umurenge_sacco.year=:year'
                           ' group by province.name order by province.name')
 
-        usacco = runQuery(sql_usacco)
+        usacco = runQuery(sql_usacco, self.year)
 
         """ non umurenge sacco """
 
@@ -70,39 +83,50 @@ class MapAnalytics:
                           ' where non_umurenge_sacco.sector_id = sector.id AND'
                           ' district.id = sector.district_id AND'
                           ' province.id = district.province_id'
+                          ' AND non_umurenge_sacco.year = :year'
                           ' group by province.name order by province.name')
-        nsacco = runQuery(sql_nsacco)
+        nsacco = runQuery(sql_nsacco, self.year)
 
         """ bank agent """
         sql_bank_agent = text('select sum(bank_agent.count),'
                               ' province.name from bank_agent, district,'
                               ' province where bank_agent.district_id = district.id'
                               ' AND province.id = district.province_id'
+                              ' AND bank_agent.year =:year'
                               ' group by province.name order by province.name')
-        bank_agent = runQuery(sql_bank_agent)
+        bank_agent = runQuery(sql_bank_agent, self.year)
 
         """ Telco Agent """
         sql_telco_agent = text('select sum(telco_agent.count), province.name'
                                ' from telco_agent, district, province'
                                ' where telco_agent.district_id = district.id'
                                ' AND province.id = district.province_id'
+                               ' AND telco_agent.year=:year'
                                ' group by province.name order by province.name')
-        telco_agent = runQuery(sql_telco_agent)
+        telco_agent = runQuery(sql_telco_agent, self.year)
+
         return [province, bank, mfi, usacco, nsacco, bank_agent, telco_agent]
 
     def districtAnalytics(self):
-        sql_district = text('select count(saving_group.name)'
-                            ', sum(saving_group.member_female) '
-                            ', sum(saving_group.member_male)'
-                            ', sum(saving_group.borrowing)'
-                            ', sum(saving_group.saving)'
-                            ', district.name '
-                            'from saving_group, sector, district '
-                            'where sector.id = saving_group.sector_id AND '
-                            'saving_group.borrowing != :x AND '
-                            'saving_group.saving != :x AND '
-                            'district.id = sector.district_id '
-                            'group by district.name order by district.name')
+        query = 'select count(saving_group.name)'\
+                            ', sum(saving_group.member_female) '\
+                            ', sum(saving_group.member_male)'\
+                            ', sum(saving_group.borrowing)'\
+                            ', sum(saving_group.saving)'\
+                            ', district.name '\
+                            'from saving_group, sector, district, ngo '\
+                            'where sector.id = saving_group.sector_id AND '\
+                            'saving_group.borrowing != :x AND '\
+                            'saving_group.saving != :x AND '\
+                            'district.id = sector.district_id and '\
+                            'saving_group.partner_id = ngo.id '
+
+        if self.sg != ['null']:
+            mini_query = miniQueryNgo(self.sg)
+            query += ' AND ' + mini_query
+        query += ' group by district.name order by district.name'
+
+        sql_district = text(query)
 
         result = db.engine.execute(sql_district, x=-2)
         district = []
@@ -118,8 +142,9 @@ class MapAnalytics:
                         ' where'
                         ' bank.sector_id = sector.id'
                         ' AND district.id = sector.district_id'
+                        ' AND bank.year=:year'
                         ' group by district.name order by district.name')
-        bank = runQuery(sql_bank)
+        bank = runQuery(sql_bank, self.year)
 
         """ mfi data """
         sql_mfi = text('select sum(mfi.count),'
@@ -127,9 +152,10 @@ class MapAnalytics:
                        ' from mfi, sector, district'
                        ' where mfi.sector_id = sector.id'
                        ' AND district.id = sector.district_id'
+                       ' AND mfi.year = :year'
                        ' group by district.name'
                        ' order by district.name')
-        mfi = runQuery(sql_mfi)
+        mfi = runQuery(sql_mfi, self.year)
 
         """ umurengo sacco """
 
@@ -139,9 +165,10 @@ class MapAnalytics:
                           ' sector, district'
                           ' where umurenge_sacco.sector_id = sector.id'
                           ' AND district.id = sector.district_id'
+                          ' AND umurenge_sacco.year = :year'
                           ' group by district.name order by district.name')
 
-        usacco = runQuery(sql_usacco)
+        usacco = runQuery(sql_usacco, self.year)
 
         """ non umurenge sacco """
 
@@ -149,39 +176,50 @@ class MapAnalytics:
                           ' district.name from non_umurenge_sacco,'
                           ' sector, district'
                           ' where non_umurenge_sacco.sector_id = sector.id AND'
-                          ' district.id = sector.district_id'
+                          ' district.id = sector.district_id and '
+                          ' non_umurenge_sacco.year = :year'
                           ' group by district.name order by district.name')
-        nsacco = runQuery(sql_nsacco)
+        nsacco = runQuery(sql_nsacco, self.year)
 
         """ bank agent """
         sql_bank_agent = text('select sum(bank_agent.count),'
                               ' district.name from bank_agent, district'
                               ' where bank_agent.district_id = district.id'
+                              ' AND bank_agent.year = :year'
                               ' group by district.name order by district.name')
-        bank_agent = runQuery(sql_bank_agent)
+        bank_agent = runQuery(sql_bank_agent, self.year)
 
         """ Telco Agent """
         sql_telco_agent = text('select sum(telco_agent.count), district.name'
                                ' from telco_agent, district'
                                ' where telco_agent.district_id = district.id'
+                               ' AND telco_agent.year =:year'
                                ' group by district.name order by district.name')
-        telco_agent = runQuery(sql_telco_agent)
+        telco_agent = runQuery(sql_telco_agent, self.year)
 
         return [district, bank, mfi, usacco, nsacco, bank_agent, telco_agent]
 
     def sectorAnalytics(self):
-        sql_district = text('select count(saving_group.name)'
-                            ', sum(saving_group.member_female) '
-                            ', sum(saving_group.member_male)'
-                            ', sum(saving_group.borrowing)'
-                            ', sum(saving_group.saving)'
-                            ', sector.name'
-                            ', sector.district_id '
-                            'from saving_group, sector '
-                            'where sector.id = saving_group.sector_id '
-                            'AND saving_group.borrowing != :x AND '
-                            'saving_group.saving != :x '
-                            'group by sector.id order by sector.name')
+        query = 'select count(saving_group.name)'\
+                            ', sum(saving_group.member_female) '\
+                            ', sum(saving_group.member_male)'\
+                            ', sum(saving_group.borrowing)'\
+                            ', sum(saving_group.saving)'\
+                            ', sector.name'\
+                            ', sector.district_id '\
+                            'from saving_group, sector, ngo '\
+                            'where sector.id = saving_group.sector_id '\
+                            'AND saving_group.borrowing != :x AND '\
+                            'saving_group.saving != :x and ' \
+                            'saving_group.partner_id = ngo.id '
+
+        if self.sg != ['null']:
+            mini_query = miniQueryNgo(self.sg)
+            query += ' AND ' + mini_query
+        query += ' group by sector.id order by sector.name'
+
+        sql_district = text(query)
+
         result = db.engine.execute(sql_district, x=-2)
         sector = []
         for row in result:
@@ -194,17 +232,19 @@ class MapAnalytics:
                         ' sector'
                         ' where'
                         ' bank.sector_id = sector.id'
+                        ' and bank.year = :year'
                         ' group by sector.name order by sector.name')
-        bank = runQuery(sql_bank)
+        bank = runQuery(sql_bank, self.year)
 
         """ mfi data """
         sql_mfi = text('select sum(mfi.count),'
                        ' sector.name'
                        ' from mfi, sector'
                        ' where mfi.sector_id = sector.id'
+                       ' and mfi.year = :year'
                        ' group by sector.name'
                        ' order by sector.name')
-        mfi = runQuery(sql_mfi)
+        mfi = runQuery(sql_mfi, self.year)
 
         """ umurengo sacco """
 
@@ -213,25 +253,28 @@ class MapAnalytics:
                           ' from umurenge_sacco,'
                           ' sector'
                           ' where umurenge_sacco.sector_id = sector.id'
+                          ' and umurenge_sacco.year = :year'
                           ' group by sector.name order by sector.name')
 
-        usacco = runQuery(sql_usacco)
+        usacco = runQuery(sql_usacco, self.year)
 
         """ non umurenge sacco """
 
         sql_nsacco = text('select sum(non_umurenge_sacco.count),'
                           ' sector.name from non_umurenge_sacco,'
                           ' sector'
-                          ' where non_umurenge_sacco.sector_id = sector.id '
+                          ' where non_umurenge_sacco.sector_id = sector.id'
+                          ' and non_umurenge_sacco.year = :year'
                           ' group by sector.name order by sector.name')
-        nsacco = runQuery(sql_nsacco)
+        nsacco = runQuery(sql_nsacco, self.year)
 
         return [sector, bank, mfi, usacco, nsacco]
 
     def json(self):
-        province, bank, mfi, usacco, nsacco, bank_agent, telco_agent = MapAnalytics().provinceAnalytics()
-        district, bank_d, mfi_d, usacco_d, nsacco_d, bank_agent_d, telco_agent_d = MapAnalytics().districtAnalytics()
-        sector, bank_s, mfi_s, usacco_s, nsacco_s = MapAnalytics().sectorAnalytics()
+
+        province, bank, mfi, usacco, nsacco, bank_agent, telco_agent = MapAnalytics(self.sg, self.year).provinceAnalytics()
+        district, bank_d, mfi_d, usacco_d, nsacco_d, bank_agent_d, telco_agent_d = MapAnalytics(self.sg, self.year).districtAnalytics()
+        sector, bank_s, mfi_s, usacco_s, nsacco_s = MapAnalytics(self.sg, self.year).sectorAnalytics()
 
         # Province
 
@@ -266,9 +309,18 @@ class MapAnalytics:
         for i in range(len(district)):
             data = {}
             value = district[i]
-            bank_val = bank_d[i]
-            mfi_val = mfi_d[i]
-            usacco_val = usacco_d[i]
+            try:
+                bank_val = bank_d[i]
+            except IndexError:
+                bank_val = [0,0]
+            try:
+                mfi_val = mfi_d[i]
+            except IndexError:
+                mfi_val = [0,0]
+            try:
+                usacco_val = usacco_d[i]
+            except IndexError:
+                usacco_val = [0,0]
             try:
                 nsacco_val = nsacco_d[i]
             except IndexError:
@@ -1031,8 +1083,8 @@ def getNgoName(id):
         return row[0]
 
 
-def runQuery(query):
-    result = db.engine.execute(query)
+def runQuery(query, year):
+    result = db.engine.execute(query, year=year)
     data = list()
     for row in result:
         data.append([row[0], row[1]])
