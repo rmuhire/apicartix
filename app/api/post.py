@@ -1,7 +1,7 @@
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify,request, session
-from app.controller.exellentodb import Excellentodb, Financialdb
+from app.controller.exellentodb import Excellentodb, Financialdb, FinancialChecker
 from app.controller.exellentodb import Excellento
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
@@ -302,20 +302,27 @@ def sec():
 
 @app.route("/api/v1/data/finance")
 def data_finance():
-    folder = "/Users/muhireremy/cartix/test/data_2015/"
-    bank = Excellento(folder + "Bank_2015.xls").json_data()
-    """mfi = Excellento(folder + "MFIs_2016.xlsx").json_data()
-    usacco = Excellento(folder + "USACCOs_2016.xlsx").json_data()
-    nusacco = Excellento(folder + "NU_SACCOs_2016.xlsx").json_data()
-    bank_agent = Excellento(folder + "Bank_Agents_2016.xlsx").json_data()
-    telco_agent = Excellento(folder + "Telco_Agents_2016.xlsx").json_data()"""
+    folder = "/Users/muhireremy/cartix/test/data_2016/"
+    bank = Excellento(folder + "bank_2016.xls").json_data()
+    mfi = Excellento(folder + "mfi_2016.xls").json_data()
+    usacco = Excellento(folder + "usacco_2016.xls").json_data()
+    nusacco = Excellento(folder + "nusacco_2016.xls").json_data()
+    bank_agent = Excellento(folder + "bank_agent_2016.xlsx").json_data()
+    telco_agent = Excellento(folder + "telco_agent_2016.xls").json_data()
+
+    """data_bank = FinancialChecker(bank,'bank_2016').excel()
+    data_mfi = FinancialChecker(mfi,'mfi_2016').excel()
+    data_usacco = FinancialChecker(usacco,'usacco_2016').excel()
+    data_nusacco = FinancialChecker(nusacco,'nusacco_2016').excel()
+    data_bank_agent = FinancialChecker(bank_agent,'bank_agent_2016').excel()
+    data_telco_agent = FinancialChecker(telco_agent,'telco_agent_2016').excel()"""
 
     data_bank = Financialdb(bank).bank()
-    """data_mfi = Financialdb(mfi).mfi()
+    data_mfi = Financialdb(mfi).mfi()
     data_usacco = Financialdb(usacco).usacco()
     data_nusacco = Financialdb(nusacco).nusacco()
     data_bank_agent = Financialdb(bank_agent).bank_agent()
-    data_telco_agent = Financialdb(telco_agent).telco_agent()"""
+    data_telco_agent = Financialdb(telco_agent).telco_agent()
 
     return jsonify({
         "bank":data_bank,
@@ -326,7 +333,7 @@ def data_finance():
         "telco_agent":data_telco_agent
     })
 
-    #return jsonify({"status": bank})
+    return jsonify({"status": data_bank_agent})
 
 
 @app.route("/api/v1/data/finscope")
