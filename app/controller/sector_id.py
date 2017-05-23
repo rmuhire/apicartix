@@ -2,7 +2,11 @@ from kenessa import District
 
 
 def sector_id(sector, district):
-    district = district.lower().title()
+    try:
+        district = district.lower().title()
+    except AttributeError:
+        import pdb
+        pdb.set_trace()
     data = District(str(district)).sector()
 
     for item in data:
