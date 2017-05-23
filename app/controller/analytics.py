@@ -104,7 +104,7 @@ class MapAnalytics:
                             'district.id = sector.district_id '
                             'group by district.name order by district.name')
 
-        result = db.engine.execute(sql_district, x=-1)
+        result = db.engine.execute(sql_district, x=-2)
         district = []
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4], row[5]]
@@ -182,7 +182,7 @@ class MapAnalytics:
                             'AND saving_group.borrowing != :x AND '
                             'saving_group.saving != :x '
                             'group by sector.id order by sector.name')
-        result = db.engine.execute(sql_district, x=-1)
+        result = db.engine.execute(sql_district, x=-2)
         sector = []
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4], row[5], returnDistrict(row[6])]
@@ -305,7 +305,11 @@ class MapAnalytics:
                 mfi_val = mfi_s[i]
             except IndexError:
                 mfi_val = [0,0]
-            usacco_val = usacco_s[i]
+            try:
+                usacco_val = usacco_s[i]
+            except IndexError:
+                usacco_val = [0,0]
+
             try:
                 nsacco_val = nsacco_s[i]
             except IndexError:
