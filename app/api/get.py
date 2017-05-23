@@ -222,7 +222,11 @@ def saving_group():
 
 @app.route('/api/v1/sqlsaving/<sg>/<year>')
 def sql_saving(sg, year):
-    province, district, sector = MapAnalytics().json()
+    province, district, sector = MapAnalytics(sg.split(","), year).json()
+    #val = MapAnalytics(sg, year).json()
+    #return jsonify(val.split(","))
+    #query = MapAnalytics(sg.split(","), year).provinceAnalytics()
+    #return jsonify(query)
     return jsonify({
         "Provinces": province,
         "Districts": district,
