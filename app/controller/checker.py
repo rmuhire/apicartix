@@ -1,4 +1,5 @@
 from app.controller.location import KenQuerydb
+from app.controller.sector_id import sector_id
 
 
 class Checker:
@@ -19,7 +20,8 @@ class Checker:
         return False
 
     def sector(self):
-        sector = KenQuerydb(self.identifier).sector()
+        sector, district = self.identifier
+        sector = sector_id(sector, district)
         if sector:
             return True
         return False
