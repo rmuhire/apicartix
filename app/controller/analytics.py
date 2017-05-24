@@ -119,6 +119,7 @@ class MapAnalytics:
                             'saving_group.borrowing != :x AND '\
                             'saving_group.saving != :x AND '\
                             'district.id = sector.district_id and '\
+                            'saving_group.year = :year and '\
                             'saving_group.partner_id = ngo.id '
 
         if self.sg != ['null']:
@@ -128,7 +129,7 @@ class MapAnalytics:
 
         sql_district = text(query)
 
-        result = db.engine.execute(sql_district, x=-2)
+        result = db.engine.execute(sql_district, x=-2, year=self.year)
         district = []
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4], row[5]]
@@ -211,6 +212,7 @@ class MapAnalytics:
                             'where sector.id = saving_group.sector_id '\
                             'AND saving_group.borrowing != :x AND '\
                             'saving_group.saving != :x and ' \
+                            'saving_group.year = :year and ' \
                             'saving_group.partner_id = ngo.id '
 
         if self.sg != ['null']:
@@ -220,7 +222,7 @@ class MapAnalytics:
 
         sql_district = text(query)
 
-        result = db.engine.execute(sql_district, x=-2)
+        result = db.engine.execute(sql_district, x=-2, year=self.year)
         sector = []
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4], row[5], returnDistrict(row[6])]
