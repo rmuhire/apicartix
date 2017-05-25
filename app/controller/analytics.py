@@ -403,7 +403,7 @@ class ChartAnalytics:
         result = db.engine.execute(membership_sql, year= self.year)
 
         val = []
-        labels = ['Male Members', 'Female Members']
+        labels = ['Female Members','Male Members']
         for row in result:
             val = [row[0], row[1]]
 
@@ -422,7 +422,7 @@ class ChartAnalytics:
 
         # Supervised query
         supervised_sql = text('select count(sg_status), partner_id from saving_group '
-                              'WHERE sg_status = :val GROUP BY partner_id')
+                              'WHERE sg_status = :val AND year=:year GROUP BY partner_id')
         result = db.engine.execute(supervised_sql, val='Supervised', year=self.year)
         supervised = []
         for row in result:
@@ -431,8 +431,9 @@ class ChartAnalytics:
 
         # Graduated Query
         graduated_sql = text('select count(sg_status), partner_id from saving_group '
-                              'WHERE sg_status = :val GROUP BY partner_id')
-        result = db.engine.execute(graduated_sql, val='Graduated')
+                              'WHERE sg_status = :val'
+                             ' and year=:year GROUP BY partner_id')
+        result = db.engine.execute(graduated_sql, val='Graduated', year=self.year)
         graduated = []
         for row in result:
             data = [row[0], getNgoName(row[1])]
@@ -474,9 +475,9 @@ class ChartAnalytics:
 
         # Savings query
         saving_sql = text('select sum(saving), partner_id from saving_group '
-                          'where saving <> -1 '
+                          'where saving <> -1 and year=:year '
                           'GROUP by partner_id')
-        result = db.engine.execute(saving_sql)
+        result = db.engine.execute(saving_sql, year=self.year)
 
         saving = []
         for row in result:
@@ -485,9 +486,9 @@ class ChartAnalytics:
 
         # Loans query
         loan_sql = text('select sum(borrowing), partner_id from saving_group '
-                          'where saving <> -1 '
-                          'GROUP by partner_id')
-        result = db.engine.execute(loan_sql)
+                        'where saving <> -1 and year=:year '
+                        'GROUP by partner_id')
+        result = db.engine.execute(loan_sql, year=self.year)
         loan = []
         for row in result:
             data = [row[0], getNgoName(row[1])]
@@ -534,9 +535,9 @@ class ChartAnalytics:
         for year in years:
             yearlist = list()
             year_sql = text('select count(id), partner_id from saving_group '
-                            'where year_of_creation = :year '
+                            'where year_of_creation = :year and year=:year '
                             'GROUP BY partner_id')
-            result = db.engine.execute(year_sql, year=year)
+            result = db.engine.execute(year_sql, year=year, year_s=self.year)
             for row in result:
                 val = [row[0], getNgoName(row[1])]
                 yearlist.append(val)
@@ -565,10 +566,10 @@ class ChartAnalytics:
                    ' ngo.name'
                    ' from saving_group,'
                    ' ngo where saving_group.partner_id = ngo.id'
-                   ' AND saving_group.year = 2014'
+                   ' AND saving_group.year = :year'
                    ' group by ngo.id')
 
-        result = db.engine.execute(sql)
+        result = db.engine.execute(sql, year=self.year)
         values = list()
         labels = list()
         for row in result:
@@ -585,8 +586,8 @@ class ChartAnalytics:
     def localPerIntNgo(self):
         sql = text('select distinct(funding_id)'
                     ' from saving_group'
-                    ' where year = 2014')
-        result = db.engine.execute(sql)
+                    ' where year = :year')
+        result = db.engine.execute(sql, year=self.year)
         data = list()
         for row in result:
             funding_id = row[0]
@@ -595,9 +596,9 @@ class ChartAnalytics:
             sql = text('select distinct(partner_id),'
                        ' count(id)'
                        ' from saving_group'
-                       ' where funding_id = :funding_id'
+                       ' where funding_id = :funding_id and year=:year'
                        ' group by partner_id')
-            re = db.engine.execute(sql, funding_id=funding_id)
+            re = db.engine.execute(sql, funding_id=funding_id, year=self.year)
             for item in re:
                 x.append(getNgoName(item[0]))
                 y.append(item[1])
@@ -617,9 +618,10 @@ class ChartAnalytics:
                       ' province where sector.id = saving_group.sector_id'
                       ' AND district.id = sector.district_id'
                       ' AND province.id = district.province_id'
+                      ' AND saving_group.year=:year'
                       ' group by province.name'
                       ' order by province.name')
-        result = db.engine.execute(sql_sg)
+        result = db.engine.execute(sql_sg, year=self.year)
         x = list()
         y = list()
         for row in result:
@@ -641,9 +643,10 @@ class ChartAnalytics:
                          ' where sector.id = bank.sector_id'
                          ' AND district.id = sector.district_id'
                          ' AND province.id = district.province_id'
+                         ' AND bank.year=:year'
                          ' group by province.name order'
                          ' by province.name')
-        result = db.engine.execute(sql_banks)
+        result = db.engine.execute(sql_banks, year=self.year)
         x = list()
         y = list()
         for row in result:
@@ -662,9 +665,9 @@ class ChartAnalytics:
                        ' from mfi, sector, district, province '
                        'where sector.id = mfi.sector_id AND'
                        ' district.id = sector.district_id AND'
-                       ' province.id = district.province_id group by'
+                       ' province.id = district.province_id and mfi.year=:year group by'
                        ' province.name order by province.name')
-        result = db.engine.execute(sql_mfi)
+        result = db.engine.execute(sql_mfi, year=self.year)
         x = list()
         y = list()
         for row in result:
@@ -683,10 +686,10 @@ class ChartAnalytics:
                           ' from umurenge_sacco, sector, district, province'
                           ' where sector.id = umurenge_sacco.sector_id AND'
                           ' district.id = sector.district_id AND'
-                          ' province.id = district.province_id'
+                          ' province.id = district.province_id and umurenge_sacco.year=:year'
                           ' group by province.name'
                           ' order by province.name')
-        result = db.engine.execute(sql_usacco)
+        result = db.engine.execute(sql_usacco, year=self.year)
         x = list()
         y = list()
         for row in result:
@@ -706,9 +709,10 @@ class ChartAnalytics:
                            ' where sector.id = non_umurenge_sacco.sector_id'
                            ' AND district.id = sector.district_id '
                            'AND province.id = district.province_id '
+                           'and non_umurenge_sacco.year=:year '
                            'group by province.name '
                            'order by province.name')
-        result = db.engine.execute(sql_nusacco)
+        result = db.engine.execute(sql_nusacco, year=self.year)
         x = list()
         y = list()
         for row in result:
@@ -729,9 +733,10 @@ class ChartAnalytics:
                          ' from telco_agent, province, district'
                          ' where telco_agent.district_id = district.id '
                          'and district.province_id = province.id '
+                         'and telco_agent.year=:year '
                          'group by province.name '
                          'order by province.name')
-        result = db.engine.execute(sql_telco)
+        result = db.engine.execute(sql_telco, year=self.year)
         x = list()
         y = list()
         for row in result:
@@ -749,9 +754,10 @@ class ChartAnalytics:
                          ' from bank_agent, province, district'
                          ' where bank_agent.district_id = district.id '
                          'and district.province_id = province.id '
+                         'and bank_agent.year=:year '
                          'group by province.name '
                          'order by province.name')
-        result = db.engine.execute(sql_bank)
+        result = db.engine.execute(sql_bank, year=self.year)
         x = list()
         y = list()
         for row in result:
@@ -772,9 +778,10 @@ class ChartAnalytics:
                       ' province where sector.id = saving_group.sector_id'
                       ' AND district.id = sector.district_id'
                       ' AND province.id = district.province_id'
+                      ' AND saving_group.year = :year'
                       ' group by province.name'
                       ' order by province.name')
-        result = db.engine.execute(sql_sg)
+        result = db.engine.execute(sql_sg, year=self.year)
         x = list()
         y = list()
         for row in result:
@@ -997,9 +1004,6 @@ class ChartAnalytics:
 
         """ Next merge SGs array for substraction with other_informal to get the real value of 
          other informal"""
-
-
-
 
 
 class NumberAnalytics:
