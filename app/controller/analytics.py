@@ -392,14 +392,22 @@ class MapAnalytics:
 
 
 class ChartAnalytics:
-    def __init__(self, year):
+    def __init__(self, year,ngo):
         self.year = year
+        self.ngo = ngo.split(",")
 
     # Membership per gender
     def membership(self):
-        membership_sql = text('select sum(member_female)'
-                              ', sum(member_male) from saving_group, sector'
-                              ' where sector.id = saving_group.sector_id and saving_group.year = :year')
+        query = 'select sum(member_female)'\
+                              ', sum(member_male) from saving_group, sector, ngo'\
+                              ' where sector.id = saving_group.sector_id'\
+                              ' and saving_group.year = :year'\
+                              ' and ngo.id = saving_group.partner_id'
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+
+        membership_sql = text(query)
         result = db.engine.execute(membership_sql, year= self.year)
 
         val = []
