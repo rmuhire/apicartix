@@ -1,7 +1,7 @@
 from app.model.models import *
 from sqlalchemy import text
 from saving_year import creation_year
-from viewdata import miniQueryNgo
+from viewdata import miniQueryNgo, ngoName
 
 
 class MapAnalytics:
@@ -403,9 +403,12 @@ class ChartAnalytics:
                               ' where sector.id = saving_group.sector_id'\
                               ' and saving_group.year = :year'\
                               ' and ngo.id = saving_group.partner_id'
+        ngos = []
         if self.ngo != ['null']:
             mini_query = miniQueryNgo(self.ngo)
             query += " and " + mini_query
+            for ngo in self.ngo:
+                ngos.append(ngoName(ngo))
 
         membership_sql = text(query)
         result = db.engine.execute(membership_sql, year= self.year)
@@ -423,29 +426,59 @@ class ChartAnalytics:
 
         data.append(item)
 
-        return data
+        return [data, ngos]
 
     # SGS_status per Intl NGOs
     def sg_status(self):
 
         # Supervised query
-        supervised_sql = text('select count(sg_status), partner_id from saving_group '
-                              'WHERE sg_status = :val AND year=:year GROUP BY partner_id')
+        query = 'select count(saving_group.sg_status), partner_id from saving_group, ngo '\
+                'WHERE saving_group.sg_status = :val AND saving_group.year=:year' \
+                ' and ngo.id = saving_group.partner_id'
+
+        ngos = []
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+            for ngo in self.ngo:
+                ngos.append(ngoName(ngo))
+        query += " GROUP BY partner_id"
+
+        supervised_sql = text(query)
         result = db.engine.execute(supervised_sql, val='Supervised', year=self.year)
         supervised = []
+        i= 0
         for row in result:
             data = [row[0], getNgoName(row[1])]
             supervised.append(data)
+            i = 1
+
+        if not i:
+            for ngo in self.ngo:
+                supervised.append([0, getNgoName(ngo)])
 
         # Graduated Query
-        graduated_sql = text('select count(sg_status), partner_id from saving_group '
-                              'WHERE sg_status = :val'
-                             ' and year=:year GROUP BY partner_id')
+        query = 'select count(saving_group.sg_status), partner_id from saving_group, ngo '\
+                'WHERE saving_group.sg_status = :val AND saving_group.year=:year' \
+                ' and ngo.id = saving_group.partner_id '
+
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+        query += " GROUP BY partner_id"
+
+        graduated_sql = text(query)
         result = db.engine.execute(graduated_sql, val='Graduated', year=self.year)
         graduated = []
+        i = 0
         for row in result:
             data = [row[0], getNgoName(row[1])]
+            i = 1
             graduated.append(data)
+
+        if not i:
+            for ngo in self.ngo:
+                graduated.append([0, getNgoName(ngo)])
 
         supervised, graduated = renderStatusArray(supervised, graduated)
 
@@ -476,15 +509,24 @@ class ChartAnalytics:
         json_grad['name'] = 'Graduated'
         json_grad['type'] = 'bar'
 
-        return [json_sup, json_grad]
+        return [[json_sup, json_grad], ngos]
 
     # SG Savings and Loans per Intl NGOs
     def savings_loans(self):
 
         # Savings query
-        saving_sql = text('select sum(saving), partner_id from saving_group '
-                          'where saving <> -1 and year=:year '
-                          'GROUP by partner_id')
+        query = 'select sum(saving_group.saving), partner_id from saving_group, ngo '\
+                'where saving_group.saving <> -1 and saving_group.year=:year ' \
+                'and ngo.id = saving_group.partner_id'
+        ngos = []
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+            for ngo in self.ngo:
+                ngos.append(ngoName(ngo))
+        query += " GROUP BY partner_id"
+
+        saving_sql = text(query)
         result = db.engine.execute(saving_sql, year=self.year)
 
         saving = []
@@ -493,9 +535,16 @@ class ChartAnalytics:
             saving.append(data)
 
         # Loans query
-        loan_sql = text('select sum(borrowing), partner_id from saving_group '
-                        'where saving <> -1 and year=:year '
-                        'GROUP by partner_id')
+        query = 'select sum(saving_group.borrowing), partner_id from saving_group, ngo '\
+                'where saving_group.borrowing <> -1 and saving_group.year=:year ' \
+                'and ngo.id = saving_group.partner_id'
+
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+        query += " GROUP BY partner_id"
+
+        loan_sql = text(query)
         result = db.engine.execute(loan_sql, year=self.year)
         loan = []
         for row in result:
@@ -542,9 +591,16 @@ class ChartAnalytics:
         data = []
         for year in years:
             yearlist = list()
-            year_sql = text('select count(id), partner_id from saving_group '
-                            'where year_of_creation = :year and year=:year '
-                            'GROUP BY partner_id')
+
+            query = 'select count(saving_group.id), saving_group.partner_id from saving_group, ngo '\
+                    'where saving_group.year_of_creation = :year and saving_group.year=:year_s ' \
+                    'and ngo.id = saving_group.partner_id'
+
+            if self.ngo != ['null']:
+                mini_query = miniQueryNgo(self.ngo)
+                query += " and " + mini_query
+            query += " GROUP BY partner_id"
+            year_sql = text(query)
             result = db.engine.execute(year_sql, year=year, year_s=self.year)
             for row in result:
                 val = [row[0], getNgoName(row[1])]
@@ -569,13 +625,18 @@ class ChartAnalytics:
         return trace
 
     def savingPerIntNgo(self):
-        sql = text('select count(saving_group.id),'
-                   ' ngo.id,'
-                   ' ngo.name'
-                   ' from saving_group,'
-                   ' ngo where saving_group.partner_id = ngo.id'
+        query = 'select count(saving_group.id),'\
+                   ' ngo.id,'\
+                   ' ngo.name'\
+                   ' from saving_group,'\
+                   ' ngo where saving_group.partner_id = ngo.id'\
                    ' AND saving_group.year = :year'
-                   ' group by ngo.id')
+
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+        query += " group by ngo.id"
+        sql = text(query)
 
         result = db.engine.execute(sql, year=self.year)
         values = list()
@@ -601,11 +662,19 @@ class ChartAnalytics:
             funding_id = row[0]
             x = list()
             y = list()
-            sql = text('select distinct(partner_id),'
-                       ' count(id)'
-                       ' from saving_group'
-                       ' where funding_id = :funding_id and year=:year'
-                       ' group by partner_id')
+
+            query = 'select distinct(saving_group.partner_id),'\
+                    ' count(saving_group.id)'\
+                    ' from saving_group, ngo'\
+                    ' where saving_group.funding_id = :funding_id and saving_group.year=:year' \
+                    ' AND saving_group.partner_id = ngo.id'
+
+            if self.ngo != ['null']:
+                mini_query = miniQueryNgo(self.ngo)
+                query += " and " + mini_query
+            query += " group by partner_id"
+
+            sql = text(query)
             re = db.engine.execute(sql, funding_id=funding_id, year=self.year)
             for item in re:
                 x.append(getNgoName(item[0]))
@@ -1095,6 +1164,20 @@ def getNgoName(id):
     result = db.engine.execute(ngo, id=id)
     for row in result:
         return row[0]
+
+
+def listNgo():
+    ngo = text('select distinct(saving_group.partner_id),'
+               ' ngo.name from saving_group,'
+               ' ngo where saving_group.partner_id = ngo.id')
+    result = db.engine.execute(ngo, id=id)
+    data = list()
+    for row in result:
+        json = dict()
+        json['id'] = row[0]
+        json['name'] = row[1]
+        data.append(json)
+    return data
 
 
 def runQuery(query, year):
