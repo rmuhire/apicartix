@@ -5,7 +5,7 @@ from flask import jsonify, send_from_directory
 from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
-from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
+from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics, listNgo
 from app.controller.convert_size import convert_array_file_size
 from app.controller.location import KenQuerydbJson
 from app.controller.viewdata import ViewData, ngoName, DownloadExcel
@@ -79,10 +79,8 @@ def ngo(id):
 
 @app.route('/api/v1/int_ngo/')
 def int_ngo():
-    ngo = Ngo.query.filter_by(category=1)
-    if ngo:
-        result = ngos_schema.dump(ngo)
-        return jsonify(result.data)
+    data = listNgo()
+    return jsonify(data)
 
 
 @app.route('/api/v1/int_ngo/partner/<id>')
