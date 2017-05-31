@@ -20,6 +20,34 @@ app.config['UPLOAD_FOLDER'] = '/tmp'
 app.config['ALLOWED_EXTENSIONS'] = set(['xlsx','xls','csv','png'])
 
 
+@app.route('/api/v1/params/', methods=['POST'])
+def new_params():
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'message': 'No input data provided'}), 400
+
+    upload = json_data['json_data']
+    user_id = json_data['user_id']
+    signup = json_data['signup']
+
+    try:
+        params = Params(
+            upload=upload,
+            signup=signup,
+            regDate=None,
+            user_id=user_id
+        )
+        db.session.add(params)
+        db.session.commit()
+
+        last_params = Params.query.get(id)
+        result = param_schema.dump(last_params).data
+        return jsonify(result)
+
+    except IntegrityError:
+        return jsonify(False)
+
+
 @app.route('/api/v1/exellento',methods=['POST'])
 def excellento():
     data = Excellentodb('faking_it_1.xlsx').toexcel()
@@ -58,6 +86,8 @@ def add_user():
             password=pwd_hash,
             gender=None,
             update_key=None,
+            upload=1,
+            signup=1,
             ngo_id=data['ngo_id']
         )
 
