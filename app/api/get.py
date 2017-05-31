@@ -22,6 +22,15 @@ def users():
         return jsonify({'message':'0'})
 
 
+@app.route('/api/v1/params/<int:id>')
+def get_params(id):
+    params = Params.query.get(id)
+    if params:
+        result = param_schema.dump(params)
+        return jsonify(result)
+    return jsonify(False)
+
+
 @app.route('/api/v1/user/<int:id>')
 def user(id):
     user = User.query.get(id)
@@ -190,7 +199,7 @@ def saving_year():
 
 @app.route('/api/v1/files')
 def get_files():
-    files = Files.query.all().order_by(Files.regDate.desc())
+    files = Files.query.all()
     if files:
         result = convert_array_file_size(files_schema.dump(files).data)
         return jsonify(result)
