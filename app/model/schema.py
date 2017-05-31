@@ -24,8 +24,18 @@ class UserSchema(Schema):
     gender = fields.String()
     update_key = fields.String()
     job_title = fields.String()
+    upload = fields.Int()
+    signup = fields.Int()
     ngo_id = fields.Int()
-    ngo = fields.Nested(NgoSchema, only=["id","name"])
+    ngo = fields.Nested(NgoSchema, only=["id","name","category"])
+
+
+class ParamsSchema(Schema):
+    id = fields.Int(dump_only=True)
+    upload = fields.Int()
+    signup = fields.Int()
+    regDate = fields.Date()
+    user_id = fields.Int()
 
 
 class SavingGroupSchema(Schema):
@@ -173,6 +183,8 @@ banks_schema = BankSchema(many=True)
 finscope_schema = FinscopeSchema()
 finscopes_schema = FinscopeSchema(many=True)
 
+param_schema = ParamsSchema()
+params_schema = ParamsSchema(many=True)
 
 
 
