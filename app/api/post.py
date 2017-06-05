@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
 from app.controller.getusername import get_username
 from werkzeug import secure_filename
-from app.template.email import Email
+from app.template.email import Email, help
 import os
 from app.controller.uniqid import uniqid
 import json
@@ -26,7 +26,7 @@ def new_params():
     if not json_data:
         return jsonify({'message': 'No input data provided'}), 400
 
-    upload = json_data['json_data']
+    upload = json_data['upload']
     user_id = json_data['user_id']
     signup = json_data['signup']
 
@@ -40,7 +40,7 @@ def new_params():
         db.session.add(params)
         db.session.commit()
 
-        last_params = Params.query.get(id)
+        last_params = Params.query.get(params.id)
         result = param_schema.dump(last_params).data
         return jsonify(result)
 
@@ -100,6 +100,22 @@ def add_user():
 
     except IntegrityError:
         return jsonify({'result': False})
+
+
+@app.route('/api/v1/help/message/', methods=['POST'])
+def help_message():
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'message': 'No input data provided'}), 400
+
+    name = json_data['names']
+    email = json_data['email']
+    title = json_data['title']
+    message = json_data['message']
+    username = json_data['username']
+
+    sent_mail = help(name, email, title, message);
+    return jsonify(sent_mail)
 
 
 @app.route('/api/v1/ngo/', methods=['POST'])
