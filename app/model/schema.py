@@ -35,7 +35,7 @@ class ParamsSchema(Schema):
     upload = fields.Int()
     signup = fields.Int()
     regDate = fields.Date()
-    user_id = fields.Int()
+    user = fields.Nested(UserSchema, only=['names','email','user_role'])
 
 
 class SavingGroupSchema(Schema):
