@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from flask import jsonify,request
 from app.template.email import Email
 from sqlalchemy.exc import IntegrityError
+from app.model.schema import *
 
 bcrypt = Bcrypt(app)
 
@@ -82,4 +83,26 @@ def change_password_id(id):
     status = Email(user.names, user.username, user.email).resetsuccess()
 
     return jsonify(status)
+
+
+@app.route('/api/v1/params/upload/<int:id>/<int:upload>', methods=["PUT"])
+def user_upload(id, upload):
+    params = Params.query.filter_by(user_id=id).first()
+    if params:
+        params.upload = upload
+        db.session.commit()
+        result = user_schema.dump(params).data
+        return jsonify(result)
+    return jsonify(False)
+
+
+@app.route('/api/v1/params/signup/<int:id>/<int:signup>', methods=["PUT"])
+def user_signup(id, signup):
+    params = Params.query.filter_by(user_id=id).first()
+    if params:
+        params.signup = signup
+        db.session.commit()
+        result = user_schema.dump(params).data
+        return jsonify(result)
+    return jsonify(False)
 
