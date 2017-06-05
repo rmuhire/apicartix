@@ -26,7 +26,7 @@ def users():
 def get_params(id):
     params = Params.query.get(id)
     if params:
-        result = param_schema.dump(params)
+        result = param_schema.dump(params).data
         return jsonify(result)
     return jsonify(False)
 
@@ -241,19 +241,19 @@ def sql_saving(sg, year):
     })
 
 
-@app.route('/api/v1/chartanalytics/<int:year>/<ngo>')
-def chartanalytics(year, ngo):
-    membership = ChartAnalytics(year, ngo).membership()
-    status = ChartAnalytics(year, ngo).sg_status()
-    amount = ChartAnalytics(year, ngo).savings_loans()
-    sg = ChartAnalytics(year, ngo).savingPerIntNgo()
-    localPerIntNgo = ChartAnalytics(year, ngo).localPerIntNgo()
-    sgFinancial = ChartAnalytics(year, ngo).sgFinancialInstitution()
-    sgAgent = ChartAnalytics(year, ngo).sgTelcoAgent()
-    finscope = ChartAnalytics(year, ngo).finscope()
-    finscope_sg_2012, finscope_sg_2015 = ChartAnalytics(year, ngo).finscope_sg()
-    finscope_all_2012 = ChartAnalytics(year, ngo).finscope_all(2012)
-    finscope_all_2015 = ChartAnalytics(year, ngo).finscope_all(2015)
+@app.route('/api/v1/chartanalytics/<int:year>/<ngo>/<province>/<district>')
+def chartanalytics(year, ngo, province, district):
+    membership = ChartAnalytics(year, ngo, province, district).membership()
+    status = ChartAnalytics(year, ngo, province, district).sg_status()
+    amount = ChartAnalytics(year, ngo, province, district).savings_loans()
+    sg = ChartAnalytics(year, ngo, province, district).savingPerIntNgo()
+    localPerIntNgo = ChartAnalytics(year, ngo, province, district).localPerIntNgo()
+    sgFinancial = ChartAnalytics(year, ngo,province, district).sgFinancialInstitution()
+    sgAgent = ChartAnalytics(year, ngo, province, district).sgTelcoAgent()
+    finscope = ChartAnalytics(year, ngo, province, district).finscope()
+    finscope_sg_2012, finscope_sg_2015 = ChartAnalytics(year, ngo, province, district).finscope_sg()
+    finscope_all_2012 = ChartAnalytics(year, ngo, province, district).finscope_all(2012)
+    finscope_all_2015 = ChartAnalytics(year, ngo, province, district).finscope_all(2015)
 
     return jsonify({
         "membership": membership,
@@ -271,9 +271,9 @@ def chartanalytics(year, ngo):
     })
 
 
-@app.route('/api/v1/analytics/creation/<int:year>/<ngo>')
-def membership_chart(year, ngo):
-    creation = ChartAnalytics(year, ngo).creation()
+@app.route('/api/v1/analytics/creation/<int:year>/<ngo>/<province>/<district>')
+def membership_chart(year, ngo, province, district):
+    creation = ChartAnalytics(year, ngo, province, district).creation()
 
     return jsonify({
         "creation":creation
