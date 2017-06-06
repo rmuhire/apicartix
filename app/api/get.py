@@ -243,31 +243,73 @@ def sql_saving(sg, year):
 
 @app.route('/api/v1/chartanalytics/<int:year>/<ngo>/<province>/<district>')
 def chartanalytics(year, ngo, province, district):
-    membership = ChartAnalytics(year, ngo, province, district).membership()
-    status = ChartAnalytics(year, ngo, province, district).sg_status()
-    amount = ChartAnalytics(year, ngo, province, district).savings_loans()
-    sg = ChartAnalytics(year, ngo, province, district).savingPerIntNgo()
-    localPerIntNgo = ChartAnalytics(year, ngo, province, district).localPerIntNgo()
-    sgFinancial = ChartAnalytics(year, ngo,province, district).sgFinancialInstitution()
-    sgAgent = ChartAnalytics(year, ngo, province, district).sgTelcoAgent()
     finscope = ChartAnalytics(year, ngo, province, district).finscope()
     finscope_sg_2012, finscope_sg_2015 = ChartAnalytics(year, ngo, province, district).finscope_sg()
     finscope_all_2012 = ChartAnalytics(year, ngo, province, district).finscope_all(2012)
     finscope_all_2015 = ChartAnalytics(year, ngo, province, district).finscope_all(2015)
 
     return jsonify({
-        "membership": membership,
-        "status": status,
-        "amount": amount,
-        "sg":sg,
-        "sgNgos":localPerIntNgo,
-        "sgFinancial": sgFinancial,
-        "sgAgent": sgAgent,
         "finscope":finscope,
         "finscope_sg_2012":[finscope_sg_2012],
         "finscope_sg_2015":[finscope_sg_2015],
         "finscope_all_2012": finscope_all_2012,
         "finscope_all_2015": finscope_all_2015
+    })
+
+
+@app.route('/api/v1/chartanalytics/membership/<int:year>/<ngo>/<province>/<district>')
+def chart_membership(year, ngo, province, district):
+    membership = ChartAnalytics(year, ngo, province, district).membership()
+    return jsonify({
+        "membership":membership
+    })
+
+
+@app.route('/api/v1/chartanalytics/status/<int:year>/<ngo>/<province>/<district>')
+def chart_status(year, ngo, province, district):
+    status = ChartAnalytics(year, ngo, province, district).sg_status()
+    return jsonify({
+        "status": status
+    })
+
+
+@app.route('/api/v1/chartanalytics/amount/<int:year>/<ngo>/<province>/<district>')
+def chart_amount(year, ngo, province, district):
+    amount = ChartAnalytics(year, ngo, province, district).savings_loans()
+    return jsonify({
+        "amount": amount
+    })
+
+
+@app.route('/api/v1/chartanalytics/sg/<int:year>/<ngo>/<province>/<district>')
+def chart_sg(year, ngo, province, district):
+    sg = ChartAnalytics(year, ngo, province, district).savingPerIntNgo()
+    return jsonify({
+        "sg": sg
+    })
+
+
+@app.route('/api/v1/chartanalytics/sgNgos/<int:year>/<ngo>/<province>/<district>')
+def chart_sgNgos(year, ngo, province, district):
+    localPerIntNgo = ChartAnalytics(year, ngo, province, district).localPerIntNgo()
+    return jsonify({
+        "sgNgos": localPerIntNgo
+    })
+
+
+@app.route('/api/v1/chartanalytics/financial/<int:year>/<ngo>/<province>/<district>')
+def chart_financial(year, ngo, province, district):
+    sgFinancial = ChartAnalytics(year, ngo, province, district).sgFinancialInstitution()
+    return jsonify({
+        "sgFinancial": sgFinancial
+    })
+
+
+@app.route('/api/v1/chartanalytics/agent/<int:year>/<ngo>/<province>/<district>')
+def chart_agent(year, ngo, province, district):
+    sgAgent = ChartAnalytics(year, ngo, province, district).sgTelcoAgent()
+    return jsonify({
+        "sgAgent": sgAgent
     })
 
 
