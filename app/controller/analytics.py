@@ -1374,7 +1374,7 @@ class ChartAnalytics:
         json_excluded['name'] = 'Excluded'
         json_excluded['type'] = 'bar'
 
-        title = 'SGs member vs Finscope <br>{province}' \
+        title = 'SGs members vs Finscope <br>{province}' \
                 '<br>'.format(province=province)
 
         return [[json_sg, json_other, json_excluded], title]
