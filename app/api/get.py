@@ -5,7 +5,7 @@ from flask import jsonify, send_from_directory
 from app.template.email import Email
 import json
 from app.controller.saving_year import generate_year
-from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics
+from app.controller.analytics import MapAnalytics, ChartAnalytics, NumberAnalytics, listNgo
 from app.controller.convert_size import convert_array_file_size
 from app.controller.location import KenQuerydbJson
 from app.controller.viewdata import ViewData, ngoName, DownloadExcel
@@ -20,6 +20,15 @@ def users():
         return jsonify({'users':result.data})
     else:
         return jsonify({'message':'0'})
+
+
+@app.route('/api/v1/params/<int:id>')
+def get_params(id):
+    params = Params.query.get(id)
+    if params:
+        result = param_schema.dump(params).data
+        return jsonify(result)
+    return jsonify(False)
 
 
 @app.route('/api/v1/user/<int:id>')
@@ -79,10 +88,8 @@ def ngo(id):
 
 @app.route('/api/v1/int_ngo/')
 def int_ngo():
-    ngo = Ngo.query.filter_by(category=1)
-    if ngo:
-        result = ngos_schema.dump(ngo)
-        return jsonify(result.data)
+    data = listNgo()
+    return jsonify(data)
 
 
 @app.route('/api/v1/int_ngo/partner/<id>')
@@ -192,7 +199,7 @@ def saving_year():
 
 @app.route('/api/v1/files')
 def get_files():
-    files = Files.query.all().order_by(Files.regDate.desc())
+    files = Files.query.all()
     if files:
         result = convert_array_file_size(files_schema.dump(files).data)
         return jsonify(result)
@@ -222,7 +229,11 @@ def saving_group():
 
 @app.route('/api/v1/sqlsaving/<sg>/<year>')
 def sql_saving(sg, year):
-    province, district, sector = MapAnalytics().json()
+    province, district, sector = MapAnalytics(sg.split(","), year).json()
+    #val = MapAnalytics(sg, year).json()
+    #return jsonify(val.split(","))
+    #query = MapAnalytics(sg.split(","), year).provinceAnalytics()
+    #return jsonify(query)
     return jsonify({
         "Provinces": province,
         "Districts": district,
@@ -230,28 +241,14 @@ def sql_saving(sg, year):
     })
 
 
-@app.route('/api/v1/chartanalytics/<int:year>')
-def chartanalytics(year):
-    membership = ChartAnalytics(year).membership()
-    status = ChartAnalytics(year).sg_status()
-    amount = ChartAnalytics(year).savings_loans()
-    sg = ChartAnalytics(year).savingPerIntNgo()
-    localPerIntNgo = ChartAnalytics(year).localPerIntNgo()
-    sgFinancial = ChartAnalytics(year).sgFinancialInstitution()
-    sgAgent = ChartAnalytics(year).sgTelcoAgent()
-    finscope = ChartAnalytics(year).finscope()
-    finscope_sg_2012, finscope_sg_2015 = ChartAnalytics(year).finscope_sg()
-    finscope_all_2012 = ChartAnalytics(year).finscope_all(2012)
-    finscope_all_2015 = ChartAnalytics(year).finscope_all(2015)
+@app.route('/api/v1/chartanalytics/<int:year>/<ngo>/<province>/<district>')
+def chartanalytics(year, ngo, province, district):
+    finscope = ChartAnalytics(year, ngo, province, district).finscope()
+    finscope_sg_2012, finscope_sg_2015 = ChartAnalytics(year, ngo, province, district).finscope_sg()
+    finscope_all_2012 = ChartAnalytics(year, ngo, province, district).finscope_all(2012)
+    finscope_all_2015 = ChartAnalytics(year, ngo, province, district).finscope_all(2015)
 
     return jsonify({
-        "membership": membership,
-        "status": status,
-        "amount": amount,
-        "sg":sg,
-        "sgNgos":localPerIntNgo,
-        "sgFinancial": sgFinancial,
-        "sgAgent": sgAgent,
         "finscope":finscope,
         "finscope_sg_2012":[finscope_sg_2012],
         "finscope_sg_2015":[finscope_sg_2015],
@@ -260,9 +257,65 @@ def chartanalytics(year):
     })
 
 
-@app.route('/api/v1/analytics/creation/<int:year>')
-def membership_chart(year):
-    creation = ChartAnalytics(year).creation()
+@app.route('/api/v1/chartanalytics/membership/<int:year>/<ngo>/<province>/<district>')
+def chart_membership(year, ngo, province, district):
+    membership = ChartAnalytics(year, ngo, province, district).membership()
+    return jsonify({
+        "membership":membership
+    })
+
+
+@app.route('/api/v1/chartanalytics/status/<int:year>/<ngo>/<province>/<district>')
+def chart_status(year, ngo, province, district):
+    status = ChartAnalytics(year, ngo, province, district).sg_status()
+    return jsonify({
+        "status": status
+    })
+
+
+@app.route('/api/v1/chartanalytics/amount/<int:year>/<ngo>/<province>/<district>')
+def chart_amount(year, ngo, province, district):
+    amount = ChartAnalytics(year, ngo, province, district).savings_loans()
+    return jsonify({
+        "amount": amount
+    })
+
+
+@app.route('/api/v1/chartanalytics/sg/<int:year>/<ngo>/<province>/<district>')
+def chart_sg(year, ngo, province, district):
+    sg = ChartAnalytics(year, ngo, province, district).savingPerIntNgo()
+    return jsonify({
+        "sg": sg
+    })
+
+
+@app.route('/api/v1/chartanalytics/sgNgos/<int:year>/<ngo>/<province>/<district>')
+def chart_sgNgos(year, ngo, province, district):
+    localPerIntNgo = ChartAnalytics(year, ngo, province, district).localPerIntNgo()
+    return jsonify({
+        "sgNgos": localPerIntNgo
+    })
+
+
+@app.route('/api/v1/chartanalytics/financial/<int:year>/<ngo>/<province>/<district>')
+def chart_financial(year, ngo, province, district):
+    sgFinancial = ChartAnalytics(year, ngo, province, district).sgFinancialInstitution()
+    return jsonify({
+        "sgFinancial": sgFinancial
+    })
+
+
+@app.route('/api/v1/chartanalytics/agent/<int:year>/<ngo>/<province>/<district>')
+def chart_agent(year, ngo, province, district):
+    sgAgent = ChartAnalytics(year, ngo, province, district).sgTelcoAgent()
+    return jsonify({
+        "sgAgent": sgAgent
+    })
+
+
+@app.route('/api/v1/analytics/creation/<int:year>/<ngo>/<province>/<district>')
+def membership_chart(year, ngo, province, district):
+    creation = ChartAnalytics(year, ngo, province, district).creation()
 
     return jsonify({
         "creation":creation

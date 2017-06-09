@@ -65,11 +65,14 @@ class Excellento:
                 for col in range(cols):
                     value = sheet.cell(row, col).value
                     try:
-                        value = str(int(value))
+                        value = str(int(value)).replace(" ","")
                     except ValueError:
                         pass
                     finally:
-                        data_json[header_sheet[col]] = value
+                        if header_sheet[col] in ['banks','province']:
+                            data_json[header_sheet[col]] = value
+                        else:
+                            data_json[header_sheet[col]] = value.replace(" ","")
                 items.append(data_json)
 
             return items

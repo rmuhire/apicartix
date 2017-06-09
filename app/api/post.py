@@ -1,13 +1,13 @@
 from app.model.models import *
 from app.model.schema import *
 from flask import jsonify,request, session
-from app.controller.exellentodb import Excellentodb, Financialdb
+from app.controller.exellentodb import Excellentodb, Financialdb, FinancialChecker
 from app.controller.exellentodb import Excellento
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
 from app.controller.getusername import get_username
 from werkzeug import secure_filename
-from app.template.email import Email
+from app.template.email import Email, help
 import os
 from app.controller.uniqid import uniqid
 import json
@@ -18,6 +18,34 @@ from app.controller.viewdata import DownloadExcel
 bcrypt = Bcrypt(app)
 app.config['UPLOAD_FOLDER'] = '/tmp'
 app.config['ALLOWED_EXTENSIONS'] = set(['xlsx','xls','csv','png'])
+
+
+@app.route('/api/v1/params/', methods=['POST'])
+def new_params():
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'message': 'No input data provided'}), 400
+
+    upload = json_data['upload']
+    user_id = json_data['user_id']
+    signup = json_data['signup']
+
+    try:
+        params = Params(
+            upload=upload,
+            signup=signup,
+            regDate=None,
+            user_id=user_id
+        )
+        db.session.add(params)
+        db.session.commit()
+
+        last_params = Params.query.get(params.id)
+        result = param_schema.dump(last_params).data
+        return jsonify(result)
+
+    except IntegrityError:
+        return jsonify(False)
 
 
 @app.route('/api/v1/exellento',methods=['POST'])
@@ -58,6 +86,8 @@ def add_user():
             password=pwd_hash,
             gender=None,
             update_key=None,
+            upload=1,
+            signup=1,
             ngo_id=data['ngo_id']
         )
 
@@ -70,6 +100,22 @@ def add_user():
 
     except IntegrityError:
         return jsonify({'result': False})
+
+
+@app.route('/api/v1/help/message/', methods=['POST'])
+def help_message():
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'message': 'No input data provided'}), 400
+
+    name = json_data['names']
+    email = json_data['email']
+    title = json_data['title']
+    message = json_data['message']
+    username = json_data['username']
+
+    sent_mail = help(name, email, title, message);
+    return jsonify(sent_mail)
 
 
 @app.route('/api/v1/ngo/', methods=['POST'])
@@ -302,13 +348,20 @@ def sec():
 
 @app.route("/api/v1/data/finance")
 def data_finance():
-    """folder = "/Users/muhireremy/cartix/test/data/"
-    bank = Excellento(folder + "List_of_Banks_Dec2014.xlsx").json_data()
-    mfi = Excellento(folder + "List_of_MFIs_Dec2014.xlsx").json_data()
-    usacco = Excellento(folder + "Umurenge_SACCOs_Dec2014.xlsx").json_data()
-    nusacco = Excellento(folder + "Non_Umurenge_SACCOs_Dec2014.xlsx").json_data()
-    bank_agent = Excellento(folder + "Bank_agents_District_Dec2014.xlsx").json_data()
-    telco_agent = Excellento(folder + "Telcos_Agents_Per_District_Dec2014.xlsx").json_data()
+    folder = "/Users/muhireremy/cartix/test/data_2016/"
+    bank = Excellento(folder + "bank_2016.xls").json_data()
+    mfi = Excellento(folder + "mfi_2016.xls").json_data()
+    usacco = Excellento(folder + "usacco_2016.xls").json_data()
+    nusacco = Excellento(folder + "nusacco_2016.xls").json_data()
+    bank_agent = Excellento(folder + "bank_agent_2016.xlsx").json_data()
+    telco_agent = Excellento(folder + "telco_agent_2016.xls").json_data()
+
+    """data_bank = FinancialChecker(bank,'bank_2016').excel()
+    data_mfi = FinancialChecker(mfi,'mfi_2016').excel()
+    data_usacco = FinancialChecker(usacco,'usacco_2016').excel()
+    data_nusacco = FinancialChecker(nusacco,'nusacco_2016').excel()
+    data_bank_agent = FinancialChecker(bank_agent,'bank_agent_2016').excel()
+    data_telco_agent = FinancialChecker(telco_agent,'telco_agent_2016').excel()"""
 
     data_bank = Financialdb(bank).bank()
     data_mfi = Financialdb(mfi).mfi()
@@ -324,9 +377,9 @@ def data_finance():
         "nusacco":data_nusacco,
         "bank agent":data_bank_agent,
         "telco_agent":data_telco_agent
-    }) """
+    })
 
-    return jsonify({"status": "already added"})
+    return jsonify({"status": data_bank_agent})
 
 
 @app.route("/api/v1/data/finscope")

@@ -1,25 +1,35 @@
 from app.model.models import *
 from sqlalchemy import text
 from saving_year import creation_year
+from viewdata import miniQueryNgo, ngoName
 
 
 class MapAnalytics:
-    def __init__(self):
-        pass
+    def __init__(self, sg, year):
+        self.sg = sg
+        self.year = year
 
     def provinceAnalytics(self):
-        sql_province = text('select count(saving_group.name)'
-                            ', sum(saving_group.member_female) '
-                            ', sum(saving_group.member_male)'
-                            ', sum(saving_group.borrowing)'
-                            ', sum(saving_group.saving)'
-                            ', province.name '
-                            'from saving_group, sector, district, province '
-                            'where sector.id = saving_group.sector_id AND '
-                            'district.id = sector.district_id AND '
-                            'province.id = district.province_id '
-                            'group by province.name order by province.name')
-        result = db.engine.execute(sql_province)
+        query = 'select count(saving_group.name)' \
+                 ', sum(saving_group.member_female) '\
+                 ', sum(saving_group.member_male)' \
+                 ', sum(saving_group.borrowing)'\
+                 ', sum(saving_group.saving)'\
+                 ', province.name '\
+                 'from saving_group, sector, district, province, ngo '\
+                 'where sector.id = saving_group.sector_id AND ' \
+                 'district.id = sector.district_id AND '\
+                 'province.id = district.province_id AND '\
+                 'saving_group.year = :year AND ' \
+                 'saving_group.partner_id = ngo.id'
+
+        if self.sg != ['null']:
+            mini_query = miniQueryNgo(self.sg)
+            query += ' AND ' + mini_query
+        query += ' group by province.name order by province.name'
+
+        sql_province = text(query)
+        result = db.engine.execute(sql_province, year=self.year)
         province = []
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4], row[5]]
@@ -35,8 +45,9 @@ class MapAnalytics:
                         ' bank.sector_id = sector.id'
                         ' AND district.id = sector.district_id'
                         ' AND province.id = district.province_id'
+                        ' AND bank.year=:year'
                         ' group by province.name order by province.name')
-        bank = runQuery(sql_bank)
+        bank = runQuery(sql_bank, self.year)
 
         """ mfi data """
         sql_mfi = text('select sum(mfi.count),'
@@ -45,9 +56,10 @@ class MapAnalytics:
                        ' where mfi.sector_id = sector.id'
                        ' AND district.id = sector.district_id'
                        ' AND province.id = district.province_id'
+                       ' AND mfi.year = :year'
                        ' group by province.name'
                        ' order by province.name')
-        mfi = runQuery(sql_mfi)
+        mfi = runQuery(sql_mfi, self.year)
 
         """ umurengo sacco """
 
@@ -58,9 +70,10 @@ class MapAnalytics:
                           ' where umurenge_sacco.sector_id = sector.id'
                           ' AND district.id = sector.district_id'
                           ' AND province.id = district.province_id'
+                          ' AND umurenge_sacco.year=:year'
                           ' group by province.name order by province.name')
 
-        usacco = runQuery(sql_usacco)
+        usacco = runQuery(sql_usacco, self.year)
 
         """ non umurenge sacco """
 
@@ -70,41 +83,53 @@ class MapAnalytics:
                           ' where non_umurenge_sacco.sector_id = sector.id AND'
                           ' district.id = sector.district_id AND'
                           ' province.id = district.province_id'
+                          ' AND non_umurenge_sacco.year = :year'
                           ' group by province.name order by province.name')
-        nsacco = runQuery(sql_nsacco)
+        nsacco = runQuery(sql_nsacco, self.year)
 
         """ bank agent """
         sql_bank_agent = text('select sum(bank_agent.count),'
                               ' province.name from bank_agent, district,'
                               ' province where bank_agent.district_id = district.id'
                               ' AND province.id = district.province_id'
+                              ' AND bank_agent.year =:year'
                               ' group by province.name order by province.name')
-        bank_agent = runQuery(sql_bank_agent)
+        bank_agent = runQuery(sql_bank_agent, self.year)
 
         """ Telco Agent """
         sql_telco_agent = text('select sum(telco_agent.count), province.name'
                                ' from telco_agent, district, province'
                                ' where telco_agent.district_id = district.id'
                                ' AND province.id = district.province_id'
+                               ' AND telco_agent.year=:year'
                                ' group by province.name order by province.name')
-        telco_agent = runQuery(sql_telco_agent)
+        telco_agent = runQuery(sql_telco_agent, self.year)
+
         return [province, bank, mfi, usacco, nsacco, bank_agent, telco_agent]
 
     def districtAnalytics(self):
-        sql_district = text('select count(saving_group.name)'
-                            ', sum(saving_group.member_female) '
-                            ', sum(saving_group.member_male)'
-                            ', sum(saving_group.borrowing)'
-                            ', sum(saving_group.saving)'
-                            ', district.name '
-                            'from saving_group, sector, district '
-                            'where sector.id = saving_group.sector_id AND '
-                            'saving_group.borrowing != :x AND '
-                            'saving_group.saving != :x AND '
-                            'district.id = sector.district_id '
-                            'group by district.name order by district.name')
+        query = 'select count(saving_group.name)'\
+                            ', sum(saving_group.member_female) '\
+                            ', sum(saving_group.member_male)'\
+                            ', sum(saving_group.borrowing)'\
+                            ', sum(saving_group.saving)'\
+                            ', district.name '\
+                            'from saving_group, sector, district, ngo '\
+                            'where sector.id = saving_group.sector_id AND '\
+                            'saving_group.borrowing != :x AND '\
+                            'saving_group.saving != :x AND '\
+                            'district.id = sector.district_id and '\
+                            'saving_group.year = :year and '\
+                            'saving_group.partner_id = ngo.id '
 
-        result = db.engine.execute(sql_district, x=-1)
+        if self.sg != ['null']:
+            mini_query = miniQueryNgo(self.sg)
+            query += ' AND ' + mini_query
+        query += ' group by district.name order by district.name'
+
+        sql_district = text(query)
+
+        result = db.engine.execute(sql_district, x=-2, year=self.year)
         district = []
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4], row[5]]
@@ -118,8 +143,9 @@ class MapAnalytics:
                         ' where'
                         ' bank.sector_id = sector.id'
                         ' AND district.id = sector.district_id'
+                        ' AND bank.year=:year'
                         ' group by district.name order by district.name')
-        bank = runQuery(sql_bank)
+        bank = runQuery(sql_bank, self.year)
 
         """ mfi data """
         sql_mfi = text('select sum(mfi.count),'
@@ -127,9 +153,10 @@ class MapAnalytics:
                        ' from mfi, sector, district'
                        ' where mfi.sector_id = sector.id'
                        ' AND district.id = sector.district_id'
+                       ' AND mfi.year = :year'
                        ' group by district.name'
                        ' order by district.name')
-        mfi = runQuery(sql_mfi)
+        mfi = runQuery(sql_mfi, self.year)
 
         """ umurengo sacco """
 
@@ -139,9 +166,10 @@ class MapAnalytics:
                           ' sector, district'
                           ' where umurenge_sacco.sector_id = sector.id'
                           ' AND district.id = sector.district_id'
+                          ' AND umurenge_sacco.year = :year'
                           ' group by district.name order by district.name')
 
-        usacco = runQuery(sql_usacco)
+        usacco = runQuery(sql_usacco, self.year)
 
         """ non umurenge sacco """
 
@@ -149,40 +177,52 @@ class MapAnalytics:
                           ' district.name from non_umurenge_sacco,'
                           ' sector, district'
                           ' where non_umurenge_sacco.sector_id = sector.id AND'
-                          ' district.id = sector.district_id'
+                          ' district.id = sector.district_id and '
+                          ' non_umurenge_sacco.year = :year'
                           ' group by district.name order by district.name')
-        nsacco = runQuery(sql_nsacco)
+        nsacco = runQuery(sql_nsacco, self.year)
 
         """ bank agent """
         sql_bank_agent = text('select sum(bank_agent.count),'
                               ' district.name from bank_agent, district'
                               ' where bank_agent.district_id = district.id'
+                              ' AND bank_agent.year = :year'
                               ' group by district.name order by district.name')
-        bank_agent = runQuery(sql_bank_agent)
+        bank_agent = runQuery(sql_bank_agent, self.year)
 
         """ Telco Agent """
         sql_telco_agent = text('select sum(telco_agent.count), district.name'
                                ' from telco_agent, district'
                                ' where telco_agent.district_id = district.id'
+                               ' AND telco_agent.year =:year'
                                ' group by district.name order by district.name')
-        telco_agent = runQuery(sql_telco_agent)
+        telco_agent = runQuery(sql_telco_agent, self.year)
 
         return [district, bank, mfi, usacco, nsacco, bank_agent, telco_agent]
 
     def sectorAnalytics(self):
-        sql_district = text('select count(saving_group.name)'
-                            ', sum(saving_group.member_female) '
-                            ', sum(saving_group.member_male)'
-                            ', sum(saving_group.borrowing)'
-                            ', sum(saving_group.saving)'
-                            ', sector.name'
-                            ', sector.district_id '
-                            'from saving_group, sector '
-                            'where sector.id = saving_group.sector_id '
-                            'AND saving_group.borrowing != :x AND '
-                            'saving_group.saving != :x '
-                            'group by sector.id order by sector.name')
-        result = db.engine.execute(sql_district, x=-1)
+        query = 'select count(saving_group.name)'\
+                            ', sum(saving_group.member_female) '\
+                            ', sum(saving_group.member_male)'\
+                            ', sum(saving_group.borrowing)'\
+                            ', sum(saving_group.saving)'\
+                            ', sector.name'\
+                            ', sector.district_id '\
+                            'from saving_group, sector, ngo '\
+                            'where sector.id = saving_group.sector_id '\
+                            'AND saving_group.borrowing != :x AND '\
+                            'saving_group.saving != :x and ' \
+                            'saving_group.year = :year and ' \
+                            'saving_group.partner_id = ngo.id '
+
+        if self.sg != ['null']:
+            mini_query = miniQueryNgo(self.sg)
+            query += ' AND ' + mini_query
+        query += ' group by sector.id order by sector.name'
+
+        sql_district = text(query)
+
+        result = db.engine.execute(sql_district, x=-2, year=self.year)
         sector = []
         for row in result:
             data = [row[0], row[1], row[2], row[3], row[4], row[5], returnDistrict(row[6])]
@@ -194,17 +234,19 @@ class MapAnalytics:
                         ' sector'
                         ' where'
                         ' bank.sector_id = sector.id'
+                        ' and bank.year = :year'
                         ' group by sector.name order by sector.name')
-        bank = runQuery(sql_bank)
+        bank = runQuery(sql_bank, self.year)
 
         """ mfi data """
         sql_mfi = text('select sum(mfi.count),'
                        ' sector.name'
                        ' from mfi, sector'
                        ' where mfi.sector_id = sector.id'
+                       ' and mfi.year = :year'
                        ' group by sector.name'
                        ' order by sector.name')
-        mfi = runQuery(sql_mfi)
+        mfi = runQuery(sql_mfi, self.year)
 
         """ umurengo sacco """
 
@@ -213,25 +255,28 @@ class MapAnalytics:
                           ' from umurenge_sacco,'
                           ' sector'
                           ' where umurenge_sacco.sector_id = sector.id'
+                          ' and umurenge_sacco.year = :year'
                           ' group by sector.name order by sector.name')
 
-        usacco = runQuery(sql_usacco)
+        usacco = runQuery(sql_usacco, self.year)
 
         """ non umurenge sacco """
 
         sql_nsacco = text('select sum(non_umurenge_sacco.count),'
                           ' sector.name from non_umurenge_sacco,'
                           ' sector'
-                          ' where non_umurenge_sacco.sector_id = sector.id '
+                          ' where non_umurenge_sacco.sector_id = sector.id'
+                          ' and non_umurenge_sacco.year = :year'
                           ' group by sector.name order by sector.name')
-        nsacco = runQuery(sql_nsacco)
+        nsacco = runQuery(sql_nsacco, self.year)
 
         return [sector, bank, mfi, usacco, nsacco]
 
     def json(self):
-        province, bank, mfi, usacco, nsacco, bank_agent, telco_agent = MapAnalytics().provinceAnalytics()
-        district, bank_d, mfi_d, usacco_d, nsacco_d, bank_agent_d, telco_agent_d = MapAnalytics().districtAnalytics()
-        sector, bank_s, mfi_s, usacco_s, nsacco_s = MapAnalytics().sectorAnalytics()
+
+        province, bank, mfi, usacco, nsacco, bank_agent, telco_agent = MapAnalytics(self.sg, self.year).provinceAnalytics()
+        district, bank_d, mfi_d, usacco_d, nsacco_d, bank_agent_d, telco_agent_d = MapAnalytics(self.sg, self.year).districtAnalytics()
+        sector, bank_s, mfi_s, usacco_s, nsacco_s = MapAnalytics(self.sg, self.year).sectorAnalytics()
 
         # Province
 
@@ -250,8 +295,16 @@ class MapAnalytics:
             data['Membership'] = value[1] + value[2]
             data['Female'] = value[1]
             data['Male'] = value[2]
-            data['borrowing'] = value[3]
-            data['saving'] = value[4]
+            if value[3] < 0:
+                data['borrowing'] = 'N/A'
+            else:
+                data['borrowing'] = value[3]
+
+            if value[4] < 0:
+                data['saving'] = 'N/A'
+            else:
+                data['saving'] = value[4]
+
             data['bank'] = bank_val[0]
             data['mfi'] = mfi_val[0]
             data['usacco'] = usacco_val[0]
@@ -266,9 +319,18 @@ class MapAnalytics:
         for i in range(len(district)):
             data = {}
             value = district[i]
-            bank_val = bank_d[i]
-            mfi_val = mfi_d[i]
-            usacco_val = usacco_d[i]
+            try:
+                bank_val = bank_d[i]
+            except IndexError:
+                bank_val = [0,0]
+            try:
+                mfi_val = mfi_d[i]
+            except IndexError:
+                mfi_val = [0,0]
+            try:
+                usacco_val = usacco_d[i]
+            except IndexError:
+                usacco_val = [0,0]
             try:
                 nsacco_val = nsacco_d[i]
             except IndexError:
@@ -281,7 +343,15 @@ class MapAnalytics:
             data['Membership'] = value[1] + value[2]
             data['Female'] = value[1]
             data['Male'] = value[2]
-            data['borrowing'] = value[3]
+            if value[3] < 0:
+                data['borrowing'] = 'N/A'
+            else:
+                data['borrowing'] = value[3]
+
+            if value[4] < 0:
+                data['saving'] = 'N/A'
+            else:
+                data['saving'] = value[4]
             data['saving'] = value[4]
             data['bank'] = bank_val[0]
             data['mfi'] = mfi_val[0]
@@ -305,7 +375,11 @@ class MapAnalytics:
                 mfi_val = mfi_s[i]
             except IndexError:
                 mfi_val = [0,0]
-            usacco_val = usacco_s[i]
+            try:
+                usacco_val = usacco_s[i]
+            except IndexError:
+                usacco_val = [0,0]
+
             try:
                 nsacco_val = nsacco_s[i]
             except IndexError:
@@ -320,8 +394,15 @@ class MapAnalytics:
             data['Membership'] = value[1] + value[2]
             data['Female'] = value[1]
             data['Male'] = value[2]
-            data['borrowing'] = value[3]
-            data['saving'] = value[4]
+            if value[3] < 0:
+                data['borrowing'] = 'N/A'
+            else:
+                data['borrowing'] = value[3]
+
+            if value[4] < 0:
+                data['saving'] = 'N/A'
+            else:
+                data['saving'] = value[4]
             data['bank'] = bank_val[0]
             data['mfi'] = mfi_val[0]
             data['usacco'] = usacco_val[0]
@@ -334,18 +415,50 @@ class MapAnalytics:
 
 
 class ChartAnalytics:
-    def __init__(self, year):
+    def __init__(self, year,ngo, province, district):
         self.year = year
+        self.ngo = ngo.split(",")
+        self.province = province
+        self.district = district
 
     # Membership per gender
     def membership(self):
-        membership_sql = text('select sum(member_female)'
-                              ', sum(member_male) from saving_group, sector'
-                              ' where sector.id = saving_group.sector_id and saving_group.year = :year')
-        result = db.engine.execute(membership_sql, year= self.year)
+        query = 'select sum(member_female)'\
+                ', sum(member_male) from saving_group, sector, ngo,' \
+                'province, district'\
+                ' where sector.id = saving_group.sector_id' \
+                ' and sector.district_id = district.id' \
+                ' and province.id = district.province_id'\
+                ' and saving_group.year = :year'\
+                ' and ngo.id = saving_group.partner_id'
+
+        ngos = []
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+            for ngo in self.ngo:
+                ngos.append(ngoName(ngo))
+
+        location = ''
+        if self.province != 'null':
+            query += ' and province.id = :province'
+            location = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+
+        if self.district != 'null':
+            query += ' and district.id = :district'
+            location = 'in {district} district' \
+                       ''.format(district=get_district_name(self.district))
+
+        title = 'Membership per Gender <br>{location}' \
+                '<br><span style="font-size:10px; ' \
+                'overflow: hidden;">{ngo}</span>'.format(ngo=', '.join(ngos), location=location)
+
+        membership_sql = text(query)
+        result = db.engine.execute(membership_sql, year=self.year, province=self.province, district=self.district)
 
         val = []
-        labels = ['Male Members', 'Female Members']
+        labels = ['Female Members','Male Members']
         for row in result:
             val = [row[0], row[1]]
 
@@ -357,28 +470,91 @@ class ChartAnalytics:
 
         data.append(item)
 
-        return data
+        return [data, title]
 
     # SGS_status per Intl NGOs
     def sg_status(self):
 
         # Supervised query
-        supervised_sql = text('select count(sg_status), partner_id from saving_group '
-                              'WHERE sg_status = :val GROUP BY partner_id')
-        result = db.engine.execute(supervised_sql, val='Supervised', year=self.year)
+        query = 'select count(saving_group.sg_status), partner_id from saving_group,' \
+                ' ngo, sector , district, province '\
+                'WHERE saving_group.sg_status = :val' \
+                ' AND saving_group.year=:year' \
+                ' and ngo.id = saving_group.partner_id' \
+                ' and saving_group.sector_id = sector.id' \
+                ' and sector.district_id = district.id' \
+                ' and province.id = district.province_id'
+
+        ngos = []
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+            for ngo in self.ngo:
+                ngos.append(ngoName(ngo))
+
+        location = ''
+        if self.province != 'null':
+            query += ' and province.id = :province'
+            location = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+
+        if self.district != 'null':
+            query += ' and district.id = :district'
+            location = 'in {district} district' \
+                       ''.format(district=get_district_name(self.district))
+
+        title = 'SGs Status per Intl NGOs <br>{location}' \
+                '<br><span style="font-size:10px; ' \
+                'overflow: hidden;">{ngo}</span>'.format(ngo=', '.join(ngos), location=location)
+
+        query += " GROUP BY partner_id"
+
+        supervised_sql = text(query)
+        result = db.engine.execute(supervised_sql, val='Supervised', year=self.year,
+                                   province=self.province, district=self.district)
         supervised = []
+        i= 0
         for row in result:
             data = [row[0], getNgoName(row[1])]
             supervised.append(data)
+            i = 1
+
+        if not i:
+            for ngo in self.ngo:
+                supervised.append([0, getNgoName(ngo)])
 
         # Graduated Query
-        graduated_sql = text('select count(sg_status), partner_id from saving_group '
-                              'WHERE sg_status = :val GROUP BY partner_id')
-        result = db.engine.execute(graduated_sql, val='Graduated')
+        query = 'select count(saving_group.sg_status),' \
+                ' partner_id from saving_group, ngo, sector, district, province '\
+                ' WHERE saving_group.sg_status = :val' \
+                ' AND saving_group.year=:year' \
+                ' and ngo.id = saving_group.partner_id' \
+                ' and saving_group.sector_id = sector.id' \
+                ' and sector.district_id = district.id' \
+                ' and province.id = district.province_id'
+
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+        if self.province != 'null':
+            query += ' and province.id = :province'
+        if self.district != 'null':
+            query += ' and district.id = :district'
+        query += " GROUP BY partner_id"
+
+        graduated_sql = text(query)
+        result = db.engine.execute(graduated_sql, val='Graduated', year=self.year, province=self.province,
+                                   district=self.district)
         graduated = []
+        i = 0
         for row in result:
             data = [row[0], getNgoName(row[1])]
+            i = 1
             graduated.append(data)
+
+        if not i:
+            for ngo in self.ngo:
+                graduated.append([0, getNgoName(ngo)])
 
         supervised, graduated = renderStatusArray(supervised, graduated)
 
@@ -409,16 +585,44 @@ class ChartAnalytics:
         json_grad['name'] = 'Graduated'
         json_grad['type'] = 'bar'
 
-        return [json_sup, json_grad]
+        return [[json_sup, json_grad], title]
 
     # SG Savings and Loans per Intl NGOs
     def savings_loans(self):
 
         # Savings query
-        saving_sql = text('select sum(saving), partner_id from saving_group '
-                          'where saving <> -1 '
-                          'GROUP by partner_id')
-        result = db.engine.execute(saving_sql)
+        query = 'select sum(saving_group.saving), partner_id from' \
+                ' saving_group, ngo, sector, district, province '\
+                'where saving_group.saving <> -1 and saving_group.year=:year ' \
+                'and ngo.id = saving_group.partner_id' \
+                ' and saving_group.sector_id = sector.id' \
+                ' and sector.district_id = district.id' \
+                ' and province.id = district.province_id'
+        ngos = []
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+            for ngo in self.ngo:
+                ngos.append(ngoName(ngo))
+        location = ''
+        if self.province != 'null':
+            query += ' and province.id = :province'
+            location = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+
+        if self.district != 'null':
+            query += ' and district.id = :district'
+            location = 'in {district} district' \
+                       ''.format(district=get_district_name(self.district))
+
+        title = 'Savings vs Loans per Intl NGOs <br>{location}' \
+                '<br><span style="font-size:10px; ' \
+                'overflow: hidden;">{ngo}</span>'.format(ngo=', '.join(ngos), location=location)
+        query += " GROUP BY partner_id"
+
+        saving_sql = text(query)
+        result = db.engine.execute(saving_sql, year=self.year, province=self.province,
+                                   district=self.district)
 
         saving = []
         for row in result:
@@ -426,10 +630,28 @@ class ChartAnalytics:
             saving.append(data)
 
         # Loans query
-        loan_sql = text('select sum(borrowing), partner_id from saving_group '
-                          'where saving <> -1 '
-                          'GROUP by partner_id')
-        result = db.engine.execute(loan_sql)
+        query = 'select sum(saving_group.borrowing), partner_id from saving_group,' \
+                ' ngo, sector, district, province '\
+                'where saving_group.borrowing <> -1 and saving_group.year=:year ' \
+                'and ngo.id = saving_group.partner_id'\
+                ' and saving_group.sector_id = sector.id' \
+                ' and sector.district_id = district.id' \
+                ' and province.id = district.province_id'
+
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+        if self.province != 'null':
+            query += ' and province.id = :province'
+
+        if self.district != 'null':
+            query += ' and district.id = :district'
+
+        query += " GROUP BY partner_id"
+
+        loan_sql = text(query)
+        result = db.engine.execute(loan_sql, year=self.year, province=self.province,
+                                   district=self.district)
         loan = []
         for row in result:
             data = [row[0], getNgoName(row[1])]
@@ -467,7 +689,7 @@ class ChartAnalytics:
         json_loan['name'] = 'Loans'
         json_loan['type'] = 'bar'
 
-        return [json_saving, json_loan]
+        return [[json_saving, json_loan], title]
 
     # Saving Group creation year
     def creation(self):
@@ -475,10 +697,48 @@ class ChartAnalytics:
         data = []
         for year in years:
             yearlist = list()
-            year_sql = text('select count(id), partner_id from saving_group '
-                            'where year_of_creation = :year '
-                            'GROUP BY partner_id')
-            result = db.engine.execute(year_sql, year=year)
+
+            query = 'select count(saving_group.id), saving_group.partner_id from saving_group, ngo '\
+                    'where saving_group.year_of_creation = :year and saving_group.year=:year_s ' \
+                    'and ngo.id = saving_group.partner_id'
+            location = ''
+            if self.province != 'null':
+                query = 'select count(saving_group.id), saving_group.partner_id from saving_group, ngo,' \
+                        'sector, district, province ' \
+                        'where saving_group.year_of_creation = :year' \
+                        ' and saving_group.year=:year_s' \
+                        ' and ngo.id = saving_group.partner_id' \
+                        ' and saving_group.sector_id = sector.id' \
+                        ' and sector.district_id = district.id' \
+                        ' and province.id = district.province_id' \
+                        ' and province.id = :province'
+
+                location = 'in {province} province' \
+                           ''.format(province=get_province_name(self.province))
+
+            if self.district != 'null':
+                query = 'select count(saving_group.id), saving_group.partner_id from saving_group, ngo,' \
+                        'sector, district, province ' \
+                        'where saving_group.year_of_creation = :year' \
+                        ' and saving_group.year=:year_s' \
+                        ' and ngo.id = saving_group.partner_id' \
+                        ' and saving_group.sector_id = sector.id' \
+                        ' and sector.district_id = district.id' \
+                        ' and province.id = district.province_id' \
+                        ' and province.id = :province' \
+                        ' and district.id = :district'
+
+                location = 'in {district} district' \
+                           ''.format(district=get_district_name(self.district))
+
+            if self.ngo != ['null']:
+                mini_query = miniQueryNgo(self.ngo)
+                query += " and " + mini_query
+            query += " GROUP BY partner_id"
+            year_sql = text(query)
+            result = db.engine.execute(year_sql, year=year, year_s=self.year,
+                                       province=self.province,
+                                       district=self.district)
             for row in result:
                 val = [row[0], getNgoName(row[1])]
                 yearlist.append(val)
@@ -498,19 +758,46 @@ class ChartAnalytics:
             json['name'] = years[i]
             json['type'] = 'bar'
             trace.append(json)
+        title = 'SGs Creation year/Internatonal NGOs <br>{location}' \
+                ''.format(location=location)
 
-        return trace
+        return [trace, title]
 
     def savingPerIntNgo(self):
-        sql = text('select count(saving_group.id),'
-                   ' ngo.id,'
-                   ' ngo.name'
-                   ' from saving_group,'
-                   ' ngo where saving_group.partner_id = ngo.id'
-                   ' AND saving_group.year = 2014'
-                   ' group by ngo.id')
+        query = 'select count(saving_group.id),'\
+                ' ngo.id,'\
+                ' ngo.name'\
+                ' from saving_group,'\
+                ' ngo, sector, district, province' \
+                ' where saving_group.partner_id = ngo.id'\
+                ' AND saving_group.year = :year' \
+                ' and sector.id = saving_group.sector_id' \
+                ' and sector.district_id = district.id' \
+                ' and province.id = district.province_id'
 
-        result = db.engine.execute(sql)
+        if self.ngo != ['null']:
+            mini_query = miniQueryNgo(self.ngo)
+            query += " and " + mini_query
+
+        location = ''
+        if self.province != 'null':
+            query += ' and province.id = :province'
+            location = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+
+        if self.district != 'null':
+            query += ' and district.id = :district'
+            location = 'in {district} district' \
+                       ''.format(district=get_district_name(self.district))
+
+        query += " group by ngo.id"
+        sql = text(query)
+
+        title = 'SGs per International NGOs <br>{location}' \
+                '<br>'.format(location=location)
+
+        result = db.engine.execute(sql, year=self.year, province=self.province,
+                                   district=self.district)
         values = list()
         labels = list()
         for row in result:
@@ -522,24 +809,51 @@ class ChartAnalytics:
         json['labels'] = labels
         json['type'] = 'pie'
 
-        return [json]
+        return [[json], title]
 
     def localPerIntNgo(self):
         sql = text('select distinct(funding_id)'
-                    ' from saving_group'
-                    ' where year = 2014')
-        result = db.engine.execute(sql)
+                   ' from saving_group'
+                   ' where year = :year')
+        result = db.engine.execute(sql, year=self.year)
         data = list()
         for row in result:
             funding_id = row[0]
             x = list()
             y = list()
-            sql = text('select distinct(partner_id),'
-                       ' count(id)'
-                       ' from saving_group'
-                       ' where funding_id = :funding_id'
-                       ' group by partner_id')
-            re = db.engine.execute(sql, funding_id=funding_id)
+
+            query = 'select distinct(saving_group.partner_id),'\
+                    ' count(saving_group.id)'\
+                    ' from saving_group, ngo, sector, district, province'\
+                    ' where saving_group.funding_id = :funding_id' \
+                    ' and saving_group.year=:year' \
+                    ' AND saving_group.partner_id = ngo.id' \
+                    ' and sector.id = saving_group.sector_id' \
+                    ' and sector.district_id = district.id' \
+                    ' and province.id = district.province_id'
+
+            if self.ngo != ['null']:
+                mini_query = miniQueryNgo(self.ngo)
+                query += " and " + mini_query
+
+            location = ''
+            if self.province != 'null':
+                query += ' and province.id = :province'
+                location = 'in {province} province' \
+                           ''.format(province=get_province_name(self.province))
+
+            if self.district != 'null':
+                query += ' and district.id = :district'
+                location = 'in {district} district' \
+                           ''.format(district=get_district_name(self.district))
+
+            query += " group by partner_id"
+
+
+
+            sql = text(query)
+            re = db.engine.execute(sql, funding_id=funding_id, year=self.year, province=self.province,
+                                   district=self.district)
             for item in re:
                 x.append(getNgoName(item[0]))
                 y.append(item[1])
@@ -549,7 +863,9 @@ class ChartAnalytics:
             json['name'] = getNgoName(funding_id)
             json['type'] = 'bar'
             data.append(json)
-        return data
+
+        title = 'Local NGOs SGs count per Intl NGOs <br>{location}'.format(location=location)
+        return [data, title]
 
     def sgFinancialInstitution(self):
         sql_sg = text('select count(saving_group.id),'
@@ -559,9 +875,39 @@ class ChartAnalytics:
                       ' province where sector.id = saving_group.sector_id'
                       ' AND district.id = sector.district_id'
                       ' AND province.id = district.province_id'
+                      ' AND saving_group.year=:year'
                       ' group by province.name'
                       ' order by province.name')
-        result = db.engine.execute(sql_sg)
+
+        if self.province != 'null':
+            sql_sg = text('select count(saving_group.id),'
+                          ' district.name'
+                          ' from saving_group,'
+                          ' sector, district,'
+                          ' province where sector.id = saving_group.sector_id'
+                          ' AND district.id = sector.district_id'
+                          ' AND province.id = district.province_id'
+                          ' AND province.id = :province'
+                          ' AND saving_group.year=:year'
+                          ' group by district.name'
+                          ' order by district.name')
+
+        if self.district != 'null':
+            sql_sg = text('select count(saving_group.id),'
+                          ' sector.name'
+                          ' from saving_group,'
+                          ' sector, district,'
+                          ' province where sector.id = saving_group.sector_id'
+                          ' AND district.id = sector.district_id'
+                          ' AND province.id = district.province_id'
+                          ' AND province.id = :province'
+                          ' AND district.id = :district'
+                          ' AND saving_group.year=:year'
+                          ' group by sector.name'
+                          ' order by sector.name')
+
+        result = db.engine.execute(sql_sg, year=self.year, province=self.province,
+                                   district=self.district)
         x = list()
         y = list()
         for row in result:
@@ -583,9 +929,43 @@ class ChartAnalytics:
                          ' where sector.id = bank.sector_id'
                          ' AND district.id = sector.district_id'
                          ' AND province.id = district.province_id'
+                         ' AND bank.year=:year'
                          ' group by province.name order'
                          ' by province.name')
-        result = db.engine.execute(sql_banks)
+
+        if self.province != 'null':
+            sql_banks = text('select sum(bank.count),'
+                             ' district.name'
+                             ' from bank,'
+                             ' sector,'
+                             ' district,'
+                             ' province'
+                             ' where sector.id = bank.sector_id'
+                             ' AND district.id = sector.district_id'
+                             ' AND province.id = district.province_id'
+                             ' AND province.id = :province'
+                             ' AND bank.year=:year'
+                             ' group by district.name order'
+                             ' by district.name')
+
+        if self.district != 'null':
+            sql_banks = text('select sum(bank.count),'
+                             ' sector.name'
+                             ' from bank,'
+                             ' sector,'
+                             ' district,'
+                             ' province'
+                             ' where sector.id = bank.sector_id'
+                             ' AND district.id = sector.district_id'
+                             ' AND province.id = district.province_id'
+                             ' AND province.id = :province'
+                             ' AND district.id = :district'
+                             ' AND bank.year=:year'
+                             ' group by sector.name order'
+                             ' by sector.name')
+
+        result = db.engine.execute(sql_banks, year=self.year, province=self.province,
+                                   district=self.district)
         x = list()
         y = list()
         for row in result:
@@ -604,9 +984,34 @@ class ChartAnalytics:
                        ' from mfi, sector, district, province '
                        'where sector.id = mfi.sector_id AND'
                        ' district.id = sector.district_id AND'
-                       ' province.id = district.province_id group by'
+                       ' province.id = district.province_id and mfi.year=:year group by'
                        ' province.name order by province.name')
-        result = db.engine.execute(sql_mfi)
+
+        if self.province != 'null':
+            sql_mfi = text('select sum(mfi.count),'
+                           ' district.name'
+                           ' from mfi, sector, district, province '
+                           'where sector.id = mfi.sector_id AND'
+                           ' district.id = sector.district_id AND'
+                           ' province.id = district.province_id'
+                           ' AND province.id = :province'
+                           ' and mfi.year=:year group by'
+                           ' district.name order by district.name')
+
+        if self.district != 'null':
+            sql_mfi = text('select sum(mfi.count),'
+                           ' sector.name'
+                           ' from mfi, sector, district, province '
+                           'where sector.id = mfi.sector_id AND'
+                           ' district.id = sector.district_id AND'
+                           ' province.id = district.province_id'
+                           ' AND province.id = :province'
+                           ' AND district.id = :district'
+                           ' and mfi.year=:year group by'
+                           ' sector.name order by sector.name')
+
+        result = db.engine.execute(sql_mfi, year=self.year, province=self.province,
+                                   district=self.district)
         x = list()
         y = list()
         for row in result:
@@ -625,10 +1030,38 @@ class ChartAnalytics:
                           ' from umurenge_sacco, sector, district, province'
                           ' where sector.id = umurenge_sacco.sector_id AND'
                           ' district.id = sector.district_id AND'
-                          ' province.id = district.province_id'
+                          ' province.id = district.province_id and umurenge_sacco.year=:year'
                           ' group by province.name'
                           ' order by province.name')
-        result = db.engine.execute(sql_usacco)
+
+        if self.province != 'null':
+            sql_usacco = text('select sum(umurenge_sacco.count),'
+                              ' district.name'
+                              ' from umurenge_sacco, sector, district, province'
+                              ' where sector.id = umurenge_sacco.sector_id AND'
+                              ' district.id = sector.district_id AND'
+                              ' province.id = district.province_id'
+                              ' AND province.id = :province'
+                              ' and umurenge_sacco.year=:year'
+                              ' group by district.name'
+                              ' order by district.name')
+
+        if self.district != 'null':
+            sql_usacco = text('select sum(umurenge_sacco.count),'
+                              ' sector.name'
+                              ' from umurenge_sacco, sector, district, province'
+                              ' where sector.id = umurenge_sacco.sector_id AND'
+                              ' district.id = sector.district_id AND'
+                              ' province.id = district.province_id'
+                              ' AND province.id = :province'
+                              ' AND district.id = :district'
+                              ' and umurenge_sacco.year=:year'
+                              ' group by sector.name'
+                              ' order by sector.name')
+
+        result = db.engine.execute(sql_usacco, year=self.year,
+                                   province=self.province,
+                                   district=self.district)
         x = list()
         y = list()
         for row in result:
@@ -648,9 +1081,45 @@ class ChartAnalytics:
                            ' where sector.id = non_umurenge_sacco.sector_id'
                            ' AND district.id = sector.district_id '
                            'AND province.id = district.province_id '
+                           'and non_umurenge_sacco.year=:year '
                            'group by province.name '
                            'order by province.name')
-        result = db.engine.execute(sql_nusacco)
+
+        location = ''
+        if self.province != 'null':
+            location = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+
+            sql_nusacco = text('select sum(non_umurenge_sacco.count),'
+                               ' district.name'
+                               ' from non_umurenge_sacco, sector, district, province'
+                               ' where sector.id = non_umurenge_sacco.sector_id'
+                               ' AND district.id = sector.district_id '
+                               'AND province.id = district.province_id '
+                               ' AND province.id = :province '
+                               'and non_umurenge_sacco.year=:year '
+                               'group by district.name '
+                               'order by district.name')
+
+        if self.district != 'null':
+            sql_nusacco = text('select sum(non_umurenge_sacco.count),'
+                               ' sector.name'
+                               ' from non_umurenge_sacco, sector, district, province'
+                               ' where sector.id = non_umurenge_sacco.sector_id'
+                               ' AND district.id = sector.district_id '
+                               'AND province.id = district.province_id '
+                               ' AND province.id = :province'
+                               ' AND district.id = :district '
+                               ' and non_umurenge_sacco.year=:year '
+                               'group by sector.name '
+                               'order by sector.name')
+
+            location = 'in {district} district' \
+                       ''.format(district=get_district_name(self.district))
+
+        result = db.engine.execute(sql_nusacco, year=self.year,
+                                   province=self.province,
+                                   district=self.district)
         x = list()
         y = list()
         for row in result:
@@ -662,7 +1131,10 @@ class ChartAnalytics:
         json_nusacco['name'] = 'Non-Umurenge Sacco'
         json_nusacco['type'] = 'bar'
 
-        return [json_sg, json_bank, json_mfi, json_usacco, json_nusacco]
+        title = 'SGs and Financial Institution <br>{location}' \
+                '<br>'.format(location=location)
+
+        return [[json_sg, json_bank, json_mfi, json_usacco, json_nusacco], title]
 
     def sgTelcoAgent(self):
         # telco agent
@@ -671,9 +1143,22 @@ class ChartAnalytics:
                          ' from telco_agent, province, district'
                          ' where telco_agent.district_id = district.id '
                          'and district.province_id = province.id '
+                         'and telco_agent.year=:year '
                          'group by province.name '
                          'order by province.name')
-        result = db.engine.execute(sql_telco)
+
+        if self.province != 'null':
+            sql_telco = text('select sum(telco_agent.count),'
+                             ' district.name'
+                             ' from telco_agent, province, district'
+                             ' where telco_agent.district_id = district.id '
+                             'and district.province_id = province.id '
+                             'and province.id = :province '
+                             'and telco_agent.year=:year '
+                             'group by district.name '
+                             'order by district.name')
+
+        result = db.engine.execute(sql_telco, year=self.year, province=self.province)
         x = list()
         y = list()
         for row in result:
@@ -691,9 +1176,22 @@ class ChartAnalytics:
                          ' from bank_agent, province, district'
                          ' where bank_agent.district_id = district.id '
                          'and district.province_id = province.id '
+                         'and bank_agent.year=:year '
                          'group by province.name '
                          'order by province.name')
-        result = db.engine.execute(sql_bank)
+
+        if self.province != 'null':
+            sql_bank = text('select sum(bank_agent.count),'
+                            ' district.name'
+                            ' from bank_agent, province, district'
+                            ' where bank_agent.district_id = district.id '
+                            'and district.province_id = province.id '
+                            'and province.id = :province '
+                            'and bank_agent.year=:year '
+                            'group by district.name '
+                            'order by district.name')
+
+        result = db.engine.execute(sql_bank, year=self.year, province=self.province)
         x = list()
         y = list()
         for row in result:
@@ -714,9 +1212,27 @@ class ChartAnalytics:
                       ' province where sector.id = saving_group.sector_id'
                       ' AND district.id = sector.district_id'
                       ' AND province.id = district.province_id'
+                      ' AND saving_group.year = :year'
                       ' group by province.name'
                       ' order by province.name')
-        result = db.engine.execute(sql_sg)
+        province = ''
+        if self.province != 'null':
+            province = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+
+            sql_sg = text('select count(saving_group.id),'
+                          ' district.name'
+                          ' from saving_group,'
+                          ' sector, district,'
+                          ' province where sector.id = saving_group.sector_id'
+                          ' AND district.id = sector.district_id'
+                          ' AND province.id = district.province_id'
+                          ' AND province.id = :province'
+                          ' AND saving_group.year = :year'
+                          ' group by district.name'
+                          ' order by district.name')
+
+        result = db.engine.execute(sql_sg, year=self.year, province=self.province)
         x = list()
         y = list()
         for row in result:
@@ -728,13 +1244,25 @@ class ChartAnalytics:
         json_sg['name'] = 'SGs'
         json_sg['type'] = 'bar'
 
-        return [json_sg, json_telco, json_bank]
+        title = 'SGs, Banks and Telco Agents <br>{province}' \
+                '<br>'.format(province=province)
+
+        return [[json_sg, json_telco, json_bank], title]
 
     def finscope(self):
         sg_2012 = text('select sum(member_female), sum(member_male) '
                   'from saving_group'
                   ' where year_of_creation = 2012')
-        result = db.engine.execute(sg_2012)
+        if self.province != 'null':
+            sg_2012 = text('select sum(saving_group.member_female), sum(saving_group.member_male) '
+                           'from saving_group, sector, district, province'
+                           ' where saving_group.year_of_creation = 2012'
+                           ' and saving_group.sector_id = sector.id'
+                           ' and district.id = sector.district_id'
+                           ' and province.id = district.province_id'
+                           ' and province.id = :province')
+
+        result = db.engine.execute(sg_2012, province=self.province)
         x = list()
         y = list()
         for row in result:
@@ -746,7 +1274,17 @@ class ChartAnalytics:
                        ' sum(member_male)'
                   ' from saving_group'
                   ' where year_of_creation = 2015')
-        result = db.engine.execute(sg_2015)
+
+        if self.province != 'null':
+            sg_2015 = text('select sum(saving_group.member_female), sum(saving_group.member_male) '
+                           'from saving_group, sector, district, province'
+                           ' where saving_group.year_of_creation = 2015'
+                           ' and saving_group.sector_id = sector.id'
+                           ' and district.id = sector.district_id'
+                           ' and province.id = district.province_id'
+                           ' and province.id = :province')
+
+        result = db.engine.execute(sg_2015, province=self.province)
         for row in result:
             sum_sg_2015 = convertNonType(row[0]) + convertNonType(row[1])
             x.append('SGs vs Finscope 2015')
@@ -760,7 +1298,14 @@ class ChartAnalytics:
 
         o_informal_2012 = text('select sum(other_informal)'
                                ' from finscope where year = 2012')
-        result = db.engine.execute(o_informal_2012)
+        if self.province != 'null':
+            o_informal_2012 = text('select sum(finscope.other_informal)'
+                                   ' from finscope, district, province where'
+                                   ' finscope.year = 2012'
+                                   ' and finscope.district_id = district.id'
+                                   ' and province.id = district.province_id'
+                                   ' and province.id = :province')
+        result = db.engine.execute(o_informal_2012, province=self.province)
         x = list()
         y = list()
         for row in result:
@@ -770,7 +1315,16 @@ class ChartAnalytics:
 
         o_informal_2015 = text('select sum(other_informal)'
                                ' from finscope where year = 2012')
-        result = db.engine.execute(o_informal_2015)
+
+        if self.province != 'null':
+            o_informal_2015 = text('select sum(finscope.other_informal)'
+                                   ' from finscope, district, province where'
+                                   ' finscope.year = 2015'
+                                   ' and finscope.district_id = district.id'
+                                   ' and province.id = district.province_id'
+                                   ' and province.id = :province')
+
+        result = db.engine.execute(o_informal_2015, province=self.province)
         for row in result:
             remain = convertNonType(row[0]) - sum_sg_2015
             x.append('SGs vs Finscope 2015')
@@ -784,7 +1338,14 @@ class ChartAnalytics:
 
         # Excluded data
         exluded_2012 = text('select sum(excluded) from finscope where year = 2012')
-        result = db.engine.execute(exluded_2012)
+        if self.province != 'null':
+            exluded_2012 = text('select sum(finscope.excluded) from finscope, district,'
+                                ' province'
+                                ' where finscope.year = 2012'
+                                ' and finscope.district_id = district.id'
+                                ' and province.id = district.province_id'
+                                ' and province.id = :province')
+        result = db.engine.execute(exluded_2012, province=self.province)
         x = list()
         y = list()
         for row in result:
@@ -792,7 +1353,17 @@ class ChartAnalytics:
             y.append(row[0])
 
         exluded_2015 = text('select sum(excluded) from finscope where year = 2015')
-        result = db.engine.execute(exluded_2015)
+        province = ''
+        if self.province != 'null':
+            province = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+            exluded_2015 = text('select sum(finscope.excluded) from finscope, district,'
+                                ' province'
+                                ' where finscope.year = 2015'
+                                ' and finscope.district_id = district.id'
+                                ' and province.id = district.province_id'
+                                ' and province.id = :province')
+        result = db.engine.execute(exluded_2015, province=self.province)
         for row in result:
             x.append('SGs vs Finscope 2015')
             y.append(row[0])
@@ -803,13 +1374,26 @@ class ChartAnalytics:
         json_excluded['name'] = 'Excluded'
         json_excluded['type'] = 'bar'
 
-        return [json_sg, json_other, json_excluded]
+        title = 'SGs members vs Finscope <br>{province}' \
+                '<br>'.format(province=province)
+
+        return [[json_sg, json_other, json_excluded], title]
 
     def finscope_sg(self):
         sg_2012 = text('select sum(member_female), sum(member_male) '
                        'from saving_group'
                        ' where year_of_creation = 2012')
-        result = db.engine.execute(sg_2012)
+
+        if self.province != 'null':
+            sg_2012 = text('select sum(saving_group.member_female), sum(saving_group.member_male) '
+                           'from saving_group, sector, district, province'
+                           ' where saving_group.year_of_creation = 2012'
+                           ' and saving_group.sector_id = sector.id'
+                           ' and district.id = sector.district_id'
+                           ' and province.id = district.province_id'
+                           ' and province.id = :province')
+
+        result = db.engine.execute(sg_2012, province=self.province)
         x = list()
         y = list()
         for row in result:
@@ -819,7 +1403,13 @@ class ChartAnalytics:
 
         o_informal_2012 = text('select sum(other_informal)'
                                ' from finscope where year = 2012')
-        result = db.engine.execute(o_informal_2012)
+        if self.province != 'null':
+            o_informal_2012 = text('select sum(finscope.other_informal)'
+                                   ' from finscope, district, province where finscope.year = 2012'
+                                   ' and finscope.district_id = district.id'
+                                   ' and province.id = district.province_id'
+                                   ' and province.id = :province')
+        result = db.engine.execute(o_informal_2012, province=self.province)
         for row in result:
             remain = convertNonType(row[0]) - sum_sg_2012
             x.append('Other Informal 2012')
@@ -834,7 +1424,15 @@ class ChartAnalytics:
         sg_2015 = text('select sum(member_female), sum(member_male) '
                        'from saving_group'
                        ' where year_of_creation = 2015')
-        result = db.engine.execute(sg_2015)
+        if self.province != 'null':
+            sg_2015 = text('select sum(saving_group.member_female), sum(saving_group.member_male) '
+                           'from saving_group, sector, district, province'
+                           ' where saving_group.year_of_creation = 2015'
+                           ' and saving_group.sector_id = sector.id'
+                           ' and district.id = sector.district_id'
+                           ' and province.id = district.province_id'
+                           ' and province.id = :province')
+        result = db.engine.execute(sg_2015, province=self.province)
         x = list()
         y = list()
         for row in result:
@@ -844,7 +1442,16 @@ class ChartAnalytics:
 
         o_informal_2015 = text('select sum(other_informal)'
                                ' from finscope where year = 2015')
-        result = db.engine.execute(o_informal_2015)
+        province = ''
+        if self.province != 'null':
+            o_informal_2015 = text('select sum(finscope.other_informal)'
+                                   ' from finscope, district, province where finscope.year = 2015'
+                                   ' and finscope.district_id = district.id'
+                                   ' and province.id = district.province_id'
+                                   ' and province.id = :province')
+            province = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+        result = db.engine.execute(o_informal_2015, province=self.province)
         for row in result:
             remain = convertNonType(row[0]) - sum_sg_2015
             x.append('Other Informal 2015')
@@ -855,17 +1462,34 @@ class ChartAnalytics:
         json_2015['labels'] = x
         json_2015['type'] = 'pie'
 
-        return [json_2012, json_2015]
+        title_2012 = 'Finscope: Other Informal Vs SGs member 2012 <br>{province}' \
+                '<br>'.format(province=province)
+
+        title_2015 = 'Finscope: Other Informal Vs SGs member 2015 <br>{province}' \
+                '<br>'.format(province=province)
+
+        return [[json_2012, title_2012], [json_2015, title_2015]]
 
     def finscope_all(self, year):
         finscope = text('select sum(finscope.banked), sum(finscope.other_formal),'
-                             ' sum(finscope.other_informal), sum(finscope.excluded),'
-                             ' province.name from finscope, province,'
-                             ' district where finscope.district_id = district.id'
-                             ' and province.id = district.province_id'
-                             ' and finscope.year = :year'
-                             ' group by province.name order by province.name')
-        result = db.engine.execute(finscope, year=year)
+                        ' sum(finscope.other_informal), sum(finscope.excluded),'
+                        ' province.name from finscope, province,'
+                        ' district where finscope.district_id = district.id'
+                        ' and province.id = district.province_id'
+                        ' and finscope.year = :year'
+                        ' group by province.name order by province.name')
+
+        if self.province != 'null':
+            finscope = text('select sum(finscope.banked), sum(finscope.other_formal),'
+                            ' sum(finscope.other_informal), sum(finscope.excluded),'
+                            ' district.name from finscope, province,'
+                            ' district where finscope.district_id = district.id'
+                            ' and province.id = district.province_id'
+                            ' and province.id = :province'
+                            ' and finscope.year = :year'
+                            ' group by district.name order by district.name')
+
+        result = db.engine.execute(finscope, year=year, province=self.province)
         x = list()
         banked = list()
         other_formal = list()
@@ -879,15 +1503,30 @@ class ChartAnalytics:
             excluded.append(row[3])
 
         sgs = text('select sum(saving_group.member_female),'
-                        ' sum(saving_group.member_male), province.name'
-                        ' from saving_group, province, district, sector'
-                        ' where saving_group.sector_id = sector.id'
-                        ' and sector.district_id = district.id'
-                        ' and district.province_id = province.id'
-                        ' and saving_group.year_of_creation = :year'
-                        ' group by province.name order by province.name')
+                   ' sum(saving_group.member_male), province.name'
+                   ' from saving_group, province, district, sector'
+                   ' where saving_group.sector_id = sector.id'
+                   ' and sector.district_id = district.id'
+                   ' and district.province_id = province.id'
+                   ' and saving_group.year_of_creation = :year'
+                   ' group by province.name order by province.name')
 
-        result = db.engine.execute(sgs, year=year)
+        province = ''
+        if self.province != 'null':
+            sgs = text('select sum(saving_group.member_female),'
+                       ' sum(saving_group.member_male), district.name'
+                       ' from saving_group, province, district, sector'
+                       ' where saving_group.sector_id = sector.id'
+                       ' and sector.district_id = district.id'
+                       ' and district.province_id = province.id'
+                       ' and province.id = :province'
+                       ' and saving_group.year_of_creation = :year'
+                       ' group by district.name order by district.name')
+
+            province = 'in {province} province' \
+                       ''.format(province=get_province_name(self.province))
+
+        result = db.engine.execute(sgs, year=year, province=self.province)
         sg = list()
         for row in result:
             sg.append(convertNonType(row[0]) + convertNonType(row[1]))
@@ -935,13 +1574,10 @@ class ChartAnalytics:
 
         json_other_informal['y'] = val
 
-        return [json_banked, json_other_formal, json_other_informal, json_excluded, json_sgs]
+        title = 'Finscope {year} <br>{province}' \
+                     '<br>'.format(province=province, year=year)
 
-        """ Next merge SGs array for substraction with other_informal to get the real value of 
-         other informal"""
-
-
-
+        return [[json_banked, json_other_formal, json_other_informal, json_excluded, json_sgs], title]
 
 
 class NumberAnalytics:
@@ -1027,8 +1663,36 @@ def getNgoName(id):
         return row[0]
 
 
-def runQuery(query):
-    result = db.engine.execute(query)
+def get_province_name(id):
+    province = text('select name from province where id = :id')
+    result = db.engine.execute(province, id=id)
+    for row in result:
+        return row[0]
+
+
+def get_district_name(id):
+    district = text('select name from district where id = :id')
+    result = db.engine.execute(district, id=id)
+    for row in result:
+        return row[0]
+
+
+def listNgo():
+    ngo = text('select distinct(saving_group.partner_id),'
+               ' ngo.name from saving_group,'
+               ' ngo where saving_group.partner_id = ngo.id')
+    result = db.engine.execute(ngo, id=id)
+    data = list()
+    for row in result:
+        json = dict()
+        json['id'] = row[0]
+        json['name'] = row[1]
+        data.append(json)
+    return data
+
+
+def runQuery(query, year):
+    result = db.engine.execute(query, year=year)
     data = list()
     for row in result:
         data.append([row[0], row[1]])

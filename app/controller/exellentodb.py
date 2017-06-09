@@ -151,7 +151,7 @@ class Excellentodb:
                 func = [
                     Checker(cols_value[0]).province(),
                     Checker(cols_value[1]).district(),
-                    Checker(cols_value[2]).sector(),
+                    Checker([cols_value[2], cols_value[1]]).sector(),
                     Checker(cols_value[3]).member(),
                     Checker(cols_value[4]).saved(),
                     Checker([cols_value[4], cols_value[5]]).borrow()
@@ -317,3 +317,57 @@ class Financialdb:
                 db.session.rollback()
         return 1
 
+
+class FinancialChecker:
+    def __init__(self, json, name):
+        self.json = json
+        self.name = name
+
+    def excel(self):
+        book = xlwt.Workbook()
+
+        # add new colour to palette and set RGB colour value
+        xlwt.add_palette_colour("custom_colour", 0x21)
+        book.set_colour_RGB(0x21, 255, 0, 0)
+
+        # now you can use the colour in styles
+        sheet1 = book.add_sheet('error')
+        style = xlwt.easyxf('pattern: pattern solid, fore_colour custom_colour')
+
+        error_file = True
+        header = get_header(self.json)
+
+        for row in range(0,1):
+            for col in range(len(header)):
+                sheet1.write(row, col, header[col])
+
+        for i, item in enumerate(self.json):
+            for col in range(len(header)):
+                if header[col] == 'province':
+                    if Checker(item[header[col]]).province():
+                        sheet1.write(i + 1, col, item[header[col]])
+                    else:
+                        sheet1.write(i + 1, col, item[header[col]], style)
+                elif header[col] == 'district':
+                    if Checker(item[header[col]]).district():
+                        sheet1.write(i + 1, col, item[header[col]])
+
+                    else:
+                        sheet1.write(i + 1, col, item[header[col]], style)
+                elif header[col] == 'sector':
+                    if Checker(item[header[col]]).sector():
+                        sheet1.write(i + 1, col, item[header[col]])
+                    else:
+                        sheet1.write(i + 1, col, item[header[col]], style)
+                else:
+                    sheet1.write(i + 1, col, item[header[col]])
+
+        filename = uniqid() +"_"+ self.name+ ".xls"
+        save = "/Users/muhireremy/cartix/test/data_2015/error/"+filename
+        book.save(save)
+        return save
+
+
+def get_header(json):
+    for item in json:
+        return item.keys()

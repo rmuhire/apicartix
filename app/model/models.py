@@ -38,11 +38,14 @@ class User(db.Model):
     gender = db.Column(db.String(10))
     update_key = db.Column(db.String(240))
     job_title = db.Column(db.String(80))
+    upload = db.Column(db.Integer)
+    signup = db.Column(db.Integer)
     ngo_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
 
     files = db.relationship('Files', backref='user', lazy='dynamic')
+    params = db.relationship('Params', backref='user', lazy='dynamic')
 
-    def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, update_key, regDate=None):
+    def __init__(self, names, username, email, phone, user_role, ngo_id, password, gender, update_key, upload, signup, regDate=None):
         self.names = names
         self.username = username
         self.email = email
@@ -51,7 +54,8 @@ class User(db.Model):
         self.password = password
         self.gender = gender
         self.update_key = update_key
-
+        self.upload = upload
+        self.signup = signup
         if regDate is None:
             regDate = datetime.utcnow()
         self.regDate = regDate
@@ -88,6 +92,21 @@ class SavingGroup(db.Model):
         self.partner_id = partner_id
         self.funding_id = funding_id
 
+        if regDate is None:
+            self.regDate = datetime.utcnow()
+
+
+class Params(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    upload = db.Column(db.Integer) # 1 activate | 0 deactivate
+    signup = db.Column(db.Integer) # 1 activate | 0 deactivate
+    regDate = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __init__(self, upload, user_id, signup, regDate=None):
+        self.upload = upload
+        self.signup = signup
+        self.user_id = user_id
         if regDate is None:
             self.regDate = datetime.utcnow()
 
